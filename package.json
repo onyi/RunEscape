@@ -1,0 +1,43 @@
+{
+  "name": "aa-mern-stack-project",
+  "version": "1.0.0",
+  "description": "MERN stack project",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon app.js",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/onyi/aA-mern-stack-project.git"
+  },
+  "author": "AA Students",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/onyi/aA-mern-stack-project/issues"
+  },
+  "homepage": "https://github.com/onyi/aA-mern-stack-project#readme",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "jwt-decode": "^2.2.0",
+    "mongoose": "^5.6.4",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-redux": "^7.1.0",
+    "react-router-dom": "^5.0.1",
+    "react-scripts": "^3.0.1",
+    "redux": "^4.0.4",
+    "redux-thunk": "^2.3.0",
+    "validator": "^11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  }
+}
