@@ -46,7 +46,7 @@ RunEscape's frontend serves the splash/login page, lobbies, and the highscore bo
 
 ### Group Members and Work Breakdown
 * Calvin Nguyen - Websockets, Game logic
-* Onyi Cho - Websockets, Routing, Backend game logic
+* Onyi Cho - Websockets, Routing, Backend game logic, React Component and Redux states
 * Ken Ha - User Models and Auth, Websockets
 * Jimmy Nguyen - Canvas, Websockets, Game logic
 
