@@ -51,16 +51,22 @@ RunEscape's frontend serves the splash/login page, lobbies, and the highscore bo
 * Jimmy Nguyen - Canvas, Websockets, Game logic
 
 #### July 13 & 14, Saturday and Sunday
-* All members completed MERN stack readings
-* Preliminary research on Canvas and websockets and game logic
-* Skeleton 
-* User Authentification
+* Completed MERN stack readings - All
+* Preliminary research on Canvas and websockets and game logic - All
+* Skeleton - All
+* Basic Websocket, Create Lobby, and Lobby chat implementations - Calvin
+* Start implementing Scoreboard - Onyi
+* User Authentification - Ken
 
 #### July 15, Monday
-* 
+* Canvas render assets - Ken, Jimmy
+* Continue to work on Lobby - Calvin
+* Continue to work on Scoreboard - Onyi
+* Game logic with frontend React state - All
 
 #### July 16, Tuesday
-*
+* Styling game objects on canvas - Ken, Jimmy
+* Game logic to store replay - Calvin, Onyi
 
 #### July 17, Wednesday
 * Production README completed
