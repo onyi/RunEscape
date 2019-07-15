@@ -59,14 +59,16 @@ RunEscape's frontend serves the splash/login page, lobbies, and the highscore bo
 * User Authentification - Ken
 
 #### July 15, Monday
-* Canvas render assets - Ken, Jimmy
+* Canvas render assets (Obstacles, Background, Player, etc) - Ken, Jimmy
 * Continue to work on Lobby - Calvin
 * Continue to work on Scoreboard - Onyi
-* Game logic with frontend React state - All
+* Game logic in frontend to utilize React & Redux state - All
+* Backend logic to handles win/lose in a Lobby - Onyi, Calvin
 
 #### July 16, Tuesday
 * Styling game objects on canvas - Ken, Jimmy
 * Game logic to store replay - Calvin, Onyi
+* Polish code - All
 
 #### July 17, Wednesday
 * Production README completed
