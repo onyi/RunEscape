@@ -57,8 +57,8 @@ class LobbyIndex extends React.Component {
         </form>
         <ul>
           {this.props.lobbies.map(lobby => (
-            <li key={`lobby-${lobby.id}`}>
-              <Link to={`lobbies/${lobby.id}`}>
+            <li key={`lobby-${lobby._id}`}>
+              <Link to={`lobbies/${lobby._id}`}>
                 {lobby.name}
               </Link>
             </li>

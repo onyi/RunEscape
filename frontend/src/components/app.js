@@ -7,6 +7,8 @@ import MainPage from './main/main_page';
 import LoginFormContainer from './session/login_form_container';
 import SignupFormContainer from './session/signup_form_container';
 import LobbyIndexContainer from './lobby/lobby_index_container';
+import LobbyContainer from './lobby/lobby_container';
+
 import ScoreboardContainer from './scoreboard/scoreboard_container';
 
 const App = () => (
@@ -17,6 +19,7 @@ const App = () => (
       <AuthRoute exact path="/login" component={LoginFormContainer} />
       <AuthRoute exact path="/signup" component={SignupFormContainer} />
       <AuthRoute exact path="/scoreboard" component={ScoreboardContainer} />
+      <ProtectedRoute path="/lobbies" component={LobbyContainer} />
     </Switch>
     <ProtectedRoute exact path="/" component={LobbyIndexContainer} />
   </div>

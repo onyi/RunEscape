@@ -8,6 +8,9 @@ const lobbies = require("./routes/api/lobbies");
 const bodyParser = require('body-parser');
 const User = require('./models/User');
 const passport = require('passport');
+const http = require('http').Server(app);
+const io = require('socket.io')(http, {});
+
 
 // app.get("/", (req, res) => res.send("Hello World"));
 
@@ -29,4 +32,28 @@ app.use("/api/scores", scores);
 
 const port = process.env.PORT || 5000;
 
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+let SOCKET_LIST = {};
+// let PLAYER_LIST = {};
+
+io.on('connection', socket => {
+  console.log("User connected")
+  
+  socket.id = Math.random();
+  while(SOCKET_LIST[socket.id]) {
+    socket.id = Math.random();
+  }
+  SOCKET_LIST[socket.id] = socket;
+  
+  socket.on('disconnect', () => {
+    delete SOCKET_LIST[socket.id];
+    // delete PLAYER_LIST[socket.id];
+  });
+  
+  socket.on('chat message', ({ lobbyId, msg }) => {
+    console.log(`Got message: ${msg} on ${lobbyId}`)
+    io.emit(`chat message to ${lobbyId}`, msg);
+  })
+});
+
+
+const server = http.listen(port, () => console.log(`Server is running on port ${port}`));
