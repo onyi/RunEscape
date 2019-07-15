@@ -21,12 +21,12 @@ export const receiveErrors = errors => ({
 
 export const fetchLobbies = () => dispatch => (
   APIUtil.fetchLobbies()
-    .then(lobbies => dispatch(receiveLobbies(lobbies)),
+    .then(res => dispatch(receiveLobbies(res.data)),
       err => dispatch(receiveErrors(err.response.data)))
 );
 
 export const createLobby = lobby => dispatch => (
   APIUtil.createLobby(lobby)
-    .then(lobby => dispatch(receiveLobby(lobby)),
+    .then(res => dispatch(receiveLobby(res.data)),
       err => dispatch(receiveErrors(err.response.data)))
 );

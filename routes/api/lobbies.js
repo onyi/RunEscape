@@ -20,7 +20,7 @@ router.post('/create', (req, res) => {
   }
 
   const newLobby = new Lobby({
-    name: req.body.name,
+    name: req.body.name
   })
 
   newLobby

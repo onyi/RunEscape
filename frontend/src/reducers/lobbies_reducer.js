@@ -8,7 +8,7 @@ const initialState = {
 
 export default function (state = initialState, action) {
   switch (action.type) {
-    case RECEIVE_LOBBIES:      
+    case RECEIVE_LOBBIES:
       return action.lobbies;
     case RECEIVE_LOBBY:
       let nextState = Object.assign({}, state);
