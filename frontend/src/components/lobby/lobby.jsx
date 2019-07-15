@@ -7,8 +7,7 @@ class LobbyIndex extends React.Component {
     super(props)
 
     this.state = {
-      name: "",
-      errors: {}
+      text: ""
     }
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -16,17 +15,11 @@ class LobbyIndex extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchLobbies();
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({ errors: nextProps.errors })
-  }
-  
   handleSubmit(e) {
     e.preventDefault();
 
-    this.props.createLobby(this.state);
   }
 
   update(field) {
@@ -57,11 +50,11 @@ class LobbyIndex extends React.Component {
         </form>
         <ul>
           {this.props.lobbies.map(lobby => (
-            <li key={`lobby-${lobby.id}`}>
-              <Link to={`lobbies/${lobby.id}`}>
+            <Link to={`lobbies/${lobby.id}`}>
+              <li key={`lobby-${lobby.id}`}>
                 {lobby.name}
-              </Link>
-            </li>
+              </li>
+            </Link>
           ))}
         </ul>
       </div>
