@@ -9,7 +9,7 @@ router.get('/', (req, res) => {
   Lobby.find()
     .sort({ date: -1 })
     .then(lobbies => res.json(lobbies))
-    .catch(err => res.status(404).json({ notlobbiesfound: "No lobbies found" }))
+    .catch(err => res.status(404).json({ nolobbiesfound: "No lobbies found" }))
 });
 
 router.post('/create', (req, res) => {
