@@ -6,11 +6,11 @@ import {
   getScores,
   getScoresByUserId,
   postScore
-} from '../../util/score_api_util';
+} from '../../actions/score_actions';
 
-const msp = (state = { entities: { scores: {} }}, ownProps) => {
+const msp = (state = {}, ownProps) => {
   return {
-    // scores: state.entities.scores
+    scores: state.entities.scores
   }
 };
 

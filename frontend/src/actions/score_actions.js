@@ -21,7 +21,7 @@ export const receiveScoreErrors = (errors) => {
 
 export const getScores = () => dispatch => {
   ScoreboardApiUtil.getScores()
-    .then( scores =>  dispatch(receiveScores(scores)))
+    .then( scores =>  dispatch(receiveScores(scores.data)))
     .catch(errors => dispatch(receiveScoreErrors(errors)))
 }
 
