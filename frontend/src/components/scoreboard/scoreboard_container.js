@@ -16,7 +16,9 @@ const msp = (state = { entities: { scores: {} }}, ownProps) => {
 
 const mdp = dispatch => {
   return {
-    getScores: () => dispatch(getScores())
+    getScores: () => dispatch(getScores()),
+    getScoresByUserId: (userId) => dispatch(getScoresByUserId(userId)),
+    postScore: (value) => dispatch(postScore(value))
   }
 };
 
