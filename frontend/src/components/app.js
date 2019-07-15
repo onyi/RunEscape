@@ -12,7 +12,7 @@ import ScoreboardContainer from './scoreboard/scoreboard_container';
 const App = () => (
   <div>
     <NavBarContainer />
-    <div class="main-container">
+    <div className="main-container">
       <Switch>
         <AuthRoute exact path="/" component={MainPage} />
         <AuthRoute exact path="/login" component={LoginFormContainer} />
