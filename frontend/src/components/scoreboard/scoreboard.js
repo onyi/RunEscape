@@ -4,7 +4,7 @@ class Scoreboard extends React.Component {
   constructor(props){
     super(props);
     this.handleSubmit = this.handleSubmit.bind(this);
-
+    
 
   }
 
@@ -17,9 +17,16 @@ class Scoreboard extends React.Component {
   }
 
   render(){
+
+    // console.log(`${JSON.stringify(this.props.scores)}`);
+    let scores = this.props.scores ? this.props.scores.map(score => <li><p>{score.value}</p></li>) : ""
+
     return (
       <div className="scoreboard-container">
         <h1>Scoreboard</h1>
+        <ul>
+          {scores}
+        </ul>
       </div>
     );
   }

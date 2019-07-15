@@ -10,7 +10,7 @@ import {
 
 const msp = (state = {}, ownProps) => {
   return {
-    scores: state.entities.scores
+    scores: Object.values(state.entities.scores)
   }
 };
 
