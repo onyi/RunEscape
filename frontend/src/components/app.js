@@ -12,13 +12,15 @@ import ScoreboardContainer from './scoreboard/scoreboard_container';
 const App = () => (
   <div>
     <NavBarContainer />
-    <Switch>
-      <AuthRoute exact path="/" component={MainPage} />
-      <AuthRoute exact path="/login" component={LoginFormContainer} />
-      <AuthRoute exact path="/signup" component={SignupFormContainer} />
-      <AuthRoute exact path="/scoreboard" component={ScoreboardContainer} />
-    </Switch>
-    <ProtectedRoute exact path="/" component={LobbyIndexContainer} />
+    <div class="main-container">
+      <Switch>
+        <AuthRoute exact path="/" component={MainPage} />
+        <AuthRoute exact path="/login" component={LoginFormContainer} />
+        <AuthRoute exact path="/signup" component={SignupFormContainer} />
+        <AuthRoute exact path="/scoreboard" component={ScoreboardContainer} />
+      </Switch>
+      <ProtectedRoute exact path="/" component={LobbyIndexContainer} />
+    </div>
   </div>
 );
 

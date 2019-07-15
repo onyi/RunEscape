@@ -1,0 +1,44 @@
+.navbar{
+  // max-width: 70%;
+  // max-height: 50%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  a {
+    font-size: 36px;
+    color: $old-school-green;
+    padding: 0.5em 0.5em;
+    margin: 0 5px;
+    text-decoration: none;
+    display: inline-block;
+    :hover {
+      text-decoration: underline;
+      border: 1px $lightest-gray solid;
+
+    }
+  }
+  
+}
+
+.logout{
+  padding: 20px;
+  button {
+    font-size: 20px;
+    color: $old-school-green;
+    background: $dark-theme;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 36px;
+    :hover{
+      border: 1px solid $lightest-gray;
+      border-radius: 5px;
+    }
+
+  }
+}
+
+.logo{
+  font-size: 50px
+}

@@ -1,0 +1,16 @@
+html {
+  height: 100%;
+}
+
+body{
+  font-family: 'Silver', Fallback, sans-serif;
+  background: $dark-theme;
+  color: $dark-theme-text;
+  margin: 0 auto;
+  max-width: 1200px;
+  background-image: url('assets/torch/torch-transparent-pixel-art-15-transparent.png'), url('assets/torch/torch-transparent-pixel-art-15-transparent.png'), url('assets/fire/GIF.gif');
+  background-position: 0% 20%, 100% 20%, 50% 100%;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-size: 500px, 500px, 200px;
+  min-height: 100%;
+}
