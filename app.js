@@ -8,10 +8,17 @@ const lobbies = require("./routes/api/lobbies");
 const bodyParser = require('body-parser');
 const User = require('./models/User');
 const passport = require('passport');
+const path = require('path');
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('frontend/build'));
+  app.get('/', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'));
+  })
+}
+
 const http = require('http').Server(app);
 const io = require('socket.io')(http, {});
-
-
 // app.get("/", (req, res) => res.send("Hello World"));
 
 mongoose
@@ -37,18 +44,18 @@ let SOCKET_LIST = {};
 
 io.on('connection', socket => {
   console.log("User connected")
-  
+
   socket.id = Math.random();
   while(SOCKET_LIST[socket.id]) {
     socket.id = Math.random();
   }
   SOCKET_LIST[socket.id] = socket;
-  
+
   socket.on('disconnect', () => {
     delete SOCKET_LIST[socket.id];
     // delete PLAYER_LIST[socket.id];
   });
-  
+
   socket.on('chat message', ({ lobbyId, msg }) => {
     console.log(`Got message: ${msg} on ${lobbyId}`)
     io.emit(`chat message to ${lobbyId}`, msg);
