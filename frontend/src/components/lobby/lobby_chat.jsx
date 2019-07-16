@@ -21,7 +21,9 @@ class LobbyChat extends React.Component {
   subscribeToChat(lobbyId) {
     console.log(`Subscribed to: 'chat message on ${lobbyId}'`)
     this.socket.on(`chat message to ${lobbyId}` , function (msg) {
-      document.getElementById('messages').insertAdjacentHTML('beforeend', `<div>${msg}</div>`)
+      let element = document.getElementById("messages");
+      element.insertAdjacentHTML('beforeend', `<div>${msg}</div>`)
+      element.scrollTop = element.scrollHeight;
     });
   }
 
@@ -40,8 +42,14 @@ class LobbyChat extends React.Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    this.setState({ msg: "" });
-    this.socket.emit("chat message", { lobbyId: this.state.lobby._id, msg: `${this.props.currentUser.username}: ${this.state.msg}` })
+    if(this.state.msg !== "") {
+      this.setState({ msg: "" });
+      this.socket.emit("chat message", 
+        { 
+          lobbyId: this.state.lobby._id, 
+          msg: `${this.props.currentUser.username}: ${this.state.msg}` 
+        })
+    } 
   }
 
   update(field) {
@@ -71,12 +79,12 @@ class LobbyChat extends React.Component {
           <form onSubmit={this.handleSubmit}>
             <input 
               type="text" 
-              placeholder="Message" 
+              placeholder="Chat here" 
               autoComplete="off" 
               value={this.state.msg}
               onChange={this.update('msg')}
             />
-            <button>Send</button>
+            {/* <button>Send</button> */}
           </form>
         </div>
       </div>
