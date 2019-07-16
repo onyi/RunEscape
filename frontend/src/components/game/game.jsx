@@ -227,8 +227,6 @@ class Game extends React.Component {
       dx: 8,
       frame: 0,
 
-
-
       draw: function () {
         for (let i = 0; i < this.position.length; i++) {
           let p = this.position[i];
@@ -262,7 +260,7 @@ class Game extends React.Component {
             state.current = state.over;
             skeleton.reset();
           }
-          
+
           p.x -= this.dx;
 
           //removes skeleton 
