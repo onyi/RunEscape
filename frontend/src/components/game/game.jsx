@@ -4,6 +4,7 @@ import getready from '../../assets/game/get-ready.png';
 import gameover from '../../assets/game/game-over.png';
 import backgroundimg from '../../assets/game/background.png';
 import foregroundimg from '../../assets/game/foreground.png';
+import skeletonimg from '../../assets/game/skeletonatk.png'
 
 class Game extends React.Component {
 
@@ -30,6 +31,9 @@ class Game extends React.Component {
     const charaSprite = new Image();
     charaSprite.src = run;
 
+    const skeletonSprite = new Image();
+    skeletonSprite.src = skeletonimg;
+
     const ready = new Image();
     ready.src = getready;
 
@@ -41,6 +45,8 @@ class Game extends React.Component {
 
     const foreground = new Image();
     foreground.src = foregroundimg;
+
+
 
     //game state
     const state = {
@@ -134,7 +140,7 @@ class Game extends React.Component {
       frame: 0,
 
       gravity: 0.25,
-      jump: 4.6,
+      jump: 5.6,
       speed: 0,
 
       draw: function () {
@@ -146,7 +152,6 @@ class Game extends React.Component {
       },
 
       hop: function () {
-        console.log(this.y)
         if (this.jumpCount > 0) {
           this.jumpCount -= 1;
           this.y = this.y - 1;
@@ -185,6 +190,101 @@ class Game extends React.Component {
         this.speed = 0;
       }
     }
+
+    //skeleton monster 
+
+    const skeleton = {
+
+      position: [],
+
+      animation: [
+
+        { sX: 731, sY: 0 },
+        { sX: 688, sY: 0 },
+        { sX: 645, sY: 0 },
+        { sX: 559, sY: 0 },
+        { sX: 516, sY: 0 },
+        { sX: 473, sY: 0 },
+        { sX: 430, sY: 0 },
+        { sX: 387, sY: 0 },
+        { sX: 344, sY: 0 },
+        { sX: 301, sY: 0 },
+        { sX: 258, sY: 0 },
+        { sX: 215, sY: 0 },
+        { sX: 172, sY: 0 },
+        { sX: 129, sY: 0 },
+        { sX: 86, sY: 0 },
+        { sX: 43, sY: 0 },
+        { sX: 0, sY: 0 },
+
+      ],
+
+
+      w: 43,
+      h: 37,
+      dx: 8,
+      frame: 0,
+
+
+
+      draw: function () {
+        for (let i = 0; i < this.position.length; i++) {
+          let p = this.position[i];
+          let skeleton = this.animation[this.frame]
+
+          ctx.drawImage(skeletonSprite, skeleton.sX, skeleton.sY, this.w, this.h, p.x, p.y, this.w * 2, this.h * 2);
+        }
+
+      },
+
+      update: function () {
+        this.period = state.current == state.getReady ? 6 : 5;
+        this.frame += frames % this.period == 0 ? 1 : 0;
+        this.frame = this.frame % this.animation.length;
+
+
+        if (state.current !== state.game) return;
+
+        //pushes skeletons in arr 
+        if (frames % (50 + (Math.floor(Math.random() * 25))) == 0) {
+          this.position.push({
+            x: cvs.width,
+            y: cvs.height - fg.h - 30,
+          });
+        }
+
+        for (let i = 0; i < this.position.length; i++) {
+          let p = this.position[i];
+
+          if (chara.x> p.x && chara.x < p.x + this.w && chara.y > p.y && chara.y < p.y + this.h) {
+            state.current = state.over;
+            skeleton.reset();
+          }
+
+          p.x -= this.dx;
+
+          //removes skeleton 
+          if (p.x + this.w + this.w <= 0) {
+            this.position.shift();
+          }
+        }
+
+      },
+
+      reset: function () {
+        this.position = [];
+      },
+
+
+    }
+
+
+
+
+
+
+
+
 
     //get ready message
     const getReady = {
@@ -225,6 +325,7 @@ class Game extends React.Component {
       bg.draw();
       fg.draw();
       chara.draw();
+      skeleton.draw();
       getReady.draw();
       gameOver.draw();
     }
@@ -232,6 +333,7 @@ class Game extends React.Component {
     //update
     function update() {
       chara.update();
+      skeleton.update();
       bg.update();
       fg.update();
     }
