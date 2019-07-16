@@ -126,15 +126,17 @@ class Game extends React.Component {
     //chara
     const chara = {
       animation: [
-        { sX: 0, sY: 0 },
-        { sX: 32, sY: 0 },
-        { sX: 64, sY: 0 },
-        { sX: 96, sY: 0 },
+        { sX: 0, sY: 1, w: 86, h: 64 },
+        { sX: 91, sY: 0, w: 83, h: 66 },
+        { sX: 180, sY: 1, w: 81, h: 65 },
+        { sX: 265, sY: 0, w: 82, h: 66 },
+        { sX: 352, sY: 2, w: 87, h: 64 },
+        { sX: 443, sY: 0, w: 84, h: 66 },
+        { sX: 532, sY: 1, w: 81, h: 65},
+        { sX: 617, sY: 0, w: 82, h: 66},
       ],
       x: 100,
       y: 388,
-      w: 31,
-      h: 41,
       jumpCount: 0,
 
       frame: 0,
@@ -146,7 +148,7 @@ class Game extends React.Component {
       draw: function () {
         let chara = this.animation[this.frame];
 
-        ctx.drawImage(charaSprite, chara.sX, chara.sY, this.w, this.h, this.x, this.y, this.w, this.h);
+        ctx.drawImage(charaSprite, chara.sX, chara.sY, chara.w, chara.h, this.x, this.y, chara.w, chara.h);
 
         // ctx.restore();
       },
@@ -164,17 +166,17 @@ class Game extends React.Component {
         this.period = state.current == state.getReady ? 10 : 5;
         //increment the frame by 1, each period
         this.frame += frames % this.period == 0 ? 1 : 0;
-        //frame goes from 0 to 4, then again to 0
+        //frame goes from 0 to 8, then again to 0
         this.frame = this.frame % this.animation.length;
 
         if (state.current == state.getReady) {
-          this.y = cvs.height - fg.h; //reset position of the chara after the game over
+          this.y = cvs.height - fg.h - 30; //reset position of the chara after the game over
         } else {
           this.speed += this.gravity;
 
           //ground
-          if (this.y >= cvs.height - fg.h) {
-            this.y = cvs.height - fg.h;
+          if (this.y >= cvs.height - fg.h - 30) {
+            this.y = cvs.height - fg.h - 30;
             this.speed = 0;
             this.jumpCount = 2;
           }
@@ -260,7 +262,7 @@ class Game extends React.Component {
             state.current = state.over;
             skeleton.reset();
           }
-
+          
           p.x -= this.dx;
 
           //removes skeleton 
