@@ -1,5 +1,6 @@
 import React from 'react';
 import run from '../../assets/game/run.png';
+import charajump from '../../assets/game/char.png'
 import getready from '../../assets/game/get-ready.png';
 import gameover from '../../assets/game/game-over.png';
 import backgroundimg from '../../assets/game/background.png';
@@ -9,6 +10,7 @@ import jumpsound from '../../assets/game/jump_sound_effect.mp3';
 import hitsound from '../../assets/game/hit.wav';
 import diesound from '../../assets/game/die.wav';
 import suddenatksound from '../../assets/game/sudden_attack.mp3';
+import gg from '../../assets/game/gg.mp3';
 
 
 class Game extends React.Component {
@@ -32,6 +34,9 @@ class Game extends React.Component {
     let frames = 0;
 
     //load sprite image
+    
+    const spritejump = new Image();
+    spritejump.src = charajump; 
 
     const charaSprite = new Image();
     charaSprite.src = run;
@@ -63,6 +68,8 @@ class Game extends React.Component {
     const gameplay_music = new Audio();
     gameplay_music.src = suddenatksound; 
 
+    const gameover__music = new Audio();
+    gameover__music.src = gg;
 
 
 
@@ -80,6 +87,9 @@ class Game extends React.Component {
       if (e.keyCode === 32) {
         switch (state.current) {
           case state.getReady:
+            gameplay_music.currentTime = 0; 
+            gameover__music.pause();
+            gameover__music.currentTime = 0;
             gameplay_music.play();
             state.current = state.game;
             
@@ -145,8 +155,11 @@ class Game extends React.Component {
       }
     }
 
+    
+
     //chara
     const chara = {
+
       animation: [
         { sX: 0, sY: 1, w: 86, h: 64 },
         { sX: 91, sY: 0, w: 83, h: 66 },
@@ -157,6 +170,18 @@ class Game extends React.Component {
         { sX: 532, sY: 1, w: 81, h: 65},
         { sX: 617, sY: 0, w: 82, h: 66},
       ],
+
+      jump_animation: [
+        { sX: 8, sY: 2024, w: 45, h: 80 },
+        { sX: 8, sY: 2024, w: 45, h: 80 },
+        { sX: 55, sY: 2015, w: 63, h: 74 },
+        { sX: 115, sY: 2015, w: 62, h: 85 },
+        { sX: 180, sY: 2015, w: 60, h: 87 },
+        { sX: 240, sY: 2015, w: 56, h: 86 },
+        { sX: 300, sY: 2015, w: 65, h: 89 },
+        { sX: 363, sY: 2015, w: 66, h: 89 },
+      ],
+
       x: 100,
       y: 388,
       jumpCount: 0,
@@ -169,10 +194,16 @@ class Game extends React.Component {
 
       draw: function () {
         let chara = this.animation[this.frame];
+        let jumping = this.jump_animation[this.frame]
 
-        ctx.drawImage(charaSprite, chara.sX, chara.sY, chara.w, chara.h, this.x, this.y, chara.w, chara.h);
+        if (this.y < cvs.height - fg.h - 30) {
+          ctx.drawImage(spritejump, jumping.sX, jumping.sY, jumping.w, jumping.h, this.x, this.y, jumping.w, jumping.h);        
+        } else {
+          ctx.drawImage(charaSprite, chara.sX, chara.sY, chara.w, chara.h, this.x, this.y, chara.w, chara.h);
+        }
+        
+      
 
-        // ctx.restore();
       },
 
       hop: function () {
@@ -181,14 +212,12 @@ class Game extends React.Component {
           this.y = this.y - 1;
           this.speed = -this.jump;
           jump.currentTime = 0;
-          
-         
         }
       },
 
       update: function () {
         //if the game state is get ready state, the chara must run slowly
-        this.period = state.current == state.getReady ? 10 : 5;
+        this.period = state.current == state.getReady ? 30 : 6;
         //increment the frame by 1, each period
         this.frame += frames % this.period == 0 ? 1 : 0;
         //frame goes from 0 to 8, then again to 0
@@ -198,7 +227,6 @@ class Game extends React.Component {
           this.y = cvs.height - fg.h - 30; //reset position of the chara after the game over
         } else {
           this.speed += this.gravity;
-
           //ground
           if (this.y >= cvs.height - fg.h - 30) {
             this.y = cvs.height - fg.h - 30;
@@ -207,6 +235,7 @@ class Game extends React.Component {
           }
 
           //air 
+
           if (this.y < cvs.height - fg.h) {
             this.y += this.speed;
           }
@@ -257,7 +286,7 @@ class Game extends React.Component {
           let p = this.position[i];
           let skeleton = this.animation[this.frame]
 
-          ctx.drawImage(skeletonSprite, skeleton.sX, skeleton.sY, this.w, this.h, p.x, p.y, this.w * 2, this.h * 2);
+          ctx.drawImage(skeletonSprite, skeleton.sX, skeleton.sY, this.w, this.h, p.x, p.y, this.w * 2.4, this.h * 2.4);
         }
 
       },
@@ -274,20 +303,25 @@ class Game extends React.Component {
         if (frames % (50 + (Math.floor(Math.random() * 25))) == 0) {
           this.position.push({
             x: cvs.width,
-            y: cvs.height - fg.h - 30,
+            y: cvs.height - fg.h - 43,
           });
         }
 
         for (let i = 0; i < this.position.length; i++) {
           let p = this.position[i];
 
-          if (chara.x> p.x && chara.x < p.x + this.w && chara.y > p.y && chara.y < p.y + this.h) {
-            hit.play();
-            // die.play();
-            gameplay_music.pause(); 
-            state.current = state.over;
+          if (
+              chara.x + 12 > p.x && 
+              chara.x - 12 < p.x + this.w && 
+              chara.y + 12 > p.y && 
+              chara.y - 12 < p.y + this.h) {
 
-            skeleton.reset();
+                hit.play();
+                gameplay_music.pause(); 
+                state.current = state.over;
+                gameover__music.play();
+
+                skeleton.reset();
           }
 
           p.x -= this.dx;
