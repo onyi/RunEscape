@@ -26,7 +26,7 @@ class Game extends React.Component {
   renderGame() {
     const cvs = document.getElementById('run-escape');
     const ctx = cvs.getContext('2d');
-    const rng = new Prando("seed");
+    const rng = new Prando("seedasdasd");
 
     //game vars and consts
     let frames = 0;
@@ -40,6 +40,7 @@ class Game extends React.Component {
       entities: []
     }
     state.entities.push(new Player(cvs, ctx, state.localPlayerId));
+    state.entities.push(new Player(cvs, ctx, "another player"));
     state.entities.push(new Skeleton(cvs, ctx));
 
     //load sprite image
@@ -68,7 +69,6 @@ class Game extends React.Component {
         switch (state.current) {
           case state.getReady:
             gameplay_music.currentTime = 0; 
-            gameover_music.pause();
             gameover_music.currentTime = 0;
             gameplay_music.play();
             state.current = state.game;
@@ -79,9 +79,9 @@ class Game extends React.Component {
             player[0].hop();
             break;
           case state.over:
-            gameplay_music.pause();
-            gameover_music.play();
             state.current = state.getReady;
+            removeSkeletons();
+            gameover_music.pause();   
             break;
         }
       }
@@ -170,9 +170,24 @@ class Game extends React.Component {
 
     function generateSkeletons() {
       
-      if (frames % (50 + (Math.floor(rng.next() * 25))) == 0) {
+      if (frames % (50 + (Math.floor(rng.next() * 25))) == 0 && state.current == state.game) {
         state.entities.push(new Skeleton(cvs, ctx));
       }
+    }
+
+    function removeSkeletons() {
+
+      // while (typeof state.entities[state.entities.length - 1] === "Skeleton") {
+        //   delete state.entitites[state.entities.length - 1];
+        // }
+        
+      for (let i = 0; i < state.entities.length; i++) {
+        if( state.entities[i] instanceof Skeleton ) {
+          delete state.entities[i];
+          i--;
+        }
+      }
+
     }
 
     function draw() {
@@ -199,6 +214,10 @@ class Game extends React.Component {
       frames++;
 
       requestAnimationFrame(loop);
+      if (state.current === state.over) {
+        gameplay_music.pause();
+        gameover_music.play();
+      }
     }
 
     loop();

@@ -1,5 +1,6 @@
 
-import skeletonimg from '../../assets/game/skeletonatk.png'
+import skeletonimg from '../../assets/game/skeletonatk.png';
+import hitsound from '../../assets/game/hit.wav';
 
 class Skeleton {
   constructor(canvas, context) {
@@ -11,7 +12,7 @@ class Skeleton {
 
     // this.position = [];
     this.x = this.cvs.width;
-    this.y = this.cvs.height - this.fg.h - 30;
+    this.y = this.cvs.height - this.fg.h - 45;
 
     this.w = 43;
     this.h = 37;
@@ -19,6 +20,8 @@ class Skeleton {
     
     this.sprite = new Image();
     this.sprite.src = skeletonimg;
+    this.hitSfx = new Audio();
+    this.hitSfx.src = hitsound;
     this.frameTicks = 0;
     this.animationFrame = 0;
     this.animation = [
@@ -43,16 +46,14 @@ class Skeleton {
 }
 
   draw() {
-    // for (let i = 0; i < this.position.length; i++) {
-      // let p = this.position[i];
-      let skeleton = this.animation[this.animationFrame];
+    let skeleton = this.animation[this.animationFrame];
 
-      this.ctx.drawImage(this.sprite, skeleton.sX, skeleton.sY, this.w, this.h, this.x, this.y, this.w * 2, this.h * 2);
-    // }
-
+    this.ctx.drawImage(this.sprite, skeleton.sX, skeleton.sY, this.w, this.h, this.x, this.y, this.w * 2, this.h * 2);
   }
 
   update(state) {
+    if (state.current !== state.game) return;
+    
     this.period = state.current == state.getReady ? 6 : 5;
     
     this.frameTicks++;
@@ -63,48 +64,18 @@ class Skeleton {
 
     this.animationFrame = this.animationFrame % this.animation.length;
 
-
-    if (state.current !== state.game) return;
-
-    //pushes skeletons in arr 
-    // Implement in PRANDO !!!
-    // if (frames % (50 + (Math.floor(Math.random() * 25))) == 0) {
-    //   this.position.push({
-    //     x: this.cvs.width,
-    //     y: this.cvs.height - fg.h - 30,
-    //   });
-    // }
-
     let players = state.entities.filter(entity => typeof Player)
     let player = players.filter(player => state.localPlayerId === player.playerId);
-    if (player.x > this.x && 
-        player.x < this.x + this.w && 
-        player.y > this.y && 
-        player.y < this.y + this.h) {
+    player = player[0];
+    if (player.x + 12 > this.x && 
+        player.x - 12 < this.x + this.w && 
+        player.y + 12 > this.y && 
+        player.y - 12 < this.y + this.h) {
+      this.hitSfx.play();
       state.current = state.over;
     }
     
     this.x -= this.dx;
-
-
-    // for (let i = 0; i < this.position.length; i++) {
-      // let p = this.position[i];
-
-      // if (chara.x > p.x && chara.x < p.x + this.w && chara.y > p.y && chara.y < p.y + this.h) {
-      //   state.current = state.over;
-      //   skeleton.reset();
-      // }
-
-
-      //removes skeleton 
-      // if (p.x + this.w + this.w <= 0) {
-      //   this.position.shift();
-      // }
-    // }
-  }
-
-  reset() {
-    // this.position = [];
   }
 }
 
