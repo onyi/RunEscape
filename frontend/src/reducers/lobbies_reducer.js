@@ -14,6 +14,7 @@ export default function (state = initialState, action) {
       lobbies.map(lobby => nextState[lobby._id] = lobby)
       return nextState;
     case RECEIVE_LOBBY:
+      debugger
       let lobby = action.lobby;
       nextState[lobby._id] = lobby
       return nextState;

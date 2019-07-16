@@ -35,10 +35,18 @@ router.patch('/:lobbyId/join', (req, res) => {
   // Lobby.findOne({"_id": req.params.lobbyId }, (err, lobby) => {
   //   lobby.players.push(currentUserId);
   // })
-  Lobby.updateOne(
-    { "_id": req.params.lobbyId },
-    { $push: { players: currentUserId }}
+  debugger
+  // Lobby.updateOne(
+  //   { "_id": req.params.lobbyId },
+  //   { $addToSet: { players: currentUserId }},
+  //   { new: true }
+  // ).lean().exec((err, lobby) => {
+  //   res.json(lobby)
+  // })
+  Lobby.findOne(
+    { "_id": req.params.lobbyId }
   )
+    
     .catch(err => res.status(404).json({ nolobbiesfound: "No lobby found"}))
 });
 

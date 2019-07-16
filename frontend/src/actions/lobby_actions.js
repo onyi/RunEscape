@@ -31,9 +31,10 @@ export const createLobby = lobby => dispatch => (
       err => dispatch(receiveErrors(err.response.data)))
 );
 
-export const joinLobby = (lobbyId, currentUserId) => dispatch => (
+export const joinLobby = (lobbyId, currentUserId) => dispatch => {
+  debugger
   APIUtil.joinLobby(lobbyId, currentUserId)
     .then(res => dispatch(receiveLobby(res.data)),
       err => dispatch(receiveErrors(err.response.data)))
-);
+};
 

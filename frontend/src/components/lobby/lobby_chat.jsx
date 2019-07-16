@@ -28,8 +28,8 @@ class LobbyChat extends React.Component {
     this.props.fetchLobbies()
       .then(payload => {
         this.setState({ lobby: this.props.lobbies[this.props.match.params.lobbyId] })})
+      .then(() => this.subscribeToChat(this.state.lobby._id))
       .then(() => this.props.joinLobby(this.state.lobby._id, this.props.currentUser.id))
-      .then(() => this.subscribeToChat(this.state.lobby._id));
   }
 
   componentWillUnmount() {
