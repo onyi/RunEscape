@@ -1,9 +1,7 @@
 
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { fetchLobbies } from '../../actions/lobby_actions';
-import jwt_decode from 'jwt-decode';
-
+import { fetchLobbies, joinLobby } from '../../actions/lobby_actions';
 
 import LobbyChat from "./lobby_chat";
 
@@ -14,7 +12,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchLobbies: () => dispatch(fetchLobbies())
+  fetchLobbies: () => dispatch(fetchLobbies()),
+  joinLobby: (lobbyId, currentUserId) => dispatch(joinLobby(lobbyId, currentUserId))
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LobbyChat));

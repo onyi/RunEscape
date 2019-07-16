@@ -1,10 +1,14 @@
 import React from 'react';
+<<<<<<< HEAD
 import reisen from '../../assets/game/reisen.png';
+=======
+>>>>>>> origin/refactor-game-entities
 import getready from '../../assets/game/get-ready.png';
 import gameover from '../../assets/game/game-over.png';
 import backgroundimg from '../../assets/game/background.png';
 import foregroundimg from '../../assets/game/foreground.png';
 import skeletonimg from '../../assets/game/skeletonatk.png'
+import Player from './Player';
 
 class Game extends React.Component {
 
@@ -28,9 +32,12 @@ class Game extends React.Component {
 
     //load sprite image
 
+<<<<<<< HEAD
     const charaSprite = new Image();
     charaSprite.src = reisen;
 
+=======
+>>>>>>> origin/refactor-game-entities
     const skeletonSprite = new Image();
     skeletonSprite.src = skeletonimg;
 
@@ -124,6 +131,7 @@ class Game extends React.Component {
     }
 
     //chara
+<<<<<<< HEAD
     const chara = {
       animation: [
         { sX: 8, sY: 670, w: 88, h: 64 },
@@ -192,6 +200,9 @@ class Game extends React.Component {
         this.speed = 0;
       }
     }
+=======
+    const chara = new Player(cvs, ctx);
+>>>>>>> origin/refactor-game-entities
 
     //skeleton monster 
 
@@ -332,7 +343,7 @@ class Game extends React.Component {
 
     //update
     function update() {
-      chara.update();
+      chara.update(state);
       skeleton.update();
       bg.update();
       fg.update();
