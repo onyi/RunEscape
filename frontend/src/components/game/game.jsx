@@ -1,16 +1,18 @@
 import React from 'react';
 import Prando from 'prando';
 
+import Player from './Player';
+import Skeleton from './Skeleton';
+
 import getready from '../../assets/game/get-ready.png';
 import gameover from '../../assets/game/game-over.png';
 import backgroundimg from '../../assets/game/background.png';
 import foregroundimg from '../../assets/game/foreground.png';
-import Player from './Player';
-import Skeleton from './Skeleton';
+import suddenatksound from '../../assets/game/sudden_attack.mp3';
+import gg from '../../assets/game/gg.mp3';
 
 class Game extends React.Component {
 
-  
   componentDidMount() {
     this.renderGame();
   }
@@ -52,12 +54,23 @@ class Game extends React.Component {
 
     const foreground = new Image();
     foreground.src = foregroundimg;
-    
+
+    const gameplay_music = new Audio();
+    gameplay_music.src = suddenatksound; 
+
+    const gameover_music = new Audio();
+    gameover_music.src = gg;
+
+
     //control the game state
     document.addEventListener('keydown', function (e) {
       if (e.keyCode === 32) {
         switch (state.current) {
           case state.getReady:
+            gameplay_music.currentTime = 0; 
+            gameover_music.pause();
+            gameover_music.currentTime = 0;
+            gameplay_music.play();
             state.current = state.game;
             break;
           case state.game:
@@ -66,6 +79,8 @@ class Game extends React.Component {
             player[0].hop();
             break;
           case state.over:
+            gameplay_music.pause();
+            gameover_music.play();
             state.current = state.getReady;
             break;
         }
@@ -90,7 +105,7 @@ class Game extends React.Component {
       },
 
       update: function () {
-        if (this.dx = frames % 100 === 0 ? this.dx += 1 : this.dx)
+        if (this.dx = frames % 100 === 0 ? this.dx : this.dx)
         if (state.current == state.game) {
           this.x = (this.x - this.dx) % (this.w);
         }
@@ -115,7 +130,7 @@ class Game extends React.Component {
       },
 
       update: function () {
-        if (this.dx = frames % 100 === 0 ? this.dx += 1 : this.dx )
+        if (this.dx = frames % 100 === 0 ? this.dx : this.dx )
         if (state.current == state.game) {
           this.x = (this.x - this.dx) % (this.w);
         }
