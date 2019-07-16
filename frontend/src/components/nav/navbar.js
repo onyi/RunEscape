@@ -34,7 +34,10 @@ class NavBar extends React.Component {
   render() {
     return (
       <div className="navbar">
-        <span className="logo">RunEscape</span>
+        <Link to={'/'} >
+          <span className="logo">RunEscape</span>
+        </Link>
+        
         { this.getLinks() }
       </div>
     );
