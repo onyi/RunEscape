@@ -1,7 +1,7 @@
 
 import React from 'react';
 import LobbyChatContainer from './lobby_chat_container';
-import { Route } from "react-router-dom";
+import { Route, Link } from "react-router-dom";
 
 class LobbyIndex extends React.Component {
   constructor(props) {
@@ -31,7 +31,7 @@ class LobbyIndex extends React.Component {
   render() {
     return (
       <div className="lobby" >
-        {this.renderErrors()}
+        <Link to="/scoreboard"><h1>Scoreboard</h1></Link>
         <Route path="/lobbies/:lobbyId" component={LobbyChatContainer} />
       </div>
     );
