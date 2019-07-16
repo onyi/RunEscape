@@ -2,16 +2,28 @@
 import run from '../../assets/game/run.png';
 
 class Player {
-  constructor(canvas, context) {
+  constructor(canvas, context, playerId) {
     this.ctx = context;
     this.cvs = canvas;
+    this.playerId = playerId;
     this.fg = {
       h: 59
     }
 
+    this.x = 100;
+    this.y = 388;
+    this.gravity = 0.25;
+    this.jump = 5.6;
+    this.speed = 0;
+    this.jumpCount = 0;
+
+    this.sprite = new Image();
+    this.sprite.src = run;
+    this.frameTicks = 0;
+    this.animationFrame = 0;
     this.animation = [
-      { sX: 0, sY: 1, w: 86, h: 64 },
-      { sX: 91, sY: 0, w: 83, h: 66 },
+      { sX: 0,   sY: 1, w: 86, h: 64 },
+      { sX: 91,  sY: 0, w: 83, h: 66 },
       { sX: 180, sY: 1, w: 81, h: 65 },
       { sX: 265, sY: 0, w: 82, h: 66 },
       { sX: 352, sY: 2, w: 87, h: 64 },
@@ -19,22 +31,7 @@ class Player {
       { sX: 532, sY: 1, w: 81, h: 65 },
       { sX: 617, sY: 0, w: 82, h: 66 },
     ];
-
-    this.sprite = new Image();
-    this.sprite.src = run;
-
-    this.x = 100;
-    this.y = 388;
-    this.jumpCount = 0;
-
-    this.animationFrame = 0;
-    this.frameTicks = 0;
-
-    this.gravity = 0.25;
-    this.jump = 5.6;
-    this.speed = 0;
   }
-
   
   draw () {
     let chara = this.animation[this.animationFrame];
@@ -55,9 +52,9 @@ class Player {
   update(state) {
     //if the game state is get ready state, the chara must run slowly
     this.period = state.current == state.getReady ? 10 : 5;
-    //increment the animationFrame by 1, each period
     
-    this.frameTicks++
+    // count frames that have elapsed, increment the animationFrame by 1 each period
+    this.frameTicks++;
     if( this.frameTicks % this.period === 0 ) {
       this.frameTicks = 0;
       this.animationFrame++;
