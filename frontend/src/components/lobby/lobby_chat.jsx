@@ -1,6 +1,7 @@
 
 import React from 'react';
 import openSocket from 'socket.io-client';
+import Game from '../game/game';
 
 class LobbyChat extends React.Component {
   constructor(props) {
@@ -63,18 +64,21 @@ class LobbyChat extends React.Component {
 
   render() {
     return (
-      <div className="lobby-chat">
-        <ul id="messages"></ul>
-        <form onSubmit={this.handleSubmit}>
-          <input 
-            type="text" 
-            placeholder="Message" 
-            autoComplete="off" 
-            value={this.state.msg}
-            onChange={this.update('msg')}
-          />
-          <button>Send</button>
-        </form>
+      <div>
+        <Game />
+        <div className="lobby-chat">
+          <ul id="messages"></ul>
+          <form onSubmit={this.handleSubmit}>
+            <input 
+              type="text" 
+              placeholder="Message" 
+              autoComplete="off" 
+              value={this.state.msg}
+              onChange={this.update('msg')}
+            />
+            <button>Send</button>
+          </form>
+        </div>
       </div>
     );
   }
