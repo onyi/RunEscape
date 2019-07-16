@@ -2,15 +2,82 @@ html {
   height: 100%;
 }
 
+.main-container{
+  display: flex;
+  justify-content: space-between;
+  align-items: row;
+}
+
+.main-content{
+  width: 70%;
+}
+
+
 body{
   font-family: 'Silver', Fallback, sans-serif;
   background: $dark-theme;
   color: $dark-theme-text;
   margin: 0 auto;
-  max-width: 1200px;
-  background-image: url('assets/torch/torch-transparent-pixel-art-15-transparent.png'), url('assets/torch/torch-transparent-pixel-art-15-transparent.png'), url('assets/fire/GIF.gif');
-  background-position: 0% 20%, 100% 20%, 50% 100%;
-  background-repeat: no-repeat, no-repeat, repeat-x;
-  background-size: 500px, 500px, 200px;
+  background-image: 
+    // url('assets/torch/torch-transparent-pixel-art-15-transparent.png'), 
+    // url('assets/torch/torch-transparent-pixel-art-15-transparent.png'), 
+    url('assets/fire/GIF.gif');
+  background-position: 
+    // 0% 20%, 
+    // 100% 20%, 
+    50% 100%;
+  background-repeat: 
+    // no-repeat, 
+    // no-repeat, 
+    repeat-x;
+  background-size: 
+    // 500px, 
+    // 500px, 
+    10em 10em;
   min-height: 100%;
+}
+
+.left-background, .right-background {
+  width: 10%;
+}
+
+.left-torch, .right-torch {
+  height: 500px;
+  position: absolute;
+  top: 200px;
+}
+
+.right-torch{
+  float: right;
+  right: 0;
+}
+
+.left-fire, .right-fire {
+  height: 7em;
+  width: 5em;
+  animation: flicker 3ms ease-in infinite;
+}
+
+.left-fire{
+  position: absolute;
+  left: 2.25em;
+  top: 200px;
+} 
+
+.right-fire{
+  position: absolute;
+  right: 2.1em;
+  top: 200px;
+} 
+
+
+
+@keyframes flicker {
+  0% { transform: rotate(-2deg);}
+  20% { transform: rotate(1deg) scaleY(1.05);}
+  40% { transform: rotate(-1deg);}
+  60% { transform: rotate(2deg) scaleY(0.95);}
+  80% { transform: rotate(1deg);}
+  100% { transform: rotate(-1deg);}
+  
 }
