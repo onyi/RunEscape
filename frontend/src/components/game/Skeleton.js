@@ -57,7 +57,7 @@ class Skeleton {
     
     this.frameTicks++;
     if (this.frameTicks % this.period === 0) {
-      // this.frameTicks = 0;
+      this.frameTicks = 0;
       this.animationFrame++;
     }
 
@@ -67,13 +67,25 @@ class Skeleton {
     if (state.current !== state.game) return;
 
     //pushes skeletons in arr 
-    // Implement in PRANDO
+    // Implement in PRANDO !!!
     // if (frames % (50 + (Math.floor(Math.random() * 25))) == 0) {
     //   this.position.push({
     //     x: this.cvs.width,
     //     y: this.cvs.height - fg.h - 30,
     //   });
     // }
+
+    let players = state.entities.filter(entity => typeof Player)
+    let player = players.filter(player => state.localPlayerId === player.playerId);
+    if (player.x > this.x && 
+        player.x < this.x + this.w && 
+        player.y > this.y && 
+        player.y < this.y + this.h) {
+      state.current = state.over;
+    }
+    
+    this.x -= this.dx;
+
 
     // for (let i = 0; i < this.position.length; i++) {
       // let p = this.position[i];
@@ -83,7 +95,6 @@ class Skeleton {
       //   skeleton.reset();
       // }
 
-      this.x -= this.dx;
 
       //removes skeleton 
       // if (p.x + this.w + this.w <= 0) {

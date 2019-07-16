@@ -1,4 +1,6 @@
 import React from 'react';
+import Prando from 'prando';
+
 import getready from '../../assets/game/get-ready.png';
 import gameover from '../../assets/game/game-over.png';
 import backgroundimg from '../../assets/game/background.png';
@@ -8,6 +10,7 @@ import Skeleton from './Skeleton';
 
 class Game extends React.Component {
 
+  
   componentDidMount() {
     this.renderGame();
   }
@@ -21,6 +24,7 @@ class Game extends React.Component {
   renderGame() {
     const cvs = document.getElementById('run-escape');
     const ctx = cvs.getContext('2d');
+    const rng = new Prando("seed");
 
     //game vars and consts
     let frames = 0;
@@ -35,9 +39,6 @@ class Game extends React.Component {
     }
     state.entities.push(new Player(cvs, ctx, state.localPlayerId));
     state.entities.push(new Skeleton(cvs, ctx));
-    //skeleton monster 
-    // const skeleton = new Skeleton(cvs, ctx);
-
 
     //load sprite image
     const ready = new Image();
@@ -152,25 +153,28 @@ class Game extends React.Component {
       }
     }
 
-    //draw
+    function generateSkeletons() {
+      
+      if (frames % (50 + (Math.floor(rng.next() * 25))) == 0) {
+        state.entities.push(new Skeleton(cvs, ctx));
+      }
+    }
+
     function draw() {
       ctx.fillStyle = '#866286';
       ctx.fillRect(0, 0, cvs.width, cvs.height);
       bg.draw();
       fg.draw();
       state.entities.forEach(entity => entity.draw())
-      // skeleton.draw();
       getReady.draw();
       gameOver.draw();
     }
 
-    //update
     function update() {
       state.entities.forEach(entity => entity.update(state))
-      // chara.update(state);
-      // skeleton.update(state);
       bg.update();
       fg.update();
+      generateSkeletons();
     }
 
     //loop
