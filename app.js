@@ -55,5 +55,4 @@ io.on('connection', socket => {
   })
 });
 
-
 const server = http.listen(port, () => console.log(`Server is running on port ${port}`));

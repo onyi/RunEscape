@@ -8,6 +8,6 @@ export const createLobby = (lobbyData) => {
   return axios.post('/api/lobbies/create', lobbyData);
 }
 
-export const joinLobby = (lobbyId, currentUser) => {
-  return axios.patch(`api/lobbies/${lobbyId}/join`, currentUser);
+export const joinLobby = (lobbyId, currentUserId) => {
+  return axios.patch(`api/lobbies/${lobbyId}/join`, {currentUserId: currentUserId});
 }

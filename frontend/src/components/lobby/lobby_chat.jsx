@@ -18,7 +18,7 @@ class LobbyChat extends React.Component {
   }
 
   subscribeToChat(lobbyId) {
-    // console.log(`Subscribed to: 'chat message on ${lobbyId}'`)
+    console.log(`Subscribed to: 'chat message on ${lobbyId}'`)
     this.socket.on(`chat message to ${lobbyId}` , function (msg) {
       document.getElementById('messages').insertAdjacentHTML('beforeend', `<div>${msg}</div>`)
     });

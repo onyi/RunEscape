@@ -30,11 +30,15 @@ router.post('/create', (req, res) => {
 });
 
 router.patch('/:lobbyId/join', (req, res) => {
-  
-  debugger
-  Lobby.find({"_id": req.params.lobbyId }, (err, lobby) => {
-    req.body
-  })
+  // User.findOne({ username: req.body.username }) 
+  let currentUserId = req.body.currentUserId;
+  // Lobby.findOne({"_id": req.params.lobbyId }, (err, lobby) => {
+  //   lobby.players.push(currentUserId);
+  // })
+  Lobby.updateOne(
+    { "_id": req.params.lobbyId },
+    { $push: { players: currentUserId }}
+  )
     .catch(err => res.status(404).json({ nolobbiesfound: "No lobby found"}))
 });
 
