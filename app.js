@@ -49,6 +49,7 @@ io.on('connection', socket => {
   while(SOCKET_LIST[socket.id]) {
     socket.id = Math.random();
   }
+
   SOCKET_LIST[socket.id] = socket;
 
   socket.on('disconnect', () => {
@@ -59,6 +60,11 @@ io.on('connection', socket => {
   socket.on('chat message', ({ lobbyId, msg }) => {
     console.log(`Got message: ${msg} on ${lobbyId}`)
     io.emit(`chat message to ${lobbyId}`, msg);
+  })
+
+  socket.on('relay action', ({ lobbyId, playerId, playerAction }) => {
+    console.log(`Got message: ${msg} on ${lobbyId}`)
+    io.emit(`relay action to ${lobbyId}`, { playerId, playerAction });
   })
 });
 
