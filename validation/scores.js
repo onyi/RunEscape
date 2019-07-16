@@ -7,9 +7,8 @@ module.exports = function validateScoreInput(data){
 
 
   valueErrorStr = 'Value field must be numeric only!';
-  data.value = validNumber(data.value) ? data.value : '';
-
-  if(Validator.isEmpty(data.value)) {
+  // data.value = validNumber(data.value) ? data.value : '';
+  if(!Validator.isInt(data.value)) {
     errors.text = valueErrorStr;
   }
 

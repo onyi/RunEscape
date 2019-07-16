@@ -1,7 +1,7 @@
 
 import React from 'react';
 import openSocket from 'socket.io-client';
-import Game from '../game/game';
+import GameContainer from '../game/game_container';
 
 class LobbyChat extends React.Component {
   constructor(props) {
@@ -64,7 +64,7 @@ class LobbyChat extends React.Component {
   render() {
     return (
       <div>
-        <Game />
+        <GameContainer />
         <div className="lobby-chat">
           <ul id="messages"></ul>
           <form onSubmit={this.handleSubmit}>

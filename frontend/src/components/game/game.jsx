@@ -8,7 +8,16 @@ import skeletonimg from '../../assets/game/skeletonatk.png'
 
 class Game extends React.Component {
 
+  constructor(props){
+    super(props);
+    this.state = {
+      scores: props.scores
+    }
+    this.renderGame = this.renderGame.bind(this);
+  }
+
   componentDidMount() {
+    this.props.getScores();
     this.renderGame();
   }
   
@@ -19,6 +28,8 @@ class Game extends React.Component {
   }
 
   renderGame() {
+    const that = this;
+
     //select cvs 
     const cvs = document.getElementById('run-escape');
     const ctx = cvs.getContext('2d');
@@ -45,8 +56,6 @@ class Game extends React.Component {
 
     const foreground = new Image();
     foreground.src = foregroundimg;
-
-
 
     //game state
     const state = {
@@ -95,6 +104,10 @@ class Game extends React.Component {
         if (state.current == state.game) {
           this.x = (this.x - this.dx) % (this.w);
         }
+      },
+
+      reset: function () {
+        this.dx = 10;
       }
     }
 
@@ -120,6 +133,10 @@ class Game extends React.Component {
         if (state.current == state.game) {
           this.x = (this.x - this.dx) % (this.w);
         }
+      },
+
+      reset: function() {
+        this.dx = 10;
       }
     }
 
@@ -187,6 +204,11 @@ class Game extends React.Component {
       },
 
       speedReset: function () {
+        this.speed = 0;
+      },
+
+      reset: function(){
+        this.jump = 5.6;
         this.speed = 0;
       }
     }
@@ -256,8 +278,10 @@ class Game extends React.Component {
         for (let i = 0; i < this.position.length; i++) {
           let p = this.position[i];
 
+          // Collision Detection
           if (chara.x> p.x && chara.x < p.x + this.w && chara.y > p.y && chara.y < p.y + this.h) {
             state.current = state.over;
+            gameOverAction();
             skeleton.reset();
           }
 
@@ -266,6 +290,7 @@ class Game extends React.Component {
           //removes skeleton 
           if (p.x + this.w + this.w <= 0) {
             this.position.shift();
+            gameScore.addObstacleScore(500);
           }
         }
 
@@ -298,6 +323,7 @@ class Game extends React.Component {
       draw: function () {
         if (state.current == state.getReady) {
           ctx.drawImage(ready, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
+          gameScore.reset();
         }
       }
     }
@@ -311,10 +337,56 @@ class Game extends React.Component {
       y: 90,
 
       draw: function () {
-        if (state.current == state.over) {
+        if (state.current === state.over) {
           ctx.drawImage(over, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
         }
       }
+    }
+
+
+    const gameScore = {
+
+      sX: 0,
+      sY: 0,
+      w: 137,
+      h: 82,
+      x: 25,
+      y: 50,
+
+      score: 0,
+
+      update: function(){
+        if (state.current === state.game){
+          if (frames % 100 === 0) {
+            // Gives player 100 points for each 100 frames
+            // console.log(`Add 100 points`);
+            this.score += 100;
+          }
+        }
+      },
+      reset: function(){
+        this.score = 0;
+      },
+
+      draw: function () {
+        if (state.current !== state.getReady) {
+          ctx.font = "30px Arial";
+          ctx.fillText("Game score: "+ this.score, this.x, this.y);
+          // ctx.drawImage(over, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
+        }
+      },
+
+      addObstacleScore: function (score){
+        this.score += score;
+      }
+    }
+
+    function gameOverAction(){
+      console.log(`Total score: ${gameScore.score}`);
+      that.props.postScore(gameScore.score);
+      chara.reset();
+      bg.reset();
+      fg.reset();
     }
 
 
@@ -328,6 +400,7 @@ class Game extends React.Component {
       skeleton.draw();
       getReady.draw();
       gameOver.draw();
+      gameScore.draw();
     }
 
     //update
@@ -336,6 +409,7 @@ class Game extends React.Component {
       skeleton.update();
       bg.update();
       fg.update();
+      gameScore.update();
     }
 
     //loop
@@ -343,7 +417,6 @@ class Game extends React.Component {
       update();
       draw();
       frames++;
-
       requestAnimationFrame(loop);
     }
 
