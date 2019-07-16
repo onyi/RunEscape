@@ -1,5 +1,5 @@
 import React from 'react';
-import run from '../../assets/game/run.png';
+import reisen from '../../assets/game/reisen.png';
 import getready from '../../assets/game/get-ready.png';
 import gameover from '../../assets/game/game-over.png';
 import backgroundimg from '../../assets/game/background.png';
@@ -29,7 +29,7 @@ class Game extends React.Component {
     //load sprite image
 
     const charaSprite = new Image();
-    charaSprite.src = run;
+    charaSprite.src = reisen;
 
     const skeletonSprite = new Image();
     skeletonSprite.src = skeletonimg;
@@ -126,14 +126,14 @@ class Game extends React.Component {
     //chara
     const chara = {
       animation: [
-        { sX: 0, sY: 1, w: 86, h: 64 },
-        { sX: 91, sY: 0, w: 83, h: 66 },
-        { sX: 180, sY: 1, w: 81, h: 65 },
-        { sX: 265, sY: 0, w: 82, h: 66 },
-        { sX: 352, sY: 2, w: 87, h: 64 },
-        { sX: 443, sY: 0, w: 84, h: 66 },
-        { sX: 532, sY: 1, w: 81, h: 65},
-        { sX: 617, sY: 0, w: 82, h: 66},
+        { sX: 8, sY: 670, w: 88, h: 64 },
+        { sX: 100, sY: 670, w: 86, h: 64 },
+        { sX: 190, sY: 669, w: 81, h: 65 },
+        { sX: 277, sY: 668, w: 84, h: 66 },
+        { sX: 366, sY: 670, w: 88, h: 64 },
+        { sX: 458, sY: 668, w: 86, h: 66 },
+        { sX: 548, sY: 669, w: 82, h: 65},
+        { sX: 635, sY: 668, w: 84, h: 66},
       ],
       x: 100,
       y: 388,
@@ -291,7 +291,7 @@ class Game extends React.Component {
       sX: 0,
       sY: 0,
       w: 141,
-      h: 50,
+      h: 80,
       x: cvs.width / 2 - 141 / 2,
       y: 150,
 
