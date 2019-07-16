@@ -1,8 +1,4 @@
 import React from 'react';
-<<<<<<< HEAD
-import reisen from '../../assets/game/reisen.png';
-=======
->>>>>>> origin/refactor-game-entities
 import getready from '../../assets/game/get-ready.png';
 import gameover from '../../assets/game/game-over.png';
 import backgroundimg from '../../assets/game/background.png';
@@ -32,12 +28,6 @@ class Game extends React.Component {
 
     //load sprite image
 
-<<<<<<< HEAD
-    const charaSprite = new Image();
-    charaSprite.src = reisen;
-
-=======
->>>>>>> origin/refactor-game-entities
     const skeletonSprite = new Image();
     skeletonSprite.src = skeletonimg;
 
@@ -131,78 +121,7 @@ class Game extends React.Component {
     }
 
     //chara
-<<<<<<< HEAD
-    const chara = {
-      animation: [
-        { sX: 8, sY: 670, w: 88, h: 64 },
-        { sX: 100, sY: 670, w: 86, h: 64 },
-        { sX: 190, sY: 669, w: 81, h: 65 },
-        { sX: 277, sY: 668, w: 84, h: 66 },
-        { sX: 366, sY: 670, w: 88, h: 64 },
-        { sX: 458, sY: 668, w: 86, h: 66 },
-        { sX: 548, sY: 669, w: 82, h: 65},
-        { sX: 635, sY: 668, w: 84, h: 66},
-      ],
-      x: 100,
-      y: 388,
-      jumpCount: 0,
-
-      frame: 0,
-
-      gravity: 0.25,
-      jump: 5.6,
-      speed: 0,
-
-      draw: function () {
-        let chara = this.animation[this.frame];
-
-        ctx.drawImage(charaSprite, chara.sX, chara.sY, chara.w, chara.h, this.x, this.y, chara.w, chara.h);
-
-        // ctx.restore();
-      },
-
-      hop: function () {
-        if (this.jumpCount > 0) {
-          this.jumpCount -= 1;
-          this.y = this.y - 1;
-          this.speed = -this.jump;
-        }
-      },
-
-      update: function () {
-        //if the game state is get ready state, the chara must run slowly
-        this.period = state.current == state.getReady ? 10 : 5;
-        //increment the frame by 1, each period
-        this.frame += frames % this.period == 0 ? 1 : 0;
-        //frame goes from 0 to 8, then again to 0
-        this.frame = this.frame % this.animation.length;
-
-        if (state.current == state.getReady) {
-          this.y = cvs.height - fg.h - 30; //reset position of the chara after the game over
-        } else {
-          this.speed += this.gravity;
-
-          //ground
-          if (this.y >= cvs.height - fg.h - 30) {
-            this.y = cvs.height - fg.h - 30;
-            this.speed = 0;
-            this.jumpCount = 2;
-          }
-
-          //air 
-          if (this.y < cvs.height - fg.h) {
-            this.y += this.speed;
-          }
-        }
-      },
-
-      speedReset: function () {
-        this.speed = 0;
-      }
-    }
-=======
     const chara = new Player(cvs, ctx);
->>>>>>> origin/refactor-game-entities
 
     //skeleton monster 
 
