@@ -4,7 +4,12 @@ import getready from '../../assets/game/get-ready.png';
 import gameover from '../../assets/game/game-over.png';
 import backgroundimg from '../../assets/game/background.png';
 import foregroundimg from '../../assets/game/foreground.png';
-import skeletonimg from '../../assets/game/skeletonatk.png'
+import skeletonimg from '../../assets/game/skeletonatk.png';
+import jumpsound from '../../assets/game/jump_sound_effect.mp3';
+import hitsound from '../../assets/game/hit.wav';
+import diesound from '../../assets/game/die.wav';
+import suddenatksound from '../../assets/game/sudden_attack.mp3';
+
 
 class Game extends React.Component {
 
@@ -46,6 +51,20 @@ class Game extends React.Component {
     const foreground = new Image();
     foreground.src = foregroundimg;
 
+    const jump = new Audio();
+    jump.src = jumpsound;
+
+    const hit = new Audio();
+    hit.src = hitsound;
+
+    const die = new Audio(); 
+    die.src = diesound;
+
+    const gameplay_music = new Audio();
+    gameplay_music.src = suddenatksound; 
+
+
+
 
 
     //game state
@@ -61,9 +80,12 @@ class Game extends React.Component {
       if (e.keyCode === 32) {
         switch (state.current) {
           case state.getReady:
+            gameplay_music.play();
             state.current = state.game;
+            
             break;
           case state.game:
+            jump.play(); // this is the audio
             chara.hop();
             break;
           case state.over:
@@ -91,7 +113,7 @@ class Game extends React.Component {
       },
 
       update: function () {
-        if (this.dx = frames % 100 === 0 ? this.dx += 1 : this.dx)
+        if (this.dx = frames % 100 === 0 ? this.dx : this.dx)
         if (state.current == state.game) {
           this.x = (this.x - this.dx) % (this.w);
         }
@@ -116,7 +138,7 @@ class Game extends React.Component {
       },
 
       update: function () {
-        if (this.dx = frames % 100 === 0 ? this.dx += 1 : this.dx )
+        if (this.dx = frames % 100 === 0 ? this.dx : this.dx )
         if (state.current == state.game) {
           this.x = (this.x - this.dx) % (this.w);
         }
@@ -156,6 +178,9 @@ class Game extends React.Component {
           this.jumpCount -= 1;
           this.y = this.y - 1;
           this.speed = -this.jump;
+          jump.currentTime = 0;
+          
+         
         }
       },
 
@@ -257,7 +282,11 @@ class Game extends React.Component {
           let p = this.position[i];
 
           if (chara.x> p.x && chara.x < p.x + this.w && chara.y > p.y && chara.y < p.y + this.h) {
+            hit.play();
+            // die.play();
+            gameplay_music.pause(); 
             state.current = state.over;
+
             skeleton.reset();
           }
 
