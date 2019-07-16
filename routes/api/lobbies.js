@@ -29,4 +29,13 @@ router.post('/create', (req, res) => {
     .catch(err => console.log(err));
 });
 
+router.patch('/:lobbyId/join', (req, res) => {
+  
+  debugger
+  Lobby.find({"_id": req.params.lobbyId }, (err, lobby) => {
+    req.body
+  })
+    .catch(err => res.status(404).json({ nolobbiesfound: "No lobby found"}))
+});
+
 module.exports = router;

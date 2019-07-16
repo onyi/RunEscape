@@ -28,6 +28,7 @@ class LobbyChat extends React.Component {
     this.props.fetchLobbies()
       .then(payload => {
         this.setState({ lobby: this.props.lobbies[this.props.match.params.lobbyId] })})
+      .then(() => this.props.joinLobby(this.state.lobby._id, this.props.currentUser.id))
       .then(() => this.subscribeToChat(this.state.lobby._id));
   }
 
@@ -39,7 +40,7 @@ class LobbyChat extends React.Component {
     e.preventDefault();
 
     this.setState({ msg: "" });
-    this.socket.emit("chat message", { lobbyId: this.state.lobby._id, msg: `${this.props.currentUser.username} ${this.state.msg}` })
+    this.socket.emit("chat message", { lobbyId: this.state.lobby._id, msg: `${this.props.currentUser.username}: ${this.state.msg}` })
   }
 
   update(field) {

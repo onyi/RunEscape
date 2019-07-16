@@ -7,3 +7,7 @@ export const fetchLobbies = () => {
 export const createLobby = (lobbyData) => {
   return axios.post('/api/lobbies/create', lobbyData);
 }
+
+export const joinLobby = (lobbyId, currentUser) => {
+  return axios.patch(`api/lobbies/${lobbyId}/join`, currentUser);
+}
