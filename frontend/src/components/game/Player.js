@@ -134,6 +134,7 @@ class Player {
         this.y = this.cvs.height - this.fg.h - 30;
         this.speed = 0;
         this.jumpCount = 2;
+        this.gravity = 0.25;
       }
 
       //air 
@@ -151,6 +152,9 @@ class Player {
     this.speed = 0;
     this.dx = 10;
   }
+
+
+  
 }
 
 export default Player;

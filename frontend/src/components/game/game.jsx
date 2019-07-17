@@ -56,11 +56,15 @@ class Game extends React.Component {
             player.currentAnimation = player.runningAnimation;
             player.sliding = false;
             break;
+          case "fastfall":
+            player.gravity = 1; 
           default:
             break;
         }
       })
   }
+
+
   
   render() {
     return (
@@ -151,6 +155,12 @@ class Game extends React.Component {
                 lobbyId: state.lobbyId,
                 playerId: state.localPlayerId,
                 playerAction: "slide"
+              })
+            } else if (e.keyCode === 40 && player[0].jumpCount !== 2) {
+              this.socket.emit("relay action", {
+                lobbyId: state.lobbyId,
+                playerId: state.localPlayerId,
+                playerAction:"fastfall" 
               })
             }
             // let players = state.entities.filter(entity => typeof Player)
