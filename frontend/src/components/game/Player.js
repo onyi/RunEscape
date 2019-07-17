@@ -1,7 +1,8 @@
 
-import run from '../../assets/game/run.png';
+import reisen from '../../assets/game/reisen.png';
 import charajump from '../../assets/game/char.png'
 import jumpsound from '../../assets/game/jump_sound_effect.mp3';
+import airdashsound from '../../assets/game/sfx_swooshing.wav';
 
 class Player {
   constructor(canvas, context, playerId, xOffset = 0) {
@@ -11,27 +12,65 @@ class Player {
     this.fg = {
       h: 59
     }
+    this.sliding = false;
 
     this.x = 100 + xOffset;
     this.y = 388;
-    this.gravity = 0.25;
-    this.jump = 5.6;
+    this.gravity = 0.45;
+    this.jump = 11.1;
     this.speed = 0;
-    this.jumpCount = 0;
-
+    this.jumpCount = 2;
+    this.airDashCount = 1; 
+    this.slidingHitBox = this.y + 1000;
     this.frameTicks = 0;
     this.animationFrame = 0;
-    this.animation = [
-      { sX: 0,   sY: 1, w: 86, h: 64 },
-      { sX: 91,  sY: 0, w: 83, h: 66 },
-      { sX: 180, sY: 1, w: 81, h: 65 },
-      { sX: 265, sY: 0, w: 82, h: 66 },
-      { sX: 352, sY: 2, w: 87, h: 64 },
-      { sX: 443, sY: 0, w: 84, h: 66 },
-      { sX: 532, sY: 1, w: 81, h: 65 },
-      { sX: 617, sY: 0, w: 82, h: 66 },
+    this.currentAnimation = [
+      { sX: 8, sY: 5101, w: 44, h: 86 },
+      { sX: 57, sY: 5102, w: 43, h: 85 },
+      { sX: 105, sY: 5101, w: 43, h: 86 },
+      { sX: 153, sY: 5102, w: 44, h: 85 },
+      { sX: 202, sY: 5103, w: 42, h: 84 },
+      { sX: 248, sY: 5103, w: 44, h: 84 },
+      { sX: 297, sY: 5105, w: 46, h: 82 },
+      { sX: 348, sY: 5105, w: 43, h: 84 },
+      { sX: 396, sY: 5100, w: 50, h: 87 },
     ];
 
+    this.idleAnimation = [
+      { sX: 8, sY: 5101, w: 44, h: 86 },
+      { sX: 57, sY: 5102, w: 43, h: 85 },
+      { sX: 105, sY: 5101, w: 43, h: 86 },
+      { sX: 153, sY: 5102, w: 44, h: 85 },
+      { sX: 202, sY: 5103, w: 42, h: 84 },
+      { sX: 248, sY: 5103, w: 44, h: 84 },
+      { sX: 297, sY: 5105, w: 46, h: 82 },
+      { sX: 348, sY: 5105, w: 43, h: 84 },
+      { sX: 396, sY: 5100, w: 50, h: 87 },
+    ]
+
+    this.runningAnimation = [
+      { sX: 8, sY: 670, w: 88, h: 64 },
+      { sX: 100, sY: 670, w: 86, h: 64 },
+      { sX: 190, sY: 669, w: 81, h: 65 },
+      { sX: 277, sY: 668, w: 84, h: 66 },
+      { sX: 366, sY: 670, w: 88, h: 64 },
+      { sX: 458, sY: 668, w: 86, h: 66 },
+      { sX: 548, sY: 669, w: 82, h: 65 },
+      { sX: 635, sY: 668, w: 84, h: 66 },
+    ]
+
+    this.slidingAnimation = [
+      // { sX: 8, sY: 2261, w: 66, h: 72 },
+      // { sX: 78, sY: 2266, w: 82, h: 67 },
+      { sX: 165, sY: 2270, w: 92, h: 63 },
+      { sX: 262, sY: 2271, w: 97, h: 62 },
+      { sX: 364, sY: 2271, w: 94, h: 62 },
+      { sX: 364, sY: 2271, w: 94, h: 62 },
+      { sX: 364, sY: 2271, w: 94, h: 62 },
+      { sX: 364, sY: 2271, w: 94, h: 62 },
+      { sX: 364, sY: 2271, w: 94, h: 62 },
+    ];
+    
     this.jump_animation = [
       { sX: 8,   sY: 2024, w: 45, h: 80 },
       { sX: 8,   sY: 2024, w: 45, h: 80 },
@@ -43,33 +82,61 @@ class Player {
       { sX: 363, sY: 2015, w: 66, h: 89 },
     ];
 
+    this.airDashAnimation = [
+      { sX: 8, sY: 548, w: 69, h: 72 },
+      { sX: 83, sY: 561, w: 67, h: 59 },
+      { sX: 156, sY: 565, w: 70, h: 55 },
+      { sX: 231, sY: 559, w: 74, h: 61 },
+      { sX: 311, sY: 554, w: 83, h: 66 },
+      { sX: 398, sY: 553, w: 82, h: 67 },
+      { sX: 485, sY: 552, w: 84, h: 68 },
+    ];
+
+
     // Assets
     this.sprite = new Image();
-    this.sprite.src = run;
+    this.sprite.src = reisen;
     this.spritejump = new Image();
     this.spritejump.src = charajump;
     this.jumpSfx = new Audio();
     this.jumpSfx.src = jumpsound;
-
+    this.airSfx = new Audio();
+    this.airSfx.src = airdashsound; 
   }
   
   draw () {
-    let chara = this.animation[this.animationFrame];
-    let jumping = this.jump_animation[this.animationFrame];
-
-    if (this.y < this.cvs.height - this.fg.h - 30) {
-      this.ctx.drawImage(this.spritejump, jumping.sX, jumping.sY, jumping.w, jumping.h, this.x, this.y, jumping.w, jumping.h);        
-    } else {
-      this.ctx.drawImage(this.sprite, chara.sX, chara.sY, chara.w, chara.h, this.x, this.y, chara.w, chara.h);
-    }
+    let chara = this.currentAnimation[this.animationFrame];
+    this.ctx.drawImage(this.sprite, chara.sX, chara.sY, chara.w, chara.h, this.x, this.y, chara.w, chara.h);
+    
   }
 
   hop() {
-    this.jumpSfx.play();
     if (this.jumpCount > 0) {
+      this.jumpSfx.play();
+      this.currentAnimation = this.jump_animation
       this.jumpCount -= 1;
       this.y = this.y - 1;
       this.speed = -this.jump;
+    }
+  }
+
+  fastfall() {
+    this.speed = 8.5;
+  }
+
+  airdash(state) {
+    if (this.airDashCount > 0) {
+      this.airSfx.play();
+      this.currentAnimation = this.airDashAnimation;
+      this.airDashCount -= 1; 
+      this.y = this.y - 1; 
+      this.gravity = .20;
+      this.speed = -2;
+      state.dx += 6; 
+      setTimeout(() => {
+        // state.dx -= 7;
+        this.gravity = 0.45;
+      }, 400)
     }
   }
 
@@ -85,7 +152,7 @@ class Player {
     }
 
     //animationFrame goes from 0 to 8, then again to 0
-    this.animationFrame = this.animationFrame % this.animation.length;
+    this.animationFrame = this.animationFrame % this.currentAnimation.length;
 
     if (state.current === state.getReady) {
       this.y = this.cvs.height - this.fg.h - 30; //reset position of the chara after the game over
@@ -94,9 +161,18 @@ class Player {
 
       //ground
       if (this.y >= this.cvs.height - this.fg.h - 30) {
+        if (!this.sliding){
+          this.currentAnimation = this.runningAnimation;
+        }
         this.y = this.cvs.height - this.fg.h - 30;
         this.speed = 0;
         this.jumpCount = 2;
+        this.gravity = 0.45;
+        if (this.airDashCount === 0) {
+          state.dx -= 6;
+          this.airDashCount = 1;
+        }
+         
       }
 
       //air 
@@ -106,14 +182,10 @@ class Player {
     }
   }
 
-  speedReset() {
-    this.speed = 0;
-  }
+ 
 
-  reset(){
-    this.speed = 0;
-    this.dx = 10;
-  }
+
+  
 }
 
 export default Player;
