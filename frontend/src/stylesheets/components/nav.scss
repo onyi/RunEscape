@@ -12,6 +12,9 @@
     margin: 0 5px;
     text-decoration: none;
     display: inline-block;
+    :hover{
+      cursor: pointer;
+    }
   }
   > div{
     display: flex;
