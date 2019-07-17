@@ -350,7 +350,7 @@ class Game extends React.Component {
       bg.update();
       fg.update();
       generateSkeletons();
-      generateDragons();
+      // generateDragons();
     }
 
     //loop
