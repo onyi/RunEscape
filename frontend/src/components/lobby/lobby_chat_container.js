@@ -5,14 +5,13 @@ import { fetchLobbies, joinLobby } from '../../actions/lobby_actions';
 
 import LobbyChat from "./lobby_chat";
 
-const mapStateToProps = state => ({
+const mapStateToProps = ( state, ownProps ) => ({
   lobbies: state.entities.lobbies,
   currentUser: state.session.user,
   errors: state.errors.lobby
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchLobbies: () => dispatch(fetchLobbies()),
   joinLobby: (lobbyId, currentUserId) => dispatch(joinLobby(lobbyId, currentUserId))
 })
 

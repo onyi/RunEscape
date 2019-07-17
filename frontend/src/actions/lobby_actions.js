@@ -25,6 +25,12 @@ export const fetchLobbies = () => dispatch => (
       err => dispatch(receiveErrors(err.response.data)))
 );
 
+export const fetchLobby = id => dispatch => (
+  APIUtil.fetchLobby(id)
+    .then(res => dispatch(receiveLobby(res.data)),
+      err => dispatch(receiveErrors(err.response.data)))
+);
+
 export const createLobby = lobby => dispatch => (
   APIUtil.createLobby(lobby)
     .then(res => dispatch(receiveLobby(res.data)),

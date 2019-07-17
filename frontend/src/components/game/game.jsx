@@ -12,7 +12,7 @@ import suddenatksound from '../../assets/game/sudden_attack.mp3';
 import gg from '../../assets/game/gg.mp3';
 
 class Game extends React.Component {
-
+  
   componentDidMount() {
     this.renderGame();
   }
@@ -26,13 +26,15 @@ class Game extends React.Component {
   renderGame() {
     const cvs = document.getElementById('run-escape');
     const ctx = cvs.getContext('2d');
-    const rng = new Prando("seedasdasd");
+    const lobby = this.props.lobbies[this.props.match.params.lobbyId]
+    const rng = new Prando(lobby._id);
 
     //game vars and consts
     let frames = 0;
 
     const state = {
-      localPlayerId: "tempPlayer1",
+      localPlayerId: this.props.currentUser.id,
+      lobbyId: lobby._id,
       current: 0,
       getReady: 0,
       game: 1,
