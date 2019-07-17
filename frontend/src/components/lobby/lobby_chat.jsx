@@ -26,13 +26,13 @@ class LobbyChat extends React.Component {
   }
 
   componentDidMount() {
-    this.subscribeToChat(this.lobbyId)
+    this.subscribeToChat(this.lobbyId);
     this.socket.emit("chat message",
       {
         lobbyId: this.lobbyId,
         msg: `${this.props.currentUser.username} joined lobby`
-      })
-    this.props.joinLobby(this.lobbyId, this.props.currentUser.id)
+      });
+    this.props.joinLobby(this.lobbyId, this.props.currentUser.id);
   }
 
   componentWillUnmount() {

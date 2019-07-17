@@ -54,7 +54,7 @@ class Skeleton {
   update(state) {
     if (state.current !== state.game) return;
     
-    this.period = state.current == state.getReady ? 6 : 5;
+    this.period = state.current === state.getReady ? 6 : 5;
     
     this.frameTicks++;
     if (this.frameTicks % this.period === 0) {

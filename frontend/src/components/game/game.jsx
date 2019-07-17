@@ -1,5 +1,6 @@
 import React from 'react';
 import Prando from 'prando';
+import openSocket from 'socket.io-client';
 
 import Player from './Player';
 import Skeleton from './Skeleton';
@@ -12,9 +13,35 @@ import suddenatksound from '../../assets/game/sudden_attack.mp3';
 import gg from '../../assets/game/gg.mp3';
 
 class Game extends React.Component {
-  
+  constructor(props) {
+    super(props);
+
+    this.socket = openSocket('http://localhost:3000');
+  }
+
   componentDidMount() {
     this.renderGame();
+  }
+
+  componentWillUnmount() {
+    this.socket.off(`relay action to ${this.props.match.params.lobbyId}`);
+  }
+
+  mountController(state) {
+    this.socket.on(`relay action to ${this.props.match.params.lobbyId}`, 
+      ({ playerId, playerAction}) => {
+        console.log("Got input");
+        let players = state.entities.filter(entity => typeof Player)
+        let playerArr = players.filter(player => playerId === player.playerId);
+        let player = playerArr[0];
+        switch(playerAction) {
+          case "hop":
+            player.hop();
+            break;
+          default:
+            break;
+        }
+      })
   }
   
   render() {
@@ -64,9 +91,8 @@ class Game extends React.Component {
     const gameover_music = new Audio();
     gameover_music.src = gg;
 
-
     //control the game state
-    document.addEventListener('keydown', function (e) {
+    document.addEventListener('keydown', (e) => {
       if (e.keyCode === 32) {
         switch (state.current) {
           case state.getReady:
@@ -76,9 +102,13 @@ class Game extends React.Component {
             state.current = state.game;
             break;
           case state.game:
-            let players = state.entities.filter(entity => typeof Player)
-            let player = players.filter(player => state.localPlayerId === player.playerId);
-            player[0].hop();
+            // let players = state.entities.filter(entity => typeof Player)
+            // let player = players.filter(player => state.localPlayerId === player.playerId);
+            this.socket.emit("relay action", {
+              lobbyId: state.lobbyId,
+              playerId: state.localPlayerId,
+              playerAction: "hop"
+            })
             break;
           case state.over:
             state.current = state.getReady;
@@ -108,7 +138,7 @@ class Game extends React.Component {
 
       update: function () {
         if (this.dx = frames % 100 === 0 ? this.dx : this.dx)
-        if (state.current == state.game) {
+        if (state.current === state.game) {
           this.x = (this.x - this.dx) % (this.w);
         }
       }
@@ -133,7 +163,7 @@ class Game extends React.Component {
 
       update: function () {
         if (this.dx = frames % 100 === 0 ? this.dx : this.dx )
-        if (state.current == state.game) {
+        if (state.current === state.game) {
           this.x = (this.x - this.dx) % (this.w);
         }
       }
@@ -149,7 +179,7 @@ class Game extends React.Component {
       y: 150,
 
       draw: function () {
-        if (state.current == state.getReady) {
+        if (state.current === state.getReady) {
           ctx.drawImage(ready, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
         }
       }
@@ -164,32 +194,25 @@ class Game extends React.Component {
       y: 90,
 
       draw: function () {
-        if (state.current == state.over) {
+        if (state.current === state.over) {
           ctx.drawImage(over, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
         }
       }
     }
 
     function generateSkeletons() {
-      
-      if (frames % (50 + (Math.floor(rng.next() * 25))) == 0 && state.current == state.game) {
+      if (frames % (50 + (Math.floor(rng.next() * 25))) === 0 && state.current === state.game) {
         state.entities.push(new Skeleton(cvs, ctx));
       }
     }
 
-    function removeSkeletons() {
-
-      // while (typeof state.entities[state.entities.length - 1] === "Skeleton") {
-        //   delete state.entitites[state.entities.length - 1];
-        // }
-        
+    function removeSkeletons() { 
       for (let i = 0; i < state.entities.length; i++) {
         if( state.entities[i] instanceof Skeleton ) {
           delete state.entities[i];
           i--;
         }
       }
-
     }
 
     function draw() {
@@ -222,6 +245,7 @@ class Game extends React.Component {
       }
     }
 
+    this.mountController(state);
     loop();
   }
 }

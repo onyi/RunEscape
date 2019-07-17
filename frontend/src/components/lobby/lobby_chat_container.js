@@ -1,7 +1,7 @@
 
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { fetchLobbies, joinLobby } from '../../actions/lobby_actions';
+import { joinLobby } from '../../actions/lobby_actions';
 
 import LobbyChat from "./lobby_chat";
 
