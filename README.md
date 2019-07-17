@@ -16,6 +16,19 @@ Players must avoid obstacles that will end the game if the Player character touc
 
 * Jump and Double-Jump - SPACEBAR Key
 * Slide - DOWN ARROW Key
+* Dash - RIGHT ARROW Key on the ground or in the air
+
+Prepare for the dangers ahead.
+![](https://i.imgur.com/bwxmPh1.gif)
+
+Staying on the ground too long can be perilous...
+![](https://i.imgur.com/xb9L5Td.gif)
+
+But sometimes hugging it can save you from certain doom.
+![](https://i.imgur.com/sKxc01E.gif)
+
+Perhaps join some friends and face these obstacles together.
+![](https://i.imgur.com/wSBBHFd.gif)
 
 ## Technologies Used
 
