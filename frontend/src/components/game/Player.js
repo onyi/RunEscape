@@ -80,6 +80,16 @@ class Player {
       { sX: 363, sY: 2015, w: 66, h: 89 },
     ];
 
+    this.airDashAnimation = [
+      { sX: 8, sY: 548, w: 69, h: 72 },
+      { sX: 83, sY: 561, w: 67, h: 59 },
+      { sX: 156, sY: 565, w: 70, h: 55 },
+      { sX: 231, sY: 559, w: 74, h: 61 },
+      { sX: 311, sY: 554, w: 83, h: 66 },
+      { sX: 398, sY: 553, w: 82, h: 67 },
+      { sX: 485, sY: 552, w: 84, h: 68 },
+    ]
+
 
     // Assets
     this.sprite = new Image();
