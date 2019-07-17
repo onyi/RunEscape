@@ -6,6 +6,7 @@ import LobbyIndex from "./lobby_index";
 
 const mapStateToProps = state => ({
   lobbies: Object.values(state.entities.lobbies),
+  currentUser: state.session.user,
   errors: state.errors.lobby
 });
 

@@ -6,7 +6,6 @@ const users = require("./routes/api/users");
 const scores = require("./routes/api/scores");
 const lobbies = require("./routes/api/lobbies");
 const bodyParser = require('body-parser');
-const User = require('./models/User');
 const passport = require('passport');
 const path = require('path');
 
@@ -49,6 +48,7 @@ io.on('connection', socket => {
   while(SOCKET_LIST[socket.id]) {
     socket.id = Math.random();
   }
+
   SOCKET_LIST[socket.id] = socket;
 
   socket.on('disconnect', () => {
@@ -60,7 +60,11 @@ io.on('connection', socket => {
     console.log(`Got message: ${msg} on ${lobbyId}`)
     io.emit(`chat message to ${lobbyId}`, msg);
   })
-});
 
+  socket.on('relay action', ({ lobbyId, playerId, playerAction }) => {
+    console.log(`Relay: ${playerId} on ${lobbyId} did ${playerAction}`)
+    io.emit(`relay action to ${lobbyId}`, { playerId, playerAction });
+  })
+});
 
 const server = http.listen(port, () => console.log(`Server is running on port ${port}`));
