@@ -56,7 +56,7 @@ class Scoreboard extends React.Component {
       this.props.scores.length > 0 || this.props.scores !== undefined ? 
         this.props.scores.map(
           score => 
-            <li key={score.id}>
+            <li key={score._id}>
               <p>{score.owner.username}:    {score.value}</p>
             </li>) 
       : "";
