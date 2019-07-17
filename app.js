@@ -6,7 +6,6 @@ const users = require("./routes/api/users");
 const scores = require("./routes/api/scores");
 const lobbies = require("./routes/api/lobbies");
 const bodyParser = require('body-parser');
-const User = require('./models/User');
 const passport = require('passport');
 const path = require('path');
 
@@ -63,7 +62,7 @@ io.on('connection', socket => {
   })
 
   socket.on('relay action', ({ lobbyId, playerId, playerAction }) => {
-    console.log(`Got message: ${msg} on ${lobbyId}`)
+    console.log(`Relay: ${playerId} on ${lobbyId} did ${playerAction}`)
     io.emit(`relay action to ${lobbyId}`, { playerId, playerAction });
   })
 });
