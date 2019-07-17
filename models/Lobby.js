@@ -14,7 +14,11 @@ const LobbySchema = new Schema({
   players: [{
     type: Schema.Types.ObjectId,
     ref: 'User'
-  }]
+  }],
+  hostPlayerId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  }
 });
 
 module.exports = Lobby = mongoose.model('Lobby', LobbySchema);

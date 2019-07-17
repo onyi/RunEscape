@@ -1,10 +1,18 @@
 import React from 'react';
-import run from '../../assets/game/run.png';
+import Prando from 'prando';
+
+import Player from './Player';
+import Skeleton from './Skeleton';
+
 import getready from '../../assets/game/get-ready.png';
 import gameover from '../../assets/game/game-over.png';
 import backgroundimg from '../../assets/game/background.png';
 import foregroundimg from '../../assets/game/foreground.png';
-import skeletonimg from '../../assets/game/skeletonatk.png'
+import suddenatksound from '../../assets/game/sudden_attack.mp3';
+import gg from '../../assets/game/gg.mp3';
+import pointSound from '../../assets/game/sfx_point.wav';
+
+import Score from './Score';
 
 class Game extends React.Component {
 
@@ -22,9 +30,9 @@ class Game extends React.Component {
   }
   
   render() {
-    return(
+    return (
       <canvas id="run-escape" width="800" height="500"></canvas>
-    )
+    );
   }
 
   renderGame() {
@@ -33,18 +41,26 @@ class Game extends React.Component {
     //select cvs 
     const cvs = document.getElementById('run-escape');
     const ctx = cvs.getContext('2d');
+    const rng = new Prando("seedasdasd");
 
     //game vars and consts
     let frames = 0;
 
+    const gameScore = new Score(cvs, ctx);
+
+    const state = {
+      localPlayerId: "tempPlayer1",
+      current: 0,
+      getReady: 0,
+      game: 1,
+      over: 2,
+      entities: [],
+    }
+    state.entities.push(new Player(cvs, ctx, state.localPlayerId));
+    state.entities.push(new Player(cvs, ctx, "another player"));
+    state.entities.push(new Skeleton(cvs, ctx));
+
     //load sprite image
-
-    const charaSprite = new Image();
-    charaSprite.src = run;
-
-    const skeletonSprite = new Image();
-    skeletonSprite.src = skeletonimg;
-
     const ready = new Image();
     ready.src = getready;
 
@@ -57,26 +73,36 @@ class Game extends React.Component {
     const foreground = new Image();
     foreground.src = foregroundimg;
 
-    //game state
-    const state = {
-      current: 0,
-      getReady: 0,
-      game: 1,
-      over: 2
-    }
+    const gameplay_music = new Audio();
+    gameplay_music.src = suddenatksound; 
+
+    const gameover_music = new Audio();
+    gameover_music.src = gg;
+
+    const point_sound = new Audio();
+    point_sound.src = pointSound;
+
 
     //control the game state
     document.addEventListener('keydown', function (e) {
       if (e.keyCode === 32) {
         switch (state.current) {
           case state.getReady:
+            gameplay_music.currentTime = 0; 
+            gameover_music.currentTime = 0;
+            gameplay_music.play();
             state.current = state.game;
             break;
           case state.game:
-            chara.hop();
+            let players = state.entities.filter(entity => typeof Player)
+            let player = players.filter(player => state.localPlayerId === player.playerId);
+            player[0].hop();
             break;
           case state.over:
             state.current = state.getReady;
+            removeSkeletons();
+            gameover_music.pause();   
+            gameOverAction();
             break;
         }
       }
@@ -100,7 +126,7 @@ class Game extends React.Component {
       },
 
       update: function () {
-        if (this.dx = frames % 100 === 0 ? this.dx += 1 : this.dx)
+        if (this.dx = frames % 100 === 0 ? this.dx : this.dx)
         if (state.current == state.game) {
           this.x = (this.x - this.dx) % (this.w);
         }
@@ -129,7 +155,7 @@ class Game extends React.Component {
       },
 
       update: function () {
-        if (this.dx = frames % 100 === 0 ? this.dx += 1 : this.dx )
+        if (this.dx = frames % 100 === 0 ? this.dx : this.dx )
         if (state.current == state.game) {
           this.x = (this.x - this.dx) % (this.w);
         }
@@ -139,177 +165,6 @@ class Game extends React.Component {
         this.dx = 10;
       }
     }
-
-    //chara
-    const chara = {
-      animation: [
-        { sX: 0, sY: 0 },
-        { sX: 32, sY: 0 },
-        { sX: 64, sY: 0 },
-        { sX: 96, sY: 0 },
-      ],
-      x: 100,
-      y: 388,
-      w: 31,
-      h: 41,
-      jumpCount: 0,
-
-      frame: 0,
-
-      gravity: 0.25,
-      jump: 5.6,
-      speed: 0,
-
-      draw: function () {
-        let chara = this.animation[this.frame];
-
-        ctx.drawImage(charaSprite, chara.sX, chara.sY, this.w, this.h, this.x, this.y, this.w, this.h);
-
-        // ctx.restore();
-      },
-
-      hop: function () {
-        if (this.jumpCount > 0) {
-          this.jumpCount -= 1;
-          this.y = this.y - 1;
-          this.speed = -this.jump;
-        }
-      },
-
-      update: function () {
-        //if the game state is get ready state, the chara must run slowly
-        this.period = state.current == state.getReady ? 10 : 5;
-        //increment the frame by 1, each period
-        this.frame += frames % this.period == 0 ? 1 : 0;
-        //frame goes from 0 to 4, then again to 0
-        this.frame = this.frame % this.animation.length;
-
-        if (state.current == state.getReady) {
-          this.y = cvs.height - fg.h; //reset position of the chara after the game over
-        } else {
-          this.speed += this.gravity;
-
-          //ground
-          if (this.y >= cvs.height - fg.h) {
-            this.y = cvs.height - fg.h;
-            this.speed = 0;
-            this.jumpCount = 2;
-          }
-
-          //air 
-          if (this.y < cvs.height - fg.h) {
-            this.y += this.speed;
-          }
-        }
-      },
-
-      speedReset: function () {
-        this.speed = 0;
-      },
-
-      reset: function(){
-        this.jump = 5.6;
-        this.speed = 0;
-      }
-    }
-
-    //skeleton monster 
-
-    const skeleton = {
-
-      position: [],
-
-      animation: [
-
-        { sX: 731, sY: 0 },
-        { sX: 688, sY: 0 },
-        { sX: 645, sY: 0 },
-        { sX: 559, sY: 0 },
-        { sX: 516, sY: 0 },
-        { sX: 473, sY: 0 },
-        { sX: 430, sY: 0 },
-        { sX: 387, sY: 0 },
-        { sX: 344, sY: 0 },
-        { sX: 301, sY: 0 },
-        { sX: 258, sY: 0 },
-        { sX: 215, sY: 0 },
-        { sX: 172, sY: 0 },
-        { sX: 129, sY: 0 },
-        { sX: 86, sY: 0 },
-        { sX: 43, sY: 0 },
-        { sX: 0, sY: 0 },
-
-      ],
-
-
-      w: 43,
-      h: 37,
-      dx: 8,
-      frame: 0,
-
-
-
-      draw: function () {
-        for (let i = 0; i < this.position.length; i++) {
-          let p = this.position[i];
-          let skeleton = this.animation[this.frame]
-
-          ctx.drawImage(skeletonSprite, skeleton.sX, skeleton.sY, this.w, this.h, p.x, p.y, this.w * 2, this.h * 2);
-        }
-
-      },
-
-      update: function () {
-        this.period = state.current == state.getReady ? 6 : 5;
-        this.frame += frames % this.period == 0 ? 1 : 0;
-        this.frame = this.frame % this.animation.length;
-
-
-        if (state.current !== state.game) return;
-
-        //pushes skeletons in arr 
-        if (frames % (50 + (Math.floor(Math.random() * 25))) == 0) {
-          this.position.push({
-            x: cvs.width,
-            y: cvs.height - fg.h - 30,
-          });
-        }
-
-        for (let i = 0; i < this.position.length; i++) {
-          let p = this.position[i];
-
-          // Collision Detection
-          if (chara.x> p.x && chara.x < p.x + this.w && chara.y > p.y && chara.y < p.y + this.h) {
-            state.current = state.over;
-            gameOverAction();
-            skeleton.reset();
-          }
-
-          p.x -= this.dx;
-
-          //removes skeleton 
-          if (p.x + this.w + this.w <= 0) {
-            this.position.shift();
-            gameScore.addObstacleScore(500);
-          }
-        }
-
-      },
-
-      reset: function () {
-        this.position = [];
-      },
-
-
-    }
-
-
-
-
-
-
-
-
 
     //get ready message
     const getReady = {
@@ -343,48 +198,46 @@ class Game extends React.Component {
       }
     }
 
+    function generateSkeletons() {
+      
+      if (frames % (50 + (Math.floor(rng.next() * 25))) == 0 && state.current == state.game) {
+        state.entities.push(new Skeleton(cvs, ctx));
+      }
+    }
 
-    const gameScore = {
-
-      sX: 0,
-      sY: 0,
-      w: 137,
-      h: 82,
-      x: 25,
-      y: 50,
-
-      score: 0,
-
-      update: function(){
-        if (state.current === state.game){
-          if (frames % 100 === 0) {
-            // Gives player 100 points for each 100 frames
-            // console.log(`Add 100 points`);
-            this.score += 100;
+    function removeSkeleton(){
+      for (let i = 0; i < state.entities.length; i++) {
+        if (state.entities[i] instanceof Skeleton) {
+          if (state.entities[i].x <  0 - state.entities[i].w ){
+            console.log(`Skeleton out of frame, remove`);
+            delete state.entities[i];
+            i--;
+            // point_sound.play();
+            gameScore.addObstacleScore(500)
           }
         }
-      },
-      reset: function(){
-        this.score = 0;
-      },
-
-      draw: function () {
-        if (state.current !== state.getReady) {
-          ctx.font = "30px Silver";
-          ctx.fillText("Game score: "+ this.score, this.x, this.y);
-          // ctx.drawImage(over, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
-        }
-      },
-
-      addObstacleScore: function (score){
-        this.score += score;
       }
+    }
+
+    function removeSkeletons() {
+
+      // while (typeof state.entities[state.entities.length - 1] === "Skeleton") {
+        //   delete state.entitites[state.entities.length - 1];
+        // }
+        
+      for (let i = 0; i < state.entities.length; i++) {
+        if( state.entities[i] instanceof Skeleton ) {
+          delete state.entities[i];
+          i--;
+        }
+      }
+
     }
 
     function gameOverAction(){
       console.log(`Total score: ${gameScore.score}`);
       that.props.postScore(gameScore.score);
-      chara.reset();
+      // chara.reset();
       bg.reset();
       fg.reset();
     }
@@ -396,20 +249,19 @@ class Game extends React.Component {
       ctx.fillRect(0, 0, cvs.width, cvs.height);
       bg.draw();
       fg.draw();
-      chara.draw();
-      skeleton.draw();
+      state.entities.forEach(entity => entity.draw())
+      gameScore.draw(state);
       getReady.draw();
       gameOver.draw();
-      gameScore.draw();
     }
 
-    //update
     function update() {
-      chara.update();
-      skeleton.update();
+      removeSkeleton();
+      state.entities.forEach(entity => entity.update(state))
+      gameScore.update(state);
       bg.update();
       fg.update();
-      gameScore.update();
+      generateSkeletons();
     }
 
     //loop
@@ -418,6 +270,10 @@ class Game extends React.Component {
       draw();
       frames++;
       requestAnimationFrame(loop);
+      if (state.current === state.over) {
+        gameplay_music.pause();
+        gameover_music.play();
+      }
     }
 
     loop();

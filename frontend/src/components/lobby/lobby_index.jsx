@@ -8,6 +8,7 @@ class LobbyIndex extends React.Component {
 
     this.state = {
       name: "",
+      hostPlayerId: this.props.currentUser.id,
       errors: {}
     }
 
