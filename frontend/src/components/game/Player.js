@@ -4,7 +4,7 @@ import charajump from '../../assets/game/char.png'
 import jumpsound from '../../assets/game/jump_sound_effect.mp3';
 
 class Player {
-  constructor(canvas, context, playerId) {
+  constructor(canvas, context, playerId, xOffset = 0) {
     this.ctx = context;
     this.cvs = canvas;
     this.playerId = playerId;
@@ -12,7 +12,7 @@ class Player {
       h: 59
     }
 
-    this.x = 100;
+    this.x = 100 + xOffset;
     this.y = 388;
     this.gravity = 0.25;
     this.jump = 5.6;

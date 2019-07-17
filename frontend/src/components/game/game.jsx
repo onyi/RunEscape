@@ -41,8 +41,18 @@ class Game extends React.Component {
 
   addPlayerstoLobby(state) {
     state.entities = [];
-    this.props.lobbies[this.lobbyId].players.map(playerId => 
-      state.entities.push(new Player(state.cvs, state.ctx, playerId)))
+    // this.props.lobbies[this.lobbyId].players.map(playerId => 
+    //   state.entities.push(new Player(state.cvs, state.ctx, playerId)))
+
+    for (let i = 0; i < this.props.lobbies[this.lobbyId].players.length; i++) {
+      state.entities.push(new Player(state.cvs, state.ctx, this.props.lobbies[this.lobbyId].players[i], i * 20))
+    }
+  }
+
+  getCurrentPlayer(state) {
+    let players = state.entities.filter(entity => entity instanceof Player)
+    let playerArr = players.filter(player => state.localPlayerId === player.playerId);
+    return playerArr[0];
   }
 
   // Subscribe socket to player action relay
@@ -96,6 +106,9 @@ class Game extends React.Component {
       over: 2,
       entities: [],
       gameScore: new Score(cvs, ctx),
+      startGame: () => {
+        state.current = state.game;
+      },
       gameOver: () => {
         this.socket.emit("chat message", {
           lobbyId: state.lobbyId,
@@ -139,13 +152,14 @@ class Game extends React.Component {
             state.current = state.game;
             break;
           case state.game:
-            // let players = state.entities.filter(entity => typeof Player)
-            // let player = players.filter(player => state.localPlayerId === player.playerId);
-            this.socket.emit("relay action", {
-              lobbyId: state.lobbyId,
-              playerId: state.localPlayerId,
-              playerAction: "hop"
-            })
+
+            if (this.getCurrentPlayer(state).jumpCount > 0) {
+              this.socket.emit("relay action", {
+                lobbyId: state.lobbyId,
+                playerId: state.localPlayerId,
+                playerAction: "hop"
+              })
+            }
             break;
           case state.over:
             state.current = state.getReady;
