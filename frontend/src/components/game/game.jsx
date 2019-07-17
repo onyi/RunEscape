@@ -52,8 +52,7 @@ class Game extends React.Component {
 
   getCurrentPlayer(state) {
     let players = state.entities.filter(entity => entity instanceof Player)
-    let playerArr = players.filter(player => state.localPlayerId === player.playerId);
-    return playerArr[0];
+    return players.filter(player => state.localPlayerId === player.playerId);
   }
 
   // Subscribe socket to player action relay
@@ -65,14 +64,14 @@ class Game extends React.Component {
         let player = players.filter(player => 
           playerId === player.playerId)[0];
         switch(playerAction) {
-          case "hop":
-            player.sliding = false;
-            player.hop();
-            break;
           case "joinLobby":
             this.props.fetchLobby(this.lobbyId);
             this.addPlayerstoLobby(state);
             this.setState({});
+          case "hop":
+            player.sliding = false;
+            player.hop();
+            break;
           case "slide":
             player.sliding = true;
             player.currentAnimation = player.slidingAnimation;
@@ -93,8 +92,6 @@ class Game extends React.Component {
       })
   }
 
-
-  
   render() {
     return (
       <canvas id="run-escape" width="800" height="500"></canvas>
@@ -161,14 +158,13 @@ class Game extends React.Component {
     gameover_music.src = gg;
 
     let players = state.entities.filter(entity => typeof Player)
-    let player = players.filter(player => state.localPlayerId === player.playerId);
+    let player = players.filter(player => state.localPlayerId === player.playerId)[0];
 
     const point_sound = new Audio();
     point_sound.src = pointSound;
 
     //control the game state
     document.addEventListener('keydown', (e) => {
-      console.log(frames)
       if (e.keyCode === 32 || e.keyCode === 40 || e.keyCode === 39) {
         switch (state.current) {
           case state.getReady:
@@ -177,7 +173,7 @@ class Game extends React.Component {
             gameover_music.currentTime = 0;
             gameplay_music.play();
             state.current = state.game;
-            player[0].currentAnimation = player[0].runningAnimation;
+            player.currentAnimation = player.runningAnimation;
             break;
           case state.game:
             if (e.keyCode === 32) {
@@ -186,13 +182,13 @@ class Game extends React.Component {
                 playerId: state.localPlayerId,
                 playerAction: "hop"
               })
-            } else if (e.keyCode === 40 && player[0].jumpCount === 2) {
+            } else if (e.keyCode === 40 && player.jumpCount === 2) {
               this.socket.emit("relay action", {
                 lobbyId: state.lobbyId,
                 playerId: state.localPlayerId,
                 playerAction: "slide"
               })
-            } else if (e.keyCode === 40 && player[0].jumpCount !== 2) {
+            } else if (e.keyCode === 40 && player.jumpCount !== 2) {
               this.socket.emit("relay action", {
                 lobbyId: state.lobbyId,
                 playerId: state.localPlayerId,
@@ -200,7 +196,7 @@ class Game extends React.Component {
               })
             }
 
-            if (e.keyCode === 39 && player[0].jumpCount !== 2) {
+            if (e.keyCode === 39 && player.jumpCount !== 2) {
               this.socket.emit("relay action", {
                 lobbyId: state.lobbyId,
                 playerId: state.localPlayerId,
@@ -210,7 +206,7 @@ class Game extends React.Component {
             break;
           case state.over:
             state.current = state.getReady;
-            player[0].currentAnimation = player[0].idleAnimation
+            player.currentAnimation = player.idleAnimation
             removeSkeletons();
             removeDragons();
             gameover_music.pause();   
@@ -391,15 +387,12 @@ class Game extends React.Component {
     }
 
     function update() {
-      console.log(frames)
       removeSkeleton();
       removeDragon();
       state.entities.forEach(entity => entity.update(state))
       state.gameScore.update(state);
       bg.update();
       fg.update();
-      // generateSkeletons();
-      // generateDragons();
       generateEnemies();
     }
 

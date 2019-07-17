@@ -35,7 +35,7 @@ class LobbyChat extends React.Component {
       });
     this.socket.emit("relay action", {
       lobbyId: this.lobbyId,
-      playerId: this.props.currentUser.username,
+      playerId: this.props.currentUser.id,
       playerAction: "joinLobby"
     });
     this.props.joinLobby(this.lobbyId, this.props.currentUser.id);
