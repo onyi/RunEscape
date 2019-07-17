@@ -27,8 +27,8 @@ const App = () => (
           <AuthRoute exact path="/" component={MainPage} />
           <AuthRoute exact path="/login" component={LoginFormContainer} />
           <AuthRoute exact path="/signup" component={SignupFormContainer} />
-          <AuthRoute exact path="/scoreboard" component={ScoreboardContainer} />
-          <ProtectedRoute path="/lobbies" component={LobbyContainer} />
+          <ProtectedRoute exact path="/scoreboard" component={ScoreboardContainer} />
+          <ProtectedRoute path="/lobbies/:lobbyId" component={LobbyContainer} />
         </Switch>
         <ProtectedRoute exact path="/" component={LobbyIndexContainer} />
       </div>

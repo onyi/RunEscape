@@ -117,7 +117,7 @@ class Player {
 
   update(state) {
     //if the game state is get ready state, the chara must run slowly
-    this.period = state.current == state.getReady ? 10 : 5;
+    this.period = state.current === state.getReady ? 10 : 5;
 
     // count frames that have elapsed, increment the animationFrame by 1 each period
     this.frameTicks++;
@@ -129,7 +129,7 @@ class Player {
     //animationFrame goes from 0 to 8, then again to 0
     this.animationFrame = this.animationFrame % this.currentAnimation.length;
 
-    if (state.current == state.getReady) {
+    if (state.current === state.getReady) {
       this.y = this.cvs.height - this.fg.h - 30; //reset position of the chara after the game over
     } else {
       this.speed += this.gravity;
@@ -150,6 +150,11 @@ class Player {
 
   speedReset() {
     this.speed = 0;
+  }
+
+  reset(){
+    this.speed = 0;
+    this.dx = 10;
   }
 }
 

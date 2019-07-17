@@ -12,6 +12,16 @@ router.get('/', (req, res) => {
     .catch(err => res.status(404).json({ nolobbiesfound: "No lobbies found" }))
 });
 
+router.get('/:lobbyId', (req, res) => {
+  Lobby.findOne(
+    { "_id": req.params.lobbyId })
+    .exec()
+    .then(data => {
+      res.json(data)
+    })
+    .catch(err => res.status(404).json({ nolobbiesfound: "No lobby found" }))
+})
+
 router.post('/create', (req, res) => {
   const { errors, isValid } = validateCreateLobbyInput(req.body);
 
