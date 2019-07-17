@@ -9,7 +9,11 @@ const ScoreSchema = new Schema({
   userId: {
     type: String,
     required: false
+  },
+  owner: {
+    type: Schema.Types.ObjectId, 
+    ref: 'User'
   }
 });
 
-module.exports = Score = mongoose.model('Score', ScoreSchema);
+module.exports = Score = mongoose.model('Score', ScoreSchema, 'scores');

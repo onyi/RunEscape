@@ -370,7 +370,7 @@ class Game extends React.Component {
 
       draw: function () {
         if (state.current !== state.getReady) {
-          ctx.font = "30px Arial";
+          ctx.font = "30px Silver";
           ctx.fillText("Game score: "+ this.score, this.x, this.y);
           // ctx.drawImage(over, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
         }
