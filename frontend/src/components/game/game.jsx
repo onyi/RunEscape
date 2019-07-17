@@ -23,7 +23,7 @@ class Game extends React.Component {
       scores: props.scores
     }
     this.renderGame = this.renderGame.bind(this);
-    this.socket = openSocket('http://localhost:3000');
+    this.socket = openSocket(window.location.origin);
 
   }
 

@@ -1,6 +1,7 @@
 
 import openSocket from 'socket.io-client';
-let socket = openSocket('http://localhost:3000');
+let HOST = location.origin.replace(/^http/, 'ws')
+let socket = openSocket(HOST);
 
 export const subscribeToChat = (lobbyId) => {
   socket.on(`chat message on ${lobbyId}` , function (msg) {

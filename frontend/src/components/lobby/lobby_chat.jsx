@@ -1,13 +1,12 @@
 
 import React from 'react';
 import openSocket from 'socket.io-client';
-import GameContainer from '../game/game_container';
 
 class LobbyChat extends React.Component {
   constructor(props) {
     super(props)
     
-    this.socket = openSocket('http://localhost:3000');
+    this.socket = openSocket(window.location.origin);
 
     this.state = {
       msg: ""
