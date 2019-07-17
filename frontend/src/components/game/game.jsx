@@ -19,34 +19,47 @@ class Game extends React.Component {
 
   constructor(props){
     super(props);
+
     this.state = {
       scores: props.scores
     }
+    
+    this.lobbyId = this.props.match.params.lobbyId;
     this.renderGame = this.renderGame.bind(this);
     this.socket = openSocket(window.location.origin);
-
   }
 
   componentDidMount() {
     this.props.getScores();
     this.renderGame();
+    
   }
 
   componentWillUnmount() {
-    this.socket.off(`relay action to ${this.props.match.params.lobbyId}`);
+    this.socket.off(`relay action to ${this.lobbyId}`);
   }
 
-  mountController(state) {
-    
-    this.socket.on(`relay action to ${this.props.match.params.lobbyId}`, 
+  addPlayerstoLobby(state) {
+    state.entities = [];
+    this.props.lobbies[this.lobbyId].players.map(playerId => 
+      state.entities.push(new Player(state.cvs, state.ctx, playerId)))
+  }
+
+  // Subscribe socket to player action relay
+  subscribeToPlayerActions(state) {
+    this.socket.on(`relay action to ${this.lobbyId}`, 
       ({ playerId, playerAction}) => {
-        console.log("Got input");
-        let players = state.entities.filter(entity => typeof Player)
+        let players = state.entities.filter(entity => entity instanceof Player)
         let playerArr = players.filter(player => playerId === player.playerId);
         let player = playerArr[0];
         switch(playerAction) {
           case "hop":
             player.hop();
+            break;
+          case "joinLobby":
+            this.props.fetchLobby(this.lobbyId);
+            this.addPlayerstoLobby(state);
+            this.setState({});
             break;
           default:
             break;
@@ -66,13 +79,15 @@ class Game extends React.Component {
     //select cvs 
     const cvs = document.getElementById('run-escape');
     const ctx = cvs.getContext('2d');
-    const lobby = this.props.lobbies[this.props.match.params.lobbyId]
+    const lobby = this.props.lobbies[this.lobbyId];
     const rng = new Prando(lobby._id);
 
     //game vars and consts
     let frames = 0;
 
     const state = {
+      cvs: cvs,
+      ctx: ctx,
       localPlayerId: this.props.currentUser.id,
       lobbyId: lobby._id,
       current: 0,
@@ -89,9 +104,7 @@ class Game extends React.Component {
         state.current = state.over;
       }
     }
-    lobby.players.map(playerId => 
-      state.entities.push(new Player(cvs, ctx, playerId)))
-    state.entities.push(new Skeleton(cvs, ctx));
+    this.addPlayerstoLobby(state, cvs, ctx);
 
     //load sprite image
     const ready = new Image();
@@ -234,6 +247,7 @@ class Game extends React.Component {
       }
     }
 
+
     function generateSkeletons() {
       if (frames % (50 + (Math.floor(rng.next() * 25))) === 0 && state.current === state.game) {
         state.entities.push(new Skeleton(cvs, ctx));
@@ -301,9 +315,8 @@ class Game extends React.Component {
       }
     }
 
-    this.mountController(state);
+    this.subscribeToPlayerActions(state);
     loop();
   }
 }
-
 export default Game;
