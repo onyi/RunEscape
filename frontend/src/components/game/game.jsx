@@ -55,18 +55,33 @@ class Game extends React.Component {
 
     //control the game state
     document.addEventListener('keydown', function (e) {
-      if (e.keyCode === 32) {
+      console.log(state.current)
+      if (e.keyCode === 32 || e.keyCode === 40) {
         switch (state.current) {
           case state.getReady:
             state.current = state.game;
+            chara.currentAnimation = chara.runningAnimation;
             break;
           case state.game:
-            chara.hop();
-            break;
+            if (e.keyCode === 32) {
+              chara.hop();
+              break;
+            } else if (e.keyCode === 40) {
+              console.log(chara.y)
+              console.log()
+              chara.currentAnimation = chara.slidingAnimation;
+              break;
+            }
           case state.over:
             state.current = state.getReady;
             break;
         }
+      }
+    })
+
+    document.addEventListener('keyup', function(e) {
+      if (e.keyCode === 40 && state.current === state.game) {
+        chara.currentAnimation = chara.runningAnimation
       }
     })
 
@@ -79,7 +94,7 @@ class Game extends React.Component {
       x: 0,
       y: 0,
 
-      dx: 10,
+      dx: 2,
 
       draw: function () {
         ctx.drawImage(background, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
@@ -88,7 +103,7 @@ class Game extends React.Component {
       },
 
       update: function () {
-        if (this.dx = frames % 100 === 0 ? this.dx += 1 : this.dx)
+        if (this.dx = frames % 300 === 0 && this.dx < 30 && state.current === state.game ? this.dx += 1 : this.dx)
         if (state.current == state.game) {
           this.x = (this.x - this.dx) % (this.w);
         }
@@ -104,7 +119,7 @@ class Game extends React.Component {
       x: 0,
       y: cvs.height - 59,
 
-      dx: 10,
+      dx: 2,
 
       draw: function () {
         ctx.drawImage(foreground, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
@@ -113,7 +128,7 @@ class Game extends React.Component {
       },
 
       update: function () {
-        if (this.dx = frames % 100 === 0 ? this.dx += 1 : this.dx )
+        if (this.dx = frames % 300 === 0 && this.dx < 30 && state.current === state.game ? this.dx += 1 : this.dx )
         if (state.current == state.game) {
           this.x = (this.x - this.dx) % (this.w);
         }
