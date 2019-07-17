@@ -7,6 +7,7 @@ import Skeleton from './Skeleton';
 import Dragon from './Dragon';
 import getready from '../../assets/game/get-ready.png';
 import gameover from '../../assets/game/game-over.png';
+import controlsimg from '../../assets/game/controls.png'
 import backgroundimg from '../../assets/game/background.png';
 import foregroundimg from '../../assets/game/foreground.png';
 import suddenatksound from '../../assets/game/lunatic_eyes.mp3';
@@ -117,6 +118,9 @@ class Game extends React.Component {
 
     const over = new Image();
     over.src = gameover;
+
+    const controls = new Image();
+    controls.src = controlsimg 
 
     const background = new Image();
     background.src = backgroundimg;
@@ -276,6 +280,19 @@ class Game extends React.Component {
       }
     }
 
+    const controlPrompt = {
+      sX: 0,
+      sY: 0,
+      w: 196,
+      h: 111,
+      x: 580,
+      y: 8,
+
+      draw: function () {
+        ctx.drawImage(controls, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
+      }
+    }
+
     const gameOver = {
       sX: 0,
       sY: 0,
@@ -366,6 +383,7 @@ class Game extends React.Component {
       state.gameScore.draw(state);
       getReady.draw();
       gameOver.draw();
+      controlPrompt.draw();
     }
 
     function update() {

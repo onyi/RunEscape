@@ -2,7 +2,7 @@
 import reisen from '../../assets/game/reisen.png';
 import charajump from '../../assets/game/char.png'
 import jumpsound from '../../assets/game/jump_sound_effect.mp3';
-import { throws } from 'assert';
+
 
 class Player {
   constructor(canvas, context, playerId) {
