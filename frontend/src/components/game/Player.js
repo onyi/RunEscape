@@ -16,7 +16,7 @@ class Player {
     this.x = 100;
     this.y = 388;
     this.gravity = 0.25;
-    this.jump = 7.2;
+    this.jump = 6.1;
     this.speed = 0;
     this.jumpCount = 0;
     this.slidingHitBox = this.y + 1000;

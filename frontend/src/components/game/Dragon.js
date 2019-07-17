@@ -67,7 +67,7 @@ class Dragon {
       }
     } else {
       if (player.x > this.x &&
-        player.x < this.x + dragon.w &&
+        player.x < this.x + dragon.w/2 &&
         player.y > this.y &&
         player.y < this.y + dragon.h) {
         this.hitSfx.play();

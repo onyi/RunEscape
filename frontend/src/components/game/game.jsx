@@ -188,7 +188,7 @@ class Game extends React.Component {
       x: 0,
       y: 0,
 
-      dx: 2,
+      dx: 4,
 
       draw: function () {
         ctx.drawImage(background, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
@@ -217,7 +217,7 @@ class Game extends React.Component {
       x: 0,
       y: cvs.height - 59,
 
-      dx: 2,
+      dx: 4,
 
       draw: function () {
         ctx.drawImage(foreground, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
@@ -269,17 +269,32 @@ class Game extends React.Component {
       }
     }
 
-    function generateSkeletons() {
-      if (frames % (50 + (Math.floor(rng.next() * 25))) === 0 && state.current === state.game) {
-        state.entities.push(new Skeleton(cvs, ctx));
+    function generateEnemies() {
+      
+      if (frames % (100 + (Math.floor(rng.next() * 25))) === 0 && state.current === state.game) {
+        let num = Math.floor(Math.random() * 2) + 1;
+        if (num === 1) {
+          state.entities.push(new Skeleton(cvs, ctx));
+        } else {
+          state.entities.push(new Dragon(cvs, ctx));
+        }
       }
+    
     }
 
-    function generateDragons() {
-      if (frames % (50 + (Math.floor(rng.next() * 33))) === 0 && state.current === state.game) {
-        state.entities.push(new Dragon(cvs, ctx));
-      }
-    }
+
+
+    // function generateSkeletons() {
+    //   if (frames % (50 + (Math.floor(rng.next() * 25))) === 0 && state.current === state.game) {
+    //     state.entities.push(new Skeleton(cvs, ctx));
+    //   }
+    // }
+
+    // function generateDragons() {
+    //   if (frames % (50 + (Math.floor(rng.next() * 33))) === 0 && state.current === state.game) {
+    //     state.entities.push(new Dragon(cvs, ctx));
+    //   }
+    // }
 
     function removeSkeleton(){
       for (let i = 0; i < state.entities.length; i++) {
@@ -349,8 +364,9 @@ class Game extends React.Component {
       state.gameScore.update(state);
       bg.update();
       fg.update();
-      generateSkeletons();
-      generateDragons();
+      // generateSkeletons();
+      // generateDragons();
+      generateEnemies();
     }
 
     //loop
