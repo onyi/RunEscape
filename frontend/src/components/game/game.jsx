@@ -57,10 +57,10 @@ class Game extends React.Component {
             player.sliding = false;
             break;
           case "fastfall":
-            player.speed = 8.5;
+            player.fastfall();
             break;
           case "airdash":
-            player.speed = 0;
+            player.airdash(state);
             break;
           default:
             break;
@@ -96,7 +96,6 @@ class Game extends React.Component {
       game: 1,
       over: 2,
       dx: 8,
-      holderdx: 0,
       entities: [],
       gameScore: new Score(cvs, ctx),
       gameOver: () => {
@@ -171,13 +170,14 @@ class Game extends React.Component {
               })
             }
 
-            if (e.keyCode === 39 && player[0].jumpCount !== 2 ) {
+            if (e.keyCode === 39 && player[0].jumpCount !== 2) {
               this.socket.emit("relay action", {
                 lobbyId: state.lobbyId,
                 playerId: state.localPlayerId,
                 playerAction: "airdash"
               })
             }
+            
             // let players = state.entities.filter(entity => typeof Player)
             // let player = players.filter(player => state.localPlayerId === player.playerId);
             // debugger
@@ -193,6 +193,9 @@ class Game extends React.Component {
         }
       }
     })
+    
+
+    
 
     document.addEventListener('keyup', (e) => {
       if (e.keyCode === 40 && state.current === state.game) {

@@ -2,6 +2,7 @@
 import reisen from '../../assets/game/reisen.png';
 import charajump from '../../assets/game/char.png'
 import jumpsound from '../../assets/game/jump_sound_effect.mp3';
+import { throws } from 'assert';
 
 class Player {
   constructor(canvas, context, playerId) {
@@ -15,10 +16,11 @@ class Player {
 
     this.x = 100;
     this.y = 388;
-    this.gravity = 0.65;
-    this.jump = 7.1;
+    this.gravity = 0.45;
+    this.jump = 11.1;
     this.speed = 0;
-    this.jumpCount = 0;
+    this.jumpCount = 2;
+    this.airDashCount = 1; 
     this.slidingHitBox = this.y + 1000;
     this.frameTicks = 0;
     this.animationFrame = 0;
@@ -80,6 +82,16 @@ class Player {
       { sX: 363, sY: 2015, w: 66, h: 89 },
     ];
 
+    this.airDashAnimation = [
+      { sX: 8, sY: 548, w: 69, h: 72 },
+      { sX: 83, sY: 561, w: 67, h: 59 },
+      { sX: 156, sY: 565, w: 70, h: 55 },
+      { sX: 231, sY: 559, w: 74, h: 61 },
+      { sX: 311, sY: 554, w: 83, h: 66 },
+      { sX: 398, sY: 553, w: 82, h: 67 },
+      { sX: 485, sY: 552, w: 84, h: 68 },
+    ];
+
 
     // Assets
     this.sprite = new Image();
@@ -92,21 +104,36 @@ class Player {
   
   draw () {
     let chara = this.currentAnimation[this.animationFrame];
-    let jumping = this.jump_animation[this.animationFrame % this.jump_animation.length];
-
-    if (this.y < this.cvs.height - this.fg.h - 30) {
-      this.ctx.drawImage(this.spritejump, jumping.sX, jumping.sY, jumping.w, jumping.h, this.x, this.y, jumping.w, jumping.h);        
-    } else {
-      this.ctx.drawImage(this.sprite, chara.sX, chara.sY, chara.w, chara.h, this.x, this.y, chara.w, chara.h);
-    }
+    this.ctx.drawImage(this.sprite, chara.sX, chara.sY, chara.w, chara.h, this.x, this.y, chara.w, chara.h);
+    
   }
 
   hop() {
-    this.jumpSfx.play();
     if (this.jumpCount > 0) {
+      this.jumpSfx.play();
+      this.currentAnimation = this.jump_animation
       this.jumpCount -= 1;
       this.y = this.y - 1;
       this.speed = -this.jump;
+    }
+  }
+
+  fastfall() {
+    this.speed = 8.5;
+  }
+
+  airdash(state) {
+    if (this.airDashCount > 0) {
+      this.currentAnimation = this.airDashAnimation;
+      this.airDashCount -= 1; 
+      this.y = this.y - 1; 
+      this.gravity = .20;
+      this.speed = -2;
+      state.dx += 6; 
+      setTimeout(() => {
+        // state.dx -= 7;
+        this.gravity = 0.45;
+      }, 400)
     }
   }
 
@@ -131,10 +158,18 @@ class Player {
 
       //ground
       if (this.y >= this.cvs.height - this.fg.h - 30) {
+        if (!this.sliding){
+          this.currentAnimation = this.runningAnimation;
+        }
         this.y = this.cvs.height - this.fg.h - 30;
         this.speed = 0;
         this.jumpCount = 2;
-        this.gravity = 0.25;
+        this.gravity = 0.45;
+        if (this.airDashCount === 0) {
+          state.dx -= 6;
+          this.airDashCount = 1;
+        }
+         
       }
 
       //air 
