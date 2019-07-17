@@ -57,7 +57,7 @@ class Scoreboard extends React.Component {
         this.props.scores.map(
           score => 
             <li key={score.id}>
-              <p>{score.value}</p>
+              <p>{score.owner.username}:    {score.value}</p>
             </li>) 
       : "";
 

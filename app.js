@@ -6,7 +6,6 @@ const users = require("./routes/api/users");
 const scores = require("./routes/api/scores");
 const lobbies = require("./routes/api/lobbies");
 const bodyParser = require('body-parser');
-const User = require('./models/User');
 const passport = require('passport');
 const path = require('path');
 
