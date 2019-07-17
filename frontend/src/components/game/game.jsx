@@ -57,7 +57,7 @@ class Game extends React.Component {
             player.sliding = false;
             break;
           case "fastfall":
-            player.gravity = 1; 
+            player.gravity = 10; 
           default:
             break;
         }
@@ -286,7 +286,7 @@ class Game extends React.Component {
     }
 
     function generateDragons() {
-      if (frames % (50 + (Math.floor(rng.next() * 33))) === 0 && state.current === state.game) {
+      if (frames % (200 + (Math.floor(rng.next() * 33))) === 0 && state.current === state.game) {
         state.entities.push(new Dragon(cvs, ctx));
       }
     }
