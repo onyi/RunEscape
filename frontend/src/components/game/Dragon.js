@@ -16,7 +16,6 @@ class Dragon {
     this.sprite.src = enemies;
     this.x = this.cvs.width;
     this.y = this.cvs.height - 220;
-    this.dx = 8;
 
     this.frameTicks = 0;
     this.animationFrame = 0;
@@ -67,7 +66,7 @@ class Dragon {
       }
     } else {
       if (player.x > this.x &&
-        player.x < this.x + dragon.w &&
+        player.x < this.x + dragon.w/2 &&
         player.y > this.y &&
         player.y < this.y + dragon.h) {
         this.hitSfx.play();
@@ -81,7 +80,7 @@ class Dragon {
       state.gameScore.addObstacleScore(100);
     }
 
-    this.x -= this.dx;
+    this.x -= state.dx;
   }
 }
 

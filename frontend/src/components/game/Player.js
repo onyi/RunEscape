@@ -15,8 +15,8 @@ class Player {
 
     this.x = 100;
     this.y = 388;
-    this.gravity = 0.25;
-    this.jump = 7.2;
+    this.gravity = 0.65;
+    this.jump = 7.1;
     this.speed = 0;
     this.jumpCount = 0;
     this.slidingHitBox = this.y + 1000;
@@ -58,8 +58,8 @@ class Player {
     ]
 
     this.slidingAnimation = [
-      { sX: 8, sY: 2261, w: 66, h: 72 },
-      { sX: 78, sY: 2266, w: 82, h: 67 },
+      // { sX: 8, sY: 2261, w: 66, h: 72 },
+      // { sX: 78, sY: 2266, w: 82, h: 67 },
       { sX: 165, sY: 2270, w: 92, h: 63 },
       { sX: 262, sY: 2271, w: 97, h: 62 },
       { sX: 364, sY: 2271, w: 94, h: 62 },
@@ -144,14 +144,7 @@ class Player {
     }
   }
 
-  speedReset() {
-    this.speed = 0;
-  }
-
-  reset(){
-    this.speed = 0;
-    this.dx = 10;
-  }
+ 
 
 
   

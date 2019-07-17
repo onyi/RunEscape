@@ -20,7 +20,7 @@ class Game extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      scores: props.scores
+      scores: props.scores,
     }
     this.renderGame = this.renderGame.bind(this);
     this.socket = openSocket('http://localhost:3000');
@@ -57,7 +57,11 @@ class Game extends React.Component {
             player.sliding = false;
             break;
           case "fastfall":
-            player.gravity = 10; 
+            player.speed = 8.5;
+            break;
+          case "airdash":
+            player.speed = 0;
+            break;
           default:
             break;
         }
@@ -91,6 +95,8 @@ class Game extends React.Component {
       getReady: 0,
       game: 1,
       over: 2,
+      dx: 8,
+      holderdx: 0,
       entities: [],
       gameScore: new Score(cvs, ctx),
       gameOver: () => {
@@ -134,9 +140,10 @@ class Game extends React.Component {
     //control the game state
     document.addEventListener('keydown', (e) => {
       console.log(frames)
-      if (e.keyCode === 32 || e.keyCode === 40) {
+      if (e.keyCode === 32 || e.keyCode === 40 || e.keyCode === 39) {
         switch (state.current) {
           case state.getReady:
+            state.dx = 8;
             gameplay_music.currentTime = 0; 
             gameover_music.currentTime = 0;
             gameplay_music.play();
@@ -161,6 +168,14 @@ class Game extends React.Component {
                 lobbyId: state.lobbyId,
                 playerId: state.localPlayerId,
                 playerAction:"fastfall" 
+              })
+            }
+
+            if (e.keyCode === 39 && player[0].jumpCount !== 2 ) {
+              this.socket.emit("relay action", {
+                lobbyId: state.lobbyId,
+                playerId: state.localPlayerId,
+                playerAction: "airdash"
               })
             }
             // let players = state.entities.filter(entity => typeof Player)
@@ -198,7 +213,7 @@ class Game extends React.Component {
       x: 0,
       y: 0,
 
-      dx: 2,
+
 
       draw: function () {
         ctx.drawImage(background, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
@@ -207,15 +222,12 @@ class Game extends React.Component {
       },
 
       update: function () {
-        if (this.dx = frames % 300 === 0 && this.dx < 20 && state.current === state.game ? this.dx += 1 : this.dx)
+        if (state.dx = frames % 1000 === 0 && state.dx < 10 && state.current === state.game ? state.dx += 1 : state.dx)
         if (state.current === state.game) {
-          this.x = (this.x - this.dx) % (this.w);
+          this.x = (this.x - state.dx) % (this.w);
         }
       },
 
-      reset: function () {
-        this.dx = 10;
-      }
     }
 
     //foreground
@@ -227,7 +239,6 @@ class Game extends React.Component {
       x: 0,
       y: cvs.height - 59,
 
-      dx: 2,
 
       draw: function () {
         ctx.drawImage(foreground, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
@@ -236,15 +247,13 @@ class Game extends React.Component {
       },
 
       update: function () {
-        if (this.dx = frames % 300 === 0 && this.dx < 20 && state.current === state.game ? this.dx += 1 : this.dx )
+        if (state.dx = frames % 300 === 0 && state.dx < 20 && state.current === state.game ? state.dx += 1 : state.dx )
         if (state.current == state.game) {
-          this.x = (this.x - this.dx) % (this.w);
+          this.x = (this.x - state.dx) % (this.w);
         }
       },
 
-      reset: function() {
-        this.dx = 10;
-      }
+      
     }
 
     //get ready message
@@ -279,14 +288,21 @@ class Game extends React.Component {
       }
     }
 
-    function generateSkeletons() {
-      if (frames % (50 + (Math.floor(rng.next() * 25))) === 0 && state.current === state.game) {
-        state.entities.push(new Skeleton(cvs, ctx));
+    function generateEnemies() {
+      
+      if (frames % (100 + (Math.floor(rng.next() * 25))) === 0 && state.current === state.game) {
+        let num = Math.floor(Math.random() * 2) + 1;
+        if (num === 1) {
+          state.entities.push(new Skeleton(cvs, ctx));
+        } else {
+          state.entities.push(new Dragon(cvs, ctx));
+        }
       }
+    
     }
 
     function generateDragons() {
-      if (frames % (200 + (Math.floor(rng.next() * 33))) === 0 && state.current === state.game) {
+      if (frames % (250 + (Math.floor(rng.next() * 33))) === 0 && state.current === state.game) {
         state.entities.push(new Dragon(cvs, ctx));
       }
     }
@@ -333,9 +349,7 @@ class Game extends React.Component {
 
     function gameOverAction(){
       that.props.postScore(state.gameScore.score);
-      // chara.reset();
-      bg.reset();
-      fg.reset();
+     
     }
 
 
@@ -359,8 +373,9 @@ class Game extends React.Component {
       state.gameScore.update(state);
       bg.update();
       fg.update();
-      generateSkeletons();
-      generateDragons();
+      // generateSkeletons();
+      // generateDragons();
+      generateEnemies();
     }
 
     //loop

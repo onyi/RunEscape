@@ -17,7 +17,6 @@ class Skeleton {
 
     this.w = 43;
     this.h = 37;
-    this.dx = 8;
     
     this.sprite = new Image();
     this.sprite.src = skeletonimg;
@@ -105,7 +104,7 @@ class Skeleton {
       state.gameScore.addObstacleScore(100);
     }
     
-    this.x -= this.dx;
+    this.x -= state.dx;
   }
 }
 
