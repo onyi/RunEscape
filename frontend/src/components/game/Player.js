@@ -2,7 +2,7 @@
 import reisen from '../../assets/game/reisen.png';
 import charajump from '../../assets/game/char.png'
 import jumpsound from '../../assets/game/jump_sound_effect.mp3';
-
+import airdashsound from '../../assets/game/sfx_swooshing.wav';
 
 class Player {
   constructor(canvas, context, playerId) {
@@ -100,6 +100,8 @@ class Player {
     this.spritejump.src = charajump;
     this.jumpSfx = new Audio();
     this.jumpSfx.src = jumpsound;
+    this.airSfx = new Audio();
+    this.airSfx.src = airdashsound; 
   }
   
   draw () {
@@ -124,6 +126,7 @@ class Player {
 
   airdash(state) {
     if (this.airDashCount > 0) {
+      this.airSfx.play();
       this.currentAnimation = this.airDashAnimation;
       this.airDashCount -= 1; 
       this.y = this.y - 1; 
