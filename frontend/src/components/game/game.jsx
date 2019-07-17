@@ -98,9 +98,9 @@ class Game extends React.Component {
       }
     }
     lobby.players.map(playerId => 
-      state.entities.push(new Player(cvs, ctx, playerId)));
-      state.entities.push(new Skeleton(cvs, ctx));
-      state.entities.push(new Dragon(cvs, ctx));
+      state.entities.push(new Player(cvs, ctx, playerId)))
+      // state.entities.push(new Skeleton(cvs, ctx));
+      // state.entities.push(new Dragon(cvs, ctx));
 
     //load sprite image
     const ready = new Image();
@@ -350,7 +350,7 @@ class Game extends React.Component {
       bg.update();
       fg.update();
       generateSkeletons();
-      // generateDragons();
+      generateDragons();
     }
 
     //loop

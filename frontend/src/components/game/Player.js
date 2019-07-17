@@ -19,7 +19,7 @@ class Player {
     this.jump = 7.2;
     this.speed = 0;
     this.jumpCount = 0;
-    this.slidingHitBox = this.y + 50;
+    this.slidingHitBox = this.y + 1000;
     this.frameTicks = 0;
     this.animationFrame = 0;
     this.currentAnimation = [
