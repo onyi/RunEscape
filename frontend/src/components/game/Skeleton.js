@@ -26,8 +26,8 @@ class Skeleton {
     this.frameTicks = 0;
     this.animationFrame = 0;
     this.animation = [
-      { sX: 731, sY: 0 },
-      { sX: 688, sY: 0 },
+      { sX: 748, sY: 4, w: 22, h: 32 },
+      { sX: 706, sY: 4, w: 22, h: 32 },
       { sX: 645, sY: 0 },
       { sX: 559, sY: 0 },
       { sX: 516, sY: 0 },

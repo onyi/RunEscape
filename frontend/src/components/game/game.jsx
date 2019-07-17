@@ -4,7 +4,7 @@ import openSocket from 'socket.io-client';
 
 import Player from './Player';
 import Skeleton from './Skeleton';
-
+import Dragon from './Dragon';
 import getready from '../../assets/game/get-ready.png';
 import gameover from '../../assets/game/game-over.png';
 import backgroundimg from '../../assets/game/background.png';
@@ -24,7 +24,6 @@ class Game extends React.Component {
     }
     this.renderGame = this.renderGame.bind(this);
     this.socket = openSocket('http://localhost:3000');
-
   }
 
   componentDidMount() {
@@ -36,7 +35,7 @@ class Game extends React.Component {
     this.socket.off(`relay action to ${this.props.match.params.lobbyId}`);
   }
 
-  mountController(state) {
+  subscribeToPlayerActions(state) {
     
     this.socket.on(`relay action to ${this.props.match.params.lobbyId}`, 
       ({ playerId, playerAction}) => {
@@ -46,7 +45,16 @@ class Game extends React.Component {
         let player = playerArr[0];
         switch(playerAction) {
           case "hop":
+            player.sliding = false;
             player.hop();
+            break;
+          case "slide":
+            player.sliding = true;
+            player.currentAnimation = player.slidingAnimation;
+            break;
+          case "unslide":
+            player.currentAnimation = player.runningAnimation;
+            player.sliding = false;
             break;
           default:
             break;
@@ -90,8 +98,9 @@ class Game extends React.Component {
       }
     }
     lobby.players.map(playerId => 
-      state.entities.push(new Player(cvs, ctx, playerId)))
-    state.entities.push(new Skeleton(cvs, ctx));
+      state.entities.push(new Player(cvs, ctx, playerId)));
+      state.entities.push(new Skeleton(cvs, ctx));
+      state.entities.push(new Dragon(cvs, ctx));
 
     //load sprite image
     const ready = new Image();
@@ -119,14 +128,9 @@ class Game extends React.Component {
     point_sound.src = pointSound;
 
     //control the game state
-<<<<<<< HEAD
-    document.addEventListener('keydown', function (e) {
+    document.addEventListener('keydown', (e) => {
       console.log(frames)
       if (e.keyCode === 32 || e.keyCode === 40) {
-=======
-    document.addEventListener('keydown', (e) => {
-      if (e.keyCode === 32) {
->>>>>>> origin/refactor-sprites
         switch (state.current) {
           case state.getReady:
             gameplay_music.currentTime = 0; 
@@ -137,22 +141,27 @@ class Game extends React.Component {
             break;
           case state.game:
             if (e.keyCode === 32) {
-              player[0].hop();
+              this.socket.emit("relay action", {
+                lobbyId: state.lobbyId,
+                playerId: state.localPlayerId,
+                playerAction: "hop"
+              })
             } else if (e.keyCode === 40 && player[0].jumpCount === 2) {
-              player[0].currentAnimation = player[0].slidingAnimation;
+              this.socket.emit("relay action", {
+                lobbyId: state.lobbyId,
+                playerId: state.localPlayerId,
+                playerAction: "slide"
+              })
             }
             // let players = state.entities.filter(entity => typeof Player)
             // let player = players.filter(player => state.localPlayerId === player.playerId);
-            this.socket.emit("relay action", {
-              lobbyId: state.lobbyId,
-              playerId: state.localPlayerId,
-              playerAction: "hop"
-            })
+            // debugger
             break;
           case state.over:
             state.current = state.getReady;
             player[0].currentAnimation = player[0].idleAnimation
             removeSkeletons();
+            removeDragons();
             gameover_music.pause();   
             gameOverAction();
             break;
@@ -160,9 +169,13 @@ class Game extends React.Component {
       }
     })
 
-    document.addEventListener('keyup', function(e) {
+    document.addEventListener('keyup', (e) => {
       if (e.keyCode === 40 && state.current === state.game) {
-        player[0].currentAnimation = player[0].runningAnimation
+        this.socket.emit("relay action", {
+          lobbyId: state.lobbyId,
+          playerId: state.localPlayerId,
+          playerAction: "unslide"
+        })
       }
     })
 
@@ -262,11 +275,12 @@ class Game extends React.Component {
       }
     }
 
-<<<<<<< HEAD
+    function generateDragons() {
+      if (frames % (50 + (Math.floor(rng.next() * 33))) === 0 && state.current === state.game) {
+        state.entities.push(new Dragon(cvs, ctx));
+      }
+    }
 
-
-    function removeSkeletons() {
-=======
     function removeSkeleton(){
       for (let i = 0; i < state.entities.length; i++) {
         if (state.entities[i] instanceof Skeleton) {
@@ -277,11 +291,30 @@ class Game extends React.Component {
         }
       }
     }
->>>>>>> origin/refactor-sprites
+    
+    function removeDragon(){
+      for (let i = 0; i < state.entities.length; i++) {
+        if (state.entities[i] instanceof Dragon) {
+          if (state.entities[i].x <  0 - state.entities[i].w ){
+            delete state.entities[i];
+            i--;
+          }
+        }
+      }
+    }
 
     function removeSkeletons() { 
       for (let i = 0; i < state.entities.length; i++) {
         if( state.entities[i] instanceof Skeleton ) {
+          delete state.entities[i];
+          i--;
+        }
+      }
+    }
+
+    function removeDragons() { 
+      for (let i = 0; i < state.entities.length; i++) {
+        if( state.entities[i] instanceof Dragon ) {
           delete state.entities[i];
           i--;
         }
@@ -309,12 +342,15 @@ class Game extends React.Component {
     }
 
     function update() {
+      console.log(frames)
       removeSkeleton();
+      removeDragon();
       state.entities.forEach(entity => entity.update(state))
       state.gameScore.update(state);
       bg.update();
       fg.update();
       generateSkeletons();
+      generateDragons();
     }
 
     //loop
@@ -329,7 +365,7 @@ class Game extends React.Component {
       }
     }
 
-    this.mountController(state);
+    this.subscribeToPlayerActions(state);
     loop();
   }
 }

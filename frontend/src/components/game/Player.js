@@ -11,14 +11,15 @@ class Player {
     this.fg = {
       h: 59
     }
+    this.sliding = false;
 
     this.x = 100;
     this.y = 388;
     this.gravity = 0.25;
-    this.jump = 5.6;
+    this.jump = 7.2;
     this.speed = 0;
     this.jumpCount = 0;
-
+    this.slidingHitBox = this.y + 50;
     this.frameTicks = 0;
     this.animationFrame = 0;
     this.currentAnimation = [
@@ -78,8 +79,6 @@ class Player {
       { sX: 300, sY: 2015, w: 65, h: 89 },
       { sX: 363, sY: 2015, w: 66, h: 89 },
     ];
-    
-    this.slidingHitBox = 33;
 
 
     // Assets
@@ -93,7 +92,7 @@ class Player {
   
   draw () {
     let chara = this.currentAnimation[this.animationFrame];
-    let jumping = this.jump_animation[this.animationFrame];
+    let jumping = this.jump_animation[this.animationFrame % this.jump_animation.length];
 
     if (this.y < this.cvs.height - this.fg.h - 30) {
       this.ctx.drawImage(this.spritejump, jumping.sX, jumping.sY, jumping.w, jumping.h, this.x, this.y, jumping.w, jumping.h);        
@@ -109,10 +108,6 @@ class Player {
       this.y = this.y - 1;
       this.speed = -this.jump;
     }
-  }
-
-  slide() {
-    this.animationFrame = 0;
   }
 
   update(state) {
