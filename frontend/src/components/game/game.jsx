@@ -9,18 +9,13 @@ import getready from '../../assets/game/get-ready.png';
 import gameover from '../../assets/game/game-over.png';
 import backgroundimg from '../../assets/game/background.png';
 import foregroundimg from '../../assets/game/foreground.png';
-import suddenatksound from '../../assets/game/sudden_attack.mp3';
+import suddenatksound from '../../assets/game/lunatic_eyes.mp3';
 import gg from '../../assets/game/gg.mp3';
 import pointSound from '../../assets/game/sfx_point.wav';
 
 import Score from './Score';
 
 class Game extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.socket = openSocket('http://localhost:3000');
-  }
 
   constructor(props){
     super(props);
@@ -28,6 +23,8 @@ class Game extends React.Component {
       scores: props.scores
     }
     this.renderGame = this.renderGame.bind(this);
+    this.socket = openSocket('http://localhost:3000');
+
   }
 
   componentDidMount() {
