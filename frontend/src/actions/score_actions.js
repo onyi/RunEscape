@@ -2,12 +2,20 @@
 import * as ScoreboardApiUtil from '../util/score_api_util';
 
 export const RECEIVE_SCORES = 'RECEIVE_SCORES';
+export const RECEIVE_SINGLE_SCORE = 'RECEIVE_SINGLE_SCORE';
 export const RECEIVE_SCORE_ERRORS = 'RECEIVE_SCORE_ERRORS';
 
 export const receiveScores = (scores) => {
   return {
     type: RECEIVE_SCORES,
     scores
+  }  
+};
+
+export const receiveSingleScore = (score) => {
+  return {
+    type: RECEIVE_SINGLE_SCORE,
+    score
   }  
 };
 
@@ -33,6 +41,6 @@ export const getScoresByUserId = (userId) => dispatch => {
 
 export const postScore = (value) => dispatch => {
   ScoreboardApiUtil.postScore(value)
-    .then(scores => dispatch(receiveScores(scores)))
+    .then(score => dispatch(receiveSingleScore(score.data)))
     .catch(errors => dispatch(receiveScoreErrors(errors)))
 }
