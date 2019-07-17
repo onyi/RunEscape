@@ -31,3 +31,6 @@ RunEscape's frontend serves the splash/login page, lobbies, and the highscore bo
 
 ## Implementation Details
 
+### Entities and Game Components
+
+We create our Player and Obstacle entity as an object in JavaScript class. Objects have their own properties to determine object dimension, animation definition, action function, update and draw methods to defines how different objects should be render in canvas, etc. During each frame iteration, update and/or draw method will be executed in order to update object position in canvas. Objects are  stored in an array for keeping track of what should be render in canvas.
