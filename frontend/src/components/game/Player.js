@@ -106,8 +106,7 @@ class Player {
   
   draw () {
     let chara = this.currentAnimation[this.animationFrame];
-    this.ctx.drawImage(this.sprite, chara.sX, chara.sY, chara.w, chara.h, this.x, this.y, chara.w, chara.h);
-    
+    this.ctx.drawImage(this.sprite, chara.sX, chara.sY, chara.w, chara.h, this.x, this.y, chara.w, chara.h); 
   }
 
   hop() {
@@ -141,6 +140,7 @@ class Player {
   }
 
   update(state) {
+    // console.log(this.jumpCount);
     //if the game state is get ready state, the chara must run slowly
     this.period = state.current === state.getReady ? 10 : 5;
 
@@ -172,7 +172,6 @@ class Player {
           state.dx -= 6;
           this.airDashCount = 1;
         }
-         
       }
 
       //air 
@@ -181,11 +180,6 @@ class Player {
       }
     }
   }
-
- 
-
-
-  
 }
 
 export default Player;

@@ -52,7 +52,7 @@ class Game extends React.Component {
 
   getCurrentPlayer(state) {
     let players = state.entities.filter(entity => entity instanceof Player)
-    return players.filter(player => state.localPlayerId === player.playerId);
+    return players.filter(player => state.localPlayerId === player.playerId)[0];
   }
 
   // Subscribe socket to player action relay
@@ -157,14 +157,13 @@ class Game extends React.Component {
     const gameover_music = new Audio();
     gameover_music.src = gg;
 
-    let players = state.entities.filter(entity => typeof Player)
-    let player = players.filter(player => state.localPlayerId === player.playerId)[0];
-
+    
     const point_sound = new Audio();
     point_sound.src = pointSound;
-
     //control the game state
     document.addEventListener('keydown', (e) => {
+      let players = state.entities.filter(entity => entity instanceof Player);
+      let player = players.filter(player => state.localPlayerId === player.playerId)[0];
       if (e.keyCode === 32 || e.keyCode === 40 || e.keyCode === 39) {
         switch (state.current) {
           case state.getReady:
@@ -182,21 +181,21 @@ class Game extends React.Component {
                 playerId: state.localPlayerId,
                 playerAction: "hop"
               })
-            } else if (e.keyCode === 40 && player.jumpCount === 2) {
-              this.socket.emit("relay action", {
-                lobbyId: state.lobbyId,
-                playerId: state.localPlayerId,
-                playerAction: "slide"
-              })
             } else if (e.keyCode === 40 && player.jumpCount !== 2) {
               this.socket.emit("relay action", {
                 lobbyId: state.lobbyId,
                 playerId: state.localPlayerId,
                 playerAction:"fastfall" 
               })
+            } else if (e.keyCode === 40 && player.jumpCount === 2) {
+              this.socket.emit("relay action", {
+                lobbyId: state.lobbyId,
+                playerId: state.localPlayerId,
+                playerAction: "slide"
+              })
             }
 
-            if (e.keyCode === 39 && player.jumpCount !== 2) {
+            if (e.keyCode === 39 && player.airDashCount > 0) {
               this.socket.emit("relay action", {
                 lobbyId: state.lobbyId,
                 playerId: state.localPlayerId,
