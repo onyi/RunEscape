@@ -18,18 +18,6 @@ Players must avoid obstacles that will end the game if the Player character touc
 * Slide - DOWN ARROW Key
 * Dash - RIGHT ARROW Key on the ground or in the air
 
-Prepare for the dangers ahead.
-![](https://i.imgur.com/1qA5m39.gif)
-
-Staying on the ground too long can be perilous...
-![](https://i.imgur.com/xb9L5Td.gif)
-
-But sometimes hugging it can save you from certain doom.
-![](https://i.imgur.com/sKxc01E.gif)
-
-Perhaps join some friends and face these obstacles together.
-![](https://i.imgur.com/wSBBHFd.gif)
-
 ## Technologies Used
 
 RunEscape is composed of a single fullstack application utilizing the MERN stack. The website handles all interactions and displaying of the game.
