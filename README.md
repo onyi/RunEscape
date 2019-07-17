@@ -19,7 +19,7 @@ Players must avoid obstacles that will end the game if the Player character touc
 * Dash - RIGHT ARROW Key on the ground or in the air
 
 Prepare for the dangers ahead.
-![](https://i.imgur.com/bwxmPh1.gif)
+![](https://i.imgur.com/1qA5m39.gif)
 
 Staying on the ground too long can be perilous...
 ![](https://i.imgur.com/xb9L5Td.gif)
