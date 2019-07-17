@@ -21,7 +21,7 @@ router.get('/', (req, res) => {
 router.get('/:user_id', 
   (req, res) => {
     console.log(`User ID: ${req.params.user_id}`);
-    Score.find({ userId: req.params.user_id })
+    Score.find({ owner: req.params.user_id })
       .sort({ value: 1 })
       .then( scores => res.json(scores) )
       .catch( err => 
