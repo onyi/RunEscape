@@ -53,7 +53,7 @@ class Scoreboard extends React.Component {
     let show = this.state.show ? 'block' : 'hidden';
     // console.log(`${JSON.stringify(this.props.scores)}`);
     let scores = 
-      this.props.scores.length > 0 ? 
+      this.props.scores.length > 0 || this.props.scores !== undefined ? 
         this.props.scores.map(
           score => 
             <li key={score.id}>

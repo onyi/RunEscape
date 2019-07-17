@@ -19,20 +19,20 @@ body{
   color: $dark-theme-text;
   margin: 0 auto;
   background-image: 
-    // url('assets/torch/torch-transparent-pixel-art-15-transparent.png'), 
-    // url('assets/torch/torch-transparent-pixel-art-15-transparent.png'), 
+    url('assets/torch/torch-transparent-pixel-art-15-trim.png'), 
+    url('assets/torch/torch-transparent-pixel-art-15-trim.png'), 
     url('assets/fire/GIF.gif');
   background-position: 
-    // 0% 20%, 
-    // 100% 20%, 
+    0% 20%, 
+    100% 20%, 
     50% 100%;
   background-repeat: 
-    // no-repeat, 
-    // no-repeat, 
+    no-repeat, 
+    no-repeat, 
     repeat-x;
   background-size: 
-    // 500px, 
-    // 500px, 
+    8em, 
+    8em, 
     10em 10em;
   min-height: 100%;
 }
@@ -52,7 +52,7 @@ body{
   right: 0;
 }
 
-.left-fire, .right-fire {
+.fire-animation{
   height: 7em;
   width: 5em;
   animation: flicker 3ms ease-in infinite;

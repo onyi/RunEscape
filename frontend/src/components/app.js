@@ -18,8 +18,8 @@ const App = () => (
   <div>
     <div className="main-container">
       <div className="left-background">
-        <img className="left-torch" src={torch} />
-        <img className="left-fire" src={fire} />
+        {/* <img className="left-torch" src={torch} />
+        <img className="left-fire" src={fire} /> */}
       </div>
       <div className="main-content">
         <NavBarContainer />
@@ -33,8 +33,8 @@ const App = () => (
         <ProtectedRoute exact path="/" component={LobbyIndexContainer} />
       </div>
       <div className="right-background">
-        <img className="right-torch" src={torch} />
-        <img className="right-fire" src={fire} />
+        {/* <img className="right-torch" src={torch} />
+        <img className="right-fire" src={fire} /> */}
       </div>
     </div>
   </div>

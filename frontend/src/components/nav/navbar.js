@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import fire from '../../assets/fire/fire-transparent.png';
+
 // import './navbar.css'
 
 class NavBar extends React.Component {
@@ -34,9 +36,12 @@ class NavBar extends React.Component {
   render() {
     return (
       <div className="navbar">
-        <Link to={'/'} >
-          <span className="logo">RunEscape</span>
-        </Link>
+        <div>
+          <img className="fire-animation" src={fire} />
+          <Link to={'/'} >
+            <span className="logo">RunEscape</span>
+          </Link>
+        </div>
         
         { this.getLinks() }
       </div>
