@@ -59,9 +59,10 @@ class Game extends React.Component {
   subscribeToPlayerActions(state) {
     this.socket.on(`relay action to ${this.lobbyId}`, 
       ({ playerId, playerAction}) => {
-        let players = state.entities.filter(entity => entity instanceof Player)
-        let playerArr = players.filter(player => playerId === player.playerId);
-        let player = playerArr[0];
+        let players = state.entities.filter(entity => 
+          entity instanceof Player)
+        let player = players.filter(player => 
+          playerId === player.playerId)[0];
         switch(playerAction) {
           case "hop":
             player.hop();
@@ -322,6 +323,7 @@ class Game extends React.Component {
       update();
       draw();
       frames++;
+
       requestAnimationFrame(loop);
       if (state.current === state.over) {
         gameplay_music.pause();
