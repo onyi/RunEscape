@@ -28,6 +28,7 @@ class Game extends React.Component {
   }
 
   mountController(state) {
+    
     this.socket.on(`relay action to ${this.props.match.params.lobbyId}`, 
       ({ playerId, playerAction}) => {
         console.log("Got input");
@@ -66,10 +67,17 @@ class Game extends React.Component {
       getReady: 0,
       game: 1,
       over: 2,
-      entities: []
+      entities: [],
+      gameOver: () => {
+        this.socket.emit("chat message", {
+          lobbyId: state.lobbyId,
+          msg: `${this.props.currentUser.username} met their end`
+        })
+        state.current = state.over;
+      }
     }
-    state.entities.push(new Player(cvs, ctx, state.localPlayerId));
-    state.entities.push(new Player(cvs, ctx, "another player"));
+    lobby.players.map(playerId => 
+      state.entities.push(new Player(cvs, ctx, playerId)))
     state.entities.push(new Skeleton(cvs, ctx));
 
     //load sprite image

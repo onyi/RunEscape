@@ -72,7 +72,7 @@ class Skeleton {
         player.y + 12 > this.y && 
         player.y - 12 < this.y + this.h) {
       this.hitSfx.play();
-      state.current = state.over;
+      state.gameOver();
     }
     
     this.x -= this.dx;
