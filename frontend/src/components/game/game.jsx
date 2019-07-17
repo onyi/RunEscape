@@ -67,7 +67,7 @@ class Game extends React.Component {
 
     //control the game state
     document.addEventListener('keydown', function (e) {
-      console.log(state.current)
+      console.log(frames)
       if (e.keyCode === 32 || e.keyCode === 40) {
         switch (state.current) {
           case state.getReady:
@@ -78,7 +78,6 @@ class Game extends React.Component {
             player[0].currentAnimation = player[0].runningAnimation;
             break;
           case state.game:
-            console.log(player[0])
             if (e.keyCode === 32) {
               player[0].hop();
             } else if (e.keyCode === 40 && player[0].jumpCount === 2) {
@@ -188,6 +187,8 @@ class Game extends React.Component {
         state.entities.push(new Skeleton(cvs, ctx));
       }
     }
+
+
 
     function removeSkeletons() {
 
