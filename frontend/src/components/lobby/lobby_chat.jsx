@@ -10,9 +10,9 @@ class LobbyChat extends React.Component {
     this.socket = openSocket('http://localhost:3000');
 
     this.state = {
-      lobby: {},
       msg: ""
     }
+    this.lobbyId = this.props.match.params.lobbyId;
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.renderErrors = this.renderErrors.bind(this);
@@ -28,15 +28,17 @@ class LobbyChat extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchLobbies()
-      .then(payload => {
-        this.setState({ lobby: this.props.lobbies[this.props.match.params.lobbyId] })})
-      .then(() => this.subscribeToChat(this.state.lobby._id))
-      .then(() => this.props.joinLobby(this.state.lobby._id, this.props.currentUser.id))
+    this.subscribeToChat(this.lobbyId);
+    this.socket.emit("chat message",
+      {
+        lobbyId: this.lobbyId,
+        msg: `${this.props.currentUser.username} joined lobby`
+      });
+    this.props.joinLobby(this.lobbyId, this.props.currentUser.id);
   }
 
   componentWillUnmount() {
-    this.socket.off(`chat message to ${this.state.lobby._id}`);
+    this.socket.off(`chat message to ${this.lobbyId}`);
   }
 
   handleSubmit(e) {
@@ -46,7 +48,7 @@ class LobbyChat extends React.Component {
       this.setState({ msg: "" });
       this.socket.emit("chat message", 
         { 
-          lobbyId: this.state.lobby._id, 
+          lobbyId: this.lobbyId, 
           msg: `${this.props.currentUser.username}: ${this.state.msg}` 
         })
     } 
@@ -73,7 +75,6 @@ class LobbyChat extends React.Component {
   render() {
     return (
       <div>
-        <GameContainer />
         <div className="lobby-chat">
           <ul id="messages"></ul>
           <form onSubmit={this.handleSubmit}>

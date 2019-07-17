@@ -1,5 +1,6 @@
 import React from 'react';
 import Prando from 'prando';
+import openSocket from 'socket.io-client';
 
 import Player from './Player';
 import Skeleton from './Skeleton';
@@ -15,6 +16,11 @@ import pointSound from '../../assets/game/sfx_point.wav';
 import Score from './Score';
 
 class Game extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.socket = openSocket('http://localhost:3000');
+  }
 
   constructor(props){
     super(props);
@@ -27,6 +33,28 @@ class Game extends React.Component {
   componentDidMount() {
     this.props.getScores();
     this.renderGame();
+  }
+
+  componentWillUnmount() {
+    this.socket.off(`relay action to ${this.props.match.params.lobbyId}`);
+  }
+
+  mountController(state) {
+    
+    this.socket.on(`relay action to ${this.props.match.params.lobbyId}`, 
+      ({ playerId, playerAction}) => {
+        console.log("Got input");
+        let players = state.entities.filter(entity => typeof Player)
+        let playerArr = players.filter(player => playerId === player.playerId);
+        let player = playerArr[0];
+        switch(playerAction) {
+          case "hop":
+            player.hop();
+            break;
+          default:
+            break;
+        }
+      })
   }
   
   render() {
@@ -41,22 +69,31 @@ class Game extends React.Component {
     //select cvs 
     const cvs = document.getElementById('run-escape');
     const ctx = cvs.getContext('2d');
-    const rng = new Prando("seedasdasd");
+    const lobby = this.props.lobbies[this.props.match.params.lobbyId]
+    const rng = new Prando(lobby._id);
 
     //game vars and consts
     let frames = 0;
 
     const state = {
-      localPlayerId: "tempPlayer1",
+      localPlayerId: this.props.currentUser.id,
+      lobbyId: lobby._id,
       current: 0,
       getReady: 0,
       game: 1,
       over: 2,
       entities: [],
-      gameScore: new Score(cvs, ctx)
+      gameScore: new Score(cvs, ctx),
+      gameOver: () => {
+        this.socket.emit("chat message", {
+          lobbyId: state.lobbyId,
+          msg: `${this.props.currentUser.username} met their end`
+        })
+        state.current = state.over;
+      }
     }
-    state.entities.push(new Player(cvs, ctx, state.localPlayerId));
-    state.entities.push(new Player(cvs, ctx, "another player"));
+    lobby.players.map(playerId => 
+      state.entities.push(new Player(cvs, ctx, playerId)))
     state.entities.push(new Skeleton(cvs, ctx));
 
     //load sprite image
@@ -81,9 +118,8 @@ class Game extends React.Component {
     const point_sound = new Audio();
     point_sound.src = pointSound;
 
-
     //control the game state
-    document.addEventListener('keydown', function (e) {
+    document.addEventListener('keydown', (e) => {
       if (e.keyCode === 32) {
         switch (state.current) {
           case state.getReady:
@@ -93,9 +129,13 @@ class Game extends React.Component {
             state.current = state.game;
             break;
           case state.game:
-            let players = state.entities.filter(entity => typeof Player)
-            let player = players.filter(player => state.localPlayerId === player.playerId);
-            player[0].hop();
+            // let players = state.entities.filter(entity => typeof Player)
+            // let player = players.filter(player => state.localPlayerId === player.playerId);
+            this.socket.emit("relay action", {
+              lobbyId: state.lobbyId,
+              playerId: state.localPlayerId,
+              playerAction: "hop"
+            })
             break;
           case state.over:
             state.current = state.getReady;
@@ -126,7 +166,7 @@ class Game extends React.Component {
 
       update: function () {
         if (this.dx = frames % 100 === 0 ? this.dx : this.dx)
-        if (state.current == state.game) {
+        if (state.current === state.game) {
           this.x = (this.x - this.dx) % (this.w);
         }
       },
@@ -155,7 +195,7 @@ class Game extends React.Component {
 
       update: function () {
         if (this.dx = frames % 100 === 0 ? this.dx : this.dx )
-        if (state.current == state.game) {
+        if (state.current === state.game) {
           this.x = (this.x - this.dx) % (this.w);
         }
       },
@@ -175,7 +215,7 @@ class Game extends React.Component {
       y: 150,
 
       draw: function () {
-        if (state.current == state.getReady) {
+        if (state.current === state.getReady) {
           ctx.drawImage(ready, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
           state.gameScore.reset();
         }
@@ -198,8 +238,7 @@ class Game extends React.Component {
     }
 
     function generateSkeletons() {
-      
-      if (frames % (50 + (Math.floor(rng.next() * 25))) == 0 && state.current == state.game) {
+      if (frames % (50 + (Math.floor(rng.next() * 25))) === 0 && state.current === state.game) {
         state.entities.push(new Skeleton(cvs, ctx));
       }
     }
@@ -215,19 +254,13 @@ class Game extends React.Component {
       }
     }
 
-    function removeSkeletons() {
-
-      // while (typeof state.entities[state.entities.length - 1] === "Skeleton") {
-        //   delete state.entitites[state.entities.length - 1];
-        // }
-        
+    function removeSkeletons() { 
       for (let i = 0; i < state.entities.length; i++) {
         if( state.entities[i] instanceof Skeleton ) {
           delete state.entities[i];
           i--;
         }
       }
-
     }
 
     function gameOverAction(){
@@ -271,6 +304,7 @@ class Game extends React.Component {
       }
     }
 
+    this.mountController(state);
     loop();
   }
 }

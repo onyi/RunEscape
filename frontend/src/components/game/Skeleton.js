@@ -59,7 +59,7 @@ class Skeleton {
   update(state) {
     if (state.current !== state.game) return;
     
-    this.period = state.current == state.getReady ? 6 : 5;
+    this.period = state.current === state.getReady ? 6 : 5;
     
     this.frameTicks++;
     if (this.frameTicks % this.period === 0) {
@@ -77,7 +77,7 @@ class Skeleton {
         player.y + 12 > this.y && 
         player.y - 12 < this.y + this.h) {
       this.hitSfx.play();
-      state.current = state.over;
+      state.gameOver();
     }
 
     if(player.x > (this.x + (this.w/2) ) && !this.passed ) {

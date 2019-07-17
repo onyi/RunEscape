@@ -62,7 +62,7 @@ io.on('connection', socket => {
   })
 
   socket.on('relay action', ({ lobbyId, playerId, playerAction }) => {
-    console.log(`Got message: ${msg} on ${lobbyId}`)
+    console.log(`Relay: ${playerId} on ${lobbyId} did ${playerAction}`)
     io.emit(`relay action to ${lobbyId}`, { playerId, playerAction });
   })
 });
