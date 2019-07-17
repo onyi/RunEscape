@@ -109,6 +109,11 @@ class Player {
   speedReset() {
     this.speed = 0;
   }
+
+  reset(){
+    this.speed = 0;
+    this.dx = 10;
+  }
 }
 
 export default Player;

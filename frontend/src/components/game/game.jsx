@@ -46,8 +46,6 @@ class Game extends React.Component {
     //game vars and consts
     let frames = 0;
 
-    const gameScore = new Score(cvs, ctx);
-
     const state = {
       localPlayerId: "tempPlayer1",
       current: 0,
@@ -55,6 +53,7 @@ class Game extends React.Component {
       game: 1,
       over: 2,
       entities: [],
+      gameScore: new Score(cvs, ctx)
     }
     state.entities.push(new Player(cvs, ctx, state.localPlayerId));
     state.entities.push(new Player(cvs, ctx, "another player"));
@@ -178,7 +177,7 @@ class Game extends React.Component {
       draw: function () {
         if (state.current == state.getReady) {
           ctx.drawImage(ready, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
-          gameScore.reset();
+          state.gameScore.reset();
         }
       }
     }
@@ -209,11 +208,8 @@ class Game extends React.Component {
       for (let i = 0; i < state.entities.length; i++) {
         if (state.entities[i] instanceof Skeleton) {
           if (state.entities[i].x <  0 - state.entities[i].w ){
-            console.log(`Skeleton out of frame, remove`);
             delete state.entities[i];
             i--;
-            // point_sound.play();
-            gameScore.addObstacleScore(500)
           }
         }
       }
@@ -235,8 +231,7 @@ class Game extends React.Component {
     }
 
     function gameOverAction(){
-      console.log(`Total score: ${gameScore.score}`);
-      that.props.postScore(gameScore.score);
+      that.props.postScore(state.gameScore.score);
       // chara.reset();
       bg.reset();
       fg.reset();
@@ -250,7 +245,7 @@ class Game extends React.Component {
       bg.draw();
       fg.draw();
       state.entities.forEach(entity => entity.draw())
-      gameScore.draw(state);
+      state.gameScore.draw(state);
       getReady.draw();
       gameOver.draw();
     }
@@ -258,7 +253,7 @@ class Game extends React.Component {
     function update() {
       removeSkeleton();
       state.entities.forEach(entity => entity.update(state))
-      gameScore.update(state);
+      state.gameScore.update(state);
       bg.update();
       fg.update();
       generateSkeletons();

@@ -1,6 +1,7 @@
 
 import skeletonimg from '../../assets/game/skeletonatk.png';
 import hitsound from '../../assets/game/hit.wav';
+import pointSound from '../../assets/game/sfx_point.wav';
 
 class Skeleton {
   constructor(canvas, context) {
@@ -43,6 +44,10 @@ class Skeleton {
       { sX: 43,  sY: 0 },
       { sX: 0,   sY: 0 },
     ];
+    this.passed = false;
+
+    this.point_sound = new Audio();
+    this.point_sound.src = pointSound;
 }
 
   draw() {
@@ -73,6 +78,12 @@ class Skeleton {
         player.y - 12 < this.y + this.h) {
       this.hitSfx.play();
       state.current = state.over;
+    }
+
+    if(player.x > (this.x + (this.w/2) ) && !this.passed ) {
+      this.passed = true;
+      this.point_sound.play();
+      state.gameScore.addObstacleScore(100);
     }
     
     this.x -= this.dx;
