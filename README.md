@@ -34,3 +34,37 @@ RunEscape's frontend serves the splash/login page, lobbies, and the highscore bo
 #### Entities and Game Components
 
 Game entity are created as an object in JavaScript class. Objects have their own properties to determine object dimension, animation definition, action function, update and draw methods to defines how different objects should be render in canvas, etc. During each frame iteration, update and/or draw method will be executed in order to update object position in canvas. Objects are  stored in an array for keeping track of what should be render in canvas.
+
+```javascript
+
+class Player {
+  constructor(canvas, context, playerId) {
+    this.ctx = context;
+    this.cvs = canvas;
+    this.playerId = playerId;
+    this.fg = {
+      h: 59
+    }
+
+    this.x = 100;
+    this.y = 388;
+    this.gravity = 0.25;
+    this.jump = 5.6;
+    this.speed = 0;
+    this.jumpCount = 0;
+
+...
+```
+
+```javascript
+ lobby.players.map(playerId => 
+      state.entities.push(new Player(cvs, ctx, playerId)))
+    state.entities.push(new Skeleton(cvs, ctx));
+```
+
+
+
+## Future Implementation
+
+##### More player actions
+
