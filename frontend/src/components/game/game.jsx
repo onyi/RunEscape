@@ -20,35 +20,20 @@ class Game extends React.Component {
 
   constructor(props){
     super(props);
-    let cvs = document.getElementById('run-escape');
-    let ctx = cvs.getContext('2d');
-    this.cvs = cvs;
-    this.ctx = ctx;
-    this.gameState = {
-      current: 0,
-      getReady: 0,
-      game: 1,
-      over: 2,
-    }
-    let rng = Prando(this.props.lobbyId);
-    this.rng = rng;
-    this.gameScore = new Score(cvs, ctx);
-    this.state = {
-      scores: props.scores,
-      gameState: 0,
-      localPlayerId: props.currentUser.id,
-      current: 0,
-      entities: [],
-      isOver: false,
-      frame: 0
-    };
+    // let cvs = document.getElementById('run-escape');
+    // let ctx = cvs.getContext('2d');
+    // this.cvs = null;
+    // this.ctx = null;
+    this.loop = this.loop.bind(this);
+    this.draw = this.draw.bind(this);
+    this.update = this.update.bind(this);
+    // this.state = {
+    //   entities: [],
+    // }
     this.renderGame = this.renderGame.bind(this);
-    this.socket = openSocket(window.location.origin);
-    this.lobbyId = props.lobbyId
-    this.mountController = this.mountController.bind(this);
-    this.frame = 0;
-    this.gameOver = new GameOver(this.cvs, this.ctx);
-    this.getReady = new GetReady(this.cvs, this.ctx);
+    this.gameState = require('./GameState');
+
+   
   }
 
   gameOver(){
@@ -70,13 +55,66 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
+    // console.log(`${JSON.stringify(this.props)}`);
+
+    // console.log(`Lobby ID: ${JSON.stringify(this.props.lobbyId)}`);
+
     this.props.getScores();
-    // this.setState({
-    //   cvs: document.getElementById('run-escape'),
-    //   ctx: cvs.getContext('2d')
-    // });
-    this.bg = new Background(this.cvs, this.ctx);
-    this.fg = new Foreground(this.cvs, this.ctx);
+
+
+    let canvas = this.refs.canvas;
+    this.cvs = canvas;
+    let context = canvas.getContext("2d");
+    this.ctx = context;
+    
+    let socket = openSocket(window.location.origin);
+
+    this.socket = socket;
+
+    let gameplay_music = new Audio();
+    gameplay_music.src = suddenatksound;
+    this.gameplay_music = gameplay_music;
+
+    const point_sound = new Audio();
+    point_sound.src = pointSound;
+    this.point_sound = point_sound;
+
+    this.gameSpoint_soundtate = {
+      current: 0,
+      getReady: 0,
+      game: 1,
+      over: 2,
+    }
+    let rng = new Prando(this.props.lobbyId);
+    this.rng = rng;
+    let gameScore = new Score(canvas, context);
+    this.gameScore = gameScore;
+    this.state = {
+      scores: this.props.scores,
+      gameState: 0,
+      localPlayerId: this.props.currentUser.id,
+      current: 0,
+      entities: [],
+      isOver: false,
+      frame: 0
+    };
+    this.renderGame = this.renderGame.bind(this);
+    this.lobbyId = this.props.lobbyId
+    this.mountController = this.mountController.bind(this);
+    this.frame = 0;
+    this.gameOver = new GameOver(canvas, context);
+    this.getReady = new GetReady(canvas, context);
+
+
+
+    // let cvs = document.getElementById('run-escape');
+    // let ctx = cvs.getContext('2d');
+    this.setState({
+      cvs: canvas,
+      ctx: context
+    });
+    this.bg = new Background(canvas, context);
+    this.fg = new Foreground(canvas, context);
     this.mountController();
 
     this.renderGame();
@@ -125,6 +163,8 @@ class Game extends React.Component {
 
 
   draw() {
+    console.log(`Draw`);
+
     this.ctx.fillStyle = '#866286';
     this.ctx.fillRect(0, 0, this.cvs.width, this.cvs.height);
     this.bg.draw();
@@ -136,11 +176,12 @@ class Game extends React.Component {
   }
 
   update() {
+    console.log(`Update`);
     this.removeSkeleton();
     this.state.entities.forEach(entity => entity.update(this.state))
-    this.state.gameScore.update(this.state);
-    this.bg.update();
-    this.fg.update();
+    this.gameScore.update(this.state);
+    this.bg.update(this.state);
+    this.fg.update(this.state);
     this.generateSkeletons();
   }
 
@@ -171,15 +212,15 @@ class Game extends React.Component {
   }
   
   render() {
-
-
     
     return (
-      <canvas id="run-escape" width="800" height="500"></canvas>
+      <canvas ref="canvas" id="run-escape" width="800" height="500"></canvas>
     );
   }
 
   renderGame() {
+
+    console.log(`Render Game`);
 
     const that = this;
     const lobby = this.props.lobbies[this.props.lobbyId];
@@ -190,11 +231,7 @@ class Game extends React.Component {
 
     //load sprite image
 
-    const gameplay_music = new Audio();
-    gameplay_music.src = suddenatksound; 
 
-    const point_sound = new Audio();
-    point_sound.src = pointSound;
 
     //control the game state
     document.addEventListener('keydown', (e) => {
@@ -233,6 +270,7 @@ class Game extends React.Component {
         }
       }
     })
+    // this.loop();
   }
 
   gameOverAction() {
@@ -248,9 +286,16 @@ class Game extends React.Component {
 
   //loop
   loop() {
+    console.log(`Loop`);
+
     this.update();
     this.draw();
-    this.frames++;
+    if (this.state.current && this.state.current !== this.gameState.over){
+      this.setState({
+        frame: this.frame++
+      });
+      this.loop();
+    }
     // requestAnimationFrame(loop);
     if (this.state.current === this.gameState.over) {
       this.gameOver.gameplay_music.pause();
