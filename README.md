@@ -148,6 +148,91 @@ Essentially this code searches for the player entity with id of `playerId` and e
 
 And with that, all players can see every other player's actions!
 
+### Sprite Animation 
+Animation was implemented by iterating through sprites of a defined animation set. In the case of the character sprite, multiple animation sets were defined to visually convey the character's current movement in-game. 
+
+```javascript
+  this.currentAnimation = [
+    { sX: 8, sY: 5101, w: 44, h: 86 },
+    { sX: 57, sY: 5102, w: 43, h: 85 },
+    { sX: 105, sY: 5101, w: 43, h: 86 },
+    { sX: 153, sY: 5102, w: 44, h: 85 },
+    { sX: 202, sY: 5103, w: 42, h: 84 },
+    { sX: 248, sY: 5103, w: 44, h: 84 },
+    { sX: 297, sY: 5105, w: 46, h: 82 },
+    { sX: 348, sY: 5105, w: 43, h: 84 },
+    { sX: 396, sY: 5100, w: 50, h: 87 },
+  ];
+
+  this.idleAnimation = [
+    { sX: 8, sY: 5101, w: 44, h: 86 },
+    { sX: 57, sY: 5102, w: 43, h: 85 },
+    { sX: 105, sY: 5101, w: 43, h: 86 },
+    { sX: 153, sY: 5102, w: 44, h: 85 },
+    { sX: 202, sY: 5103, w: 42, h: 84 },
+    { sX: 248, sY: 5103, w: 44, h: 84 },
+    { sX: 297, sY: 5105, w: 46, h: 82 },
+    { sX: 348, sY: 5105, w: 43, h: 84 },
+    { sX: 396, sY: 5100, w: 50, h: 87 },
+  ]
+
+  this.runningAnimation = [
+    { sX: 8, sY: 670, w: 88, h: 64 },
+    { sX: 100, sY: 670, w: 86, h: 64 },
+    { sX: 190, sY: 669, w: 81, h: 65 },
+    { sX: 277, sY: 668, w: 84, h: 66 },
+    { sX: 366, sY: 670, w: 88, h: 64 },
+    { sX: 458, sY: 668, w: 86, h: 66 },
+    { sX: 548, sY: 669, w: 82, h: 65 },
+    { sX: 635, sY: 668, w: 84, h: 66 },
+  ]
+
+  this.slidingAnimation = [
+    // { sX: 8, sY: 2261, w: 66, h: 72 },
+    // { sX: 78, sY: 2266, w: 82, h: 67 },
+    { sX: 165, sY: 2270, w: 92, h: 63 },
+    { sX: 262, sY: 2271, w: 97, h: 62 },
+    { sX: 364, sY: 2271, w: 94, h: 62 },
+    { sX: 364, sY: 2271, w: 94, h: 62 },
+    { sX: 364, sY: 2271, w: 94, h: 62 },
+    { sX: 364, sY: 2271, w: 94, h: 62 },
+    { sX: 364, sY: 2271, w: 94, h: 62 },
+  ];
+  
+  this.jump_animation = [
+    { sX: 8,   sY: 2024, w: 45, h: 80 },
+    { sX: 8,   sY: 2024, w: 45, h: 80 },
+    { sX: 55,  sY: 2015, w: 63, h: 74 },
+    { sX: 115, sY: 2015, w: 62, h: 85 },
+    { sX: 180, sY: 2015, w: 60, h: 87 },
+    { sX: 240, sY: 2015, w: 56, h: 86 },
+    { sX: 300, sY: 2015, w: 65, h: 89 },
+    { sX: 363, sY: 2015, w: 66, h: 89 },
+  ];
+
+  this.airDashAnimation = [
+    { sX: 8, sY: 548, w: 69, h: 72 },
+    { sX: 83, sY: 561, w: 67, h: 59 },
+    { sX: 156, sY: 565, w: 70, h: 55 },
+    { sX: 231, sY: 559, w: 74, h: 61 },
+    { sX: 311, sY: 554, w: 83, h: 66 },
+    { sX: 398, sY: 553, w: 82, h: 67 },
+    { sX: 485, sY: 552, w: 84, h: 68 },
+  ]; 
+```
+
+The core of the game's animation lies within the loop function within our game component that is called immediately upon a user entering a game lobby. 
+
+```javascript 
+  function loop() {
+    update();
+    draw();
+    frames++;
+
+    requestAnimationFrame(loop);
+  }
+```
+Essentially, requestanimationframe will take the callback given to it (loop in this case) and calls it before the next repaint of the game canvas, and the loop function itself calls the update and draw functions of game, which each call the respective update and draw functions of our game entities. One of the benefits to using requestAnimationFrame over setTimeout is that the animations will only run when a user is actively viewing the tab with the game, saving on performance and providing smooth animations to the player! 
 
 ## Future Implementation
 
