@@ -123,6 +123,10 @@ class Game extends React.Component {
     this.fg = new Foreground(canvas, context);
     this.mountController();
 
+    this.getReady = new GetReady(this.cvs, this.ctx);
+    this.gameOver = new GameOver(this.cvs, this.ctx);
+
+
     this.renderGame();
   }
 
