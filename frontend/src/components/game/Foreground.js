@@ -14,7 +14,6 @@ class Foreground{
     this.h = 59;
     this.x = 0;
     this.y = this.cvs.height - 59;
-    this.dx = 10;
 
     this.foreground = new Image();
     this.foreground.src = foregroundimg;
@@ -26,14 +25,14 @@ class Foreground{
   }
 
   update(state) {
-    if (this.dx = state.frames % 100 === 0 ? this.dx : this.dx)
-      if (state.current === gameState.game) {
-      this.x = (this.x - this.dx) % (this.w);
-    }
+    if (state.dx = state.frame % 300 === 0 && state.dx < 20 && state.current === gameState.game ? state.dx += 1 : state.dx)
+      if (state.current == gameState.game) {
+        this.x = (this.x - state.dx) % (this.w);
+      }
   }
 
   reset() {
-    this.dx = 10;
+
   }
 
 }

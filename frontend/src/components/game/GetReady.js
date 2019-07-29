@@ -11,7 +11,7 @@ class GetReady {
     this.sX = 0;
     this.sY = 0;
     this.w = 141;
-    this.h = 50;
+    this.h = 80;
     this.x = this.cvs.width / 2 - 141 / 2;
     this.y = 150;
 

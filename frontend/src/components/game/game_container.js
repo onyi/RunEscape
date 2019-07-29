@@ -4,6 +4,7 @@ import { withRouter } from 'react-router-dom';
 
 import Game from "./game";
 
+import { fetchLobby } from "../../actions/lobby_actions";
 import {
   postScore,
   getScores
@@ -21,6 +22,7 @@ const mapStateToProps = ( state, ownProps ) => {
 };
 
 const mapDispatchToProps = dispatch => ({
+  fetchLobby: (id) => dispatch(fetchLobby(id)),
   postScore: (value) => dispatch(postScore(value)),
   getScores: () => dispatch(getScores())
 })

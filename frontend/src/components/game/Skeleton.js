@@ -20,7 +20,6 @@ class Skeleton {
 
     this.w = 43;
     this.h = 37;
-    this.dx = 8;
     
     this.sprite = new Image();
     this.sprite.src = skeletonimg;
@@ -46,6 +45,24 @@ class Skeleton {
       { sX: 86,  sY: 0 },
       { sX: 43,  sY: 0 },
       { sX: 0,   sY: 0 },
+      
+      // { sX: 748, sY: 4, w: 22, h: 32, },
+      // { sX: 706, sY: 4, w: 22, h: 32, },
+      // { sX: 663, sY: 4, w: 21, h: 32, },
+      // { sX: 621, sY: 5, w: 19, h: 32, },
+      // { sX: 580, sY: 0, w: 18, h: 37, },
+      // { sX: 537, sY: 1, w: 21, h: 36, },
+      // { sX: 494, sY: 4, w: 22, h: 33, },
+      // { sX: 430, sY: 1, w: 40, h: 36, },
+      // { sX: 398, sY: 13, w: 31, h: 19, },
+      // { sX: 347, sY: 16, w: 32, h: 21, },
+      // { sX: 304, sY: 15, w: 32, h: 22, },
+      // { sX: 260, sY: 15, w: 32, h: 22, },
+      // { sX: 216, sY: 15, w: 33, h: 22, },
+      // { sX: 176, sY: 15, w: 32, h: 22, },
+      // { sX: 139, sY: 7, w: 27, h: 30, },
+      // { sX: 106, sY: 5, w: 21, h: 32, },
+      // { sX: 62, sY: 5, w: 21, h: 32, },
     ];
     this.passed = false;
 
@@ -61,7 +78,7 @@ class Skeleton {
 
   update(state, gameScore, gameOver) {
     if (state.current !== gameState.game) return;
-    
+    let skeleton = this.animation[this.animationFrame];    
     this.period = state.current === state.getReady ? 6 : 5;
     
     this.frameTicks++;
@@ -89,7 +106,7 @@ class Skeleton {
       gameScore.addObstacleScore(100);
     }
     
-    this.x -= this.dx;
+    this.x -= state.dx;
   }
 }
 

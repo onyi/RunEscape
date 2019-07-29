@@ -50,16 +50,15 @@ class LobbyIndex extends React.Component {
 
   render() {
     return (
-      <div className="lobby-list-container">
+      <div className="lobby-list-container lobby-index">
         <form onSubmit={this.handleSubmit}>
           <input type="text" placeholder="Lobby Name" onChange={this.update('name')} value={this.state.name} />
           <input type="submit" value="Create Lobby" />
           {this.renderErrors()}
         </form>
-        <h3>Lobby List</h3>
         <ul className="lobby-list">
           {this.props.lobbies.map(lobby => (
-            <li key={`lobby-${lobby._id}`}>
+            <li key={`lobby-${lobby._id}`} className="lobby-index-item">
               <Link to={`lobbies/${lobby._id}`}>
                 {lobby.name}
               </Link>

@@ -8,6 +8,8 @@ class GameOver {
     this.ctx = context;
     this.cvs = canvas;
 
+
+
     this.sX = 0;
     this.sY = 0;
     this.w = 137;

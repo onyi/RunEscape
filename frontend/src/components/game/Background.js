@@ -15,7 +15,6 @@ class Background {
     this.h = 500;
     this.x = 0;
     this.y = 0;
-    this.dx = 10;
 
     this.background = new Image();
     this.background.src = backgroundimg;
@@ -29,14 +28,15 @@ class Background {
   }
 
   update(state) {
-    if (this.dx = state.frames % 100 === 0 ? this.dx : this.dx)
-    if (state.current === gameState.game) {
-      this.x = (this.x - this.dx) % (this.w);
+    if (state.dx = state.frame % 1000 === 0 && state.dx < 10 && state.current === gameState.game ? state.dx += 1 : state.dx)
+      if (state.current === gameState.game) {
+        this.x = (this.x - state.dx) % (this.w);
     }
+
   }
 
   reset() {
-    this.dx = 10;
+
   }
 
 
