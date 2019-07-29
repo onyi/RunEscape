@@ -20,13 +20,8 @@ class Game extends React.Component {
 
   constructor(props){
     super(props);
-    // let cvs = document.getElementById('run-escape');
-    // let ctx = cvs.getContext('2d');
-    // this.cvs = null;
-    // this.ctx = null;
-    this.loop = this.loop.bind(this);
-    this.draw = this.draw.bind(this);
-    this.update = this.update.bind(this);
+
+
     this.state = {
       scores: this.props.scores,
       gameState: 0,
@@ -36,14 +31,17 @@ class Game extends React.Component {
       isOver: false,
       frame: 0
     }
-    this.renderGame = this.renderGame.bind(this);
     this.gameState = require('./GameState');
 
+    this.onKeyPressed = this.onKeyPressed.bind(this);
+    this.loop = this.loop.bind(this);
+    this.draw = this.draw.bind(this);
+    this.update = this.update.bind(this);
+    this.renderGame = this.renderGame.bind(this);
     this.generateSkeletons = this.generateSkeletons.bind(this);
     this.removeSkeleton = this.removeSkeleton.bind(this);
     this.removeSkeletons = this.removeSkeletons.bind(this);
-    this.onKeyPressed = this.onKeyPressed.bind(this);
-    this.loop = this.loop.bind(this);
+
    
   }
 
@@ -77,7 +75,7 @@ class Game extends React.Component {
     this.cvs = canvas;
     let context = canvas.getContext("2d");
     this.ctx = context;
-    
+
     let socket = openSocket(window.location.origin);
 
     this.socket = socket;
@@ -113,8 +111,7 @@ class Game extends React.Component {
     this.lobbyId = this.props.lobbyId
     this.mountController = this.mountController.bind(this);
     this.frame = 0;
-    this.gameOver = new GameOver(canvas, context);
-    this.getReady = new GetReady(canvas, context);
+
 
     // let cvs = document.getElementById('run-escape');
     // let ctx = cvs.getContext('2d');
@@ -135,13 +132,13 @@ class Game extends React.Component {
 
   onKeyPressed(e){
     //control the game state
-    console.log(`onKeyPressed`);
+    // console.log(`onKeyPressed`);
     if (e.keyCode === 32) {
       switch (this.state.current) {
         case this.gameState.getReady:
-          this.gameOver.gameplay_music.currentTime = 0;
+          this.gameplay_music.currentTime = 0;
           this.gameOver.gameover_music.currentTime = 0;
-          this.gameOver.gameplay_music.play();
+          this.gameplay_music.play();
           this.setState({
             current: this.gameState.game
           });

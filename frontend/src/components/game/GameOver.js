@@ -34,7 +34,7 @@ class GameOver {
   }
 
   reset() {
-
+    this.gameover_music.currentTime = 0
   }
 
 }
