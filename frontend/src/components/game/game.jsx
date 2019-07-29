@@ -135,7 +135,7 @@ class Game extends React.Component {
 
   onKeyPressed(e){
     //control the game state
-    console.log(`e.keyCode === 32`);
+    console.log(`onKeyPressed`);
     if (e.keyCode === 32) {
       switch (this.state.current) {
         case this.gameState.getReady:
@@ -169,6 +169,8 @@ class Game extends React.Component {
             lobbyId: this.props.lobbyId,
             gameState: this.gameState.getReady
           });
+          break;
+        default:
           break;
       }
     }
@@ -264,7 +266,9 @@ class Game extends React.Component {
   render() {
     
     return (
-      <canvas onKeyDown={this.onKeyPressed} ref="canvas" id="run-escape" width="800" height="500"></canvas>
+      <div tabIndex="0" onKeyDown={this.onKeyPressed}>
+        <canvas ref="canvas" id="run-escape" width="800" height="500"></canvas>
+      </div>
     );
   }
 
