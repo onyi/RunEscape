@@ -1,5 +1,6 @@
 import foregroundimg from '../../assets/game/foreground.png';
 
+var gameState = require('./GameState');
 
 
 class Foreground{
@@ -26,7 +27,7 @@ class Foreground{
 
   update(state) {
     if (this.dx = state.frames % 100 === 0 ? this.dx : this.dx)
-    if (state.current === state.game) {
+      if (state.current === gameState.game) {
       this.x = (this.x - this.dx) % (this.w);
     }
   }

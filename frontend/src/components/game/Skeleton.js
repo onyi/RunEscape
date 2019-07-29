@@ -3,6 +3,9 @@ import skeletonimg from '../../assets/game/skeletonatk.png';
 import hitsound from '../../assets/game/hit.wav';
 import pointSound from '../../assets/game/sfx_point.wav';
 
+var gameState = require('./GameState');
+
+
 class Skeleton {
   constructor(canvas, context) {
     this.ctx = context;
@@ -56,8 +59,8 @@ class Skeleton {
     this.ctx.drawImage(this.sprite, skeleton.sX, skeleton.sY, this.w, this.h, this.x, this.y, this.w * 2, this.h * 2);
   }
 
-  update(state) {
-    if (state.current !== state.game) return;
+  update(state, gameScore, gameOver) {
+    if (state.current !== gameState.game) return;
     
     this.period = state.current === state.getReady ? 6 : 5;
     
@@ -77,13 +80,13 @@ class Skeleton {
         player.y + 12 > this.y && 
         player.y - 12 < this.y + this.h) {
       this.hitSfx.play();
-      state.gameOver();
+      gameOver();
     }
 
     if(player.x > (this.x + (this.w/2) ) && !this.passed ) {
       this.passed = true;
       this.point_sound.play();
-      state.gameScore.addObstacleScore(100);
+      gameScore.addObstacleScore(100);
     }
     
     this.x -= this.dx;

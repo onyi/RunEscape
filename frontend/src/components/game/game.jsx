@@ -41,26 +41,9 @@ class Game extends React.Component {
     this.generateSkeletons = this.generateSkeletons.bind(this);
     this.removeSkeleton = this.removeSkeleton.bind(this);
     this.removeSkeletons = this.removeSkeletons.bind(this);
+    this.gameOverAction = this.gameOverAction.bind(this);
 
    
-  }
-
-  gameOver(){
-    this.socket.emit("chat message", {
-      lobbyId: this.props.lobbyId,
-      msg: `${this.props.currentUser.username} met their end`
-    })
-    // gameOverAction();
-
-    this.socket.emit("relay game state", {
-      lobbyId: this.props.lobbyId,
-      gameState: this.gameState.over
-    });
-    this.props.postScore(this.gameScore.score);
-
-    this.setState({
-      current: this.gameState.over
-    })
   }
 
   componentDidMount() {
@@ -231,7 +214,7 @@ class Game extends React.Component {
   update() {
     // console.log(`Update`);
     this.removeSkeleton();
-    this.state.entities.forEach(entity => entity.update(this.state))
+    this.state.entities.forEach(entity => entity.update(this.state, this.gameScore, this.gameOverAction))
     this.gameScore.update(this.state);
     this.bg.update(this.state);
     this.fg.update(this.state);
@@ -239,10 +222,13 @@ class Game extends React.Component {
   }
 
   generateSkeletons() {
+    // console.log(`Generate Skeleton, ${this.state.frame}; ${this.rng}`)
+
     let entities = this.state.entities;
 
-    if (this.state.frames % (50 + (Math.floor(this.rng.next() * 25))) === 0 && this.state.current === this.gameState.game) {
+    if (this.state.frame % (50 + (Math.floor(this.rng.next() * 25))) === 0 && this.state.current === this.gameState.game) {
       entities.push(new Skeleton(this.cvs, this.ctx));
+      // console.log(`Push Skeleton`)
     }
     this.setState({
       entities: entities
@@ -309,6 +295,16 @@ class Game extends React.Component {
   }
 
   gameOverAction() {
+
+    this.socket.emit("chat message", {
+      lobbyId: this.props.lobbyId,
+      msg: `${this.props.currentUser.username} met their end`
+    })
+
+    this.setState({
+      current: this.gameState.over
+    })
+
     this.socket.emit("relay game state", {
       lobbyId: this.lobbyId,
       gameState: this.gameState.over
@@ -333,7 +329,7 @@ class Game extends React.Component {
     }
     requestAnimationFrame(this.loop);
     if (this.state.current === this.gameState.over) {
-      this.gameOver.gameplay_music.pause();
+      this.gameplay_music.pause();
       this.gameOver.gameover_music.play();
     }
   }
