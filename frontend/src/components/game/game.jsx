@@ -239,29 +239,43 @@ class Game extends React.Component {
   }
 
   generateSkeletons() {
+    let entities = this.state.entities;
+
     if (this.state.frames % (50 + (Math.floor(this.rng.next() * 25))) === 0 && this.state.current === this.gameState.game) {
-      this.state.entities.push(new Skeleton(this.cvs, this.ctx));
+      entities.push(new Skeleton(this.cvs, this.ctx));
     }
+    this.setState({
+      entities: entities
+    })
   }
 
   removeSkeleton() {
-    for (let i = 0; i < this.state.entities.length; i++) {
-      if (this.state.entities[i] instanceof Skeleton) {
-        if (this.state.entities[i].x < 0 - this.state.entities[i].w) {
-          delete this.state.entities[i];
+    let entities = this.state.entities;
+
+    for (let i = 0; i < entities.length; i++) {
+      if (entities[i] instanceof Skeleton) {
+        if (entities[i].x < 0 - entities[i].w) {
+          delete entities[i];
           i--;
         }
       }
     }
+    this.setState({
+      entities: entities
+    })
   }
 
   removeSkeletons() {
-    for (let i = 0; i < this.state.entities.length; i++) {
-      if (this.state.entities[i] instanceof Skeleton) {
-        delete this.state.entities[i];
+    let entities = this.state.entities;
+    for (let i = 0; i < entities.length; i++) {
+      if (entities[i] instanceof Skeleton) {
+        delete entities[i];
         i--;
       }
     }
+    this.setState({
+      entities: entities
+    })
   }
   
   render() {
@@ -279,11 +293,15 @@ class Game extends React.Component {
 
     const lobby = this.props.lobbies[this.props.lobbyId];
 
+    let entities = this.state.entities;
+
     lobby.players.map(playerId => 
-      this.state.entities.push(new Player(this.cvs, this.ctx, playerId)))
-    this.state.entities.push(new Skeleton(this.cvs, this.ctx));
+      entities.push(new Player(this.cvs, this.ctx, playerId)))
+    entities.push(new Skeleton(this.cvs, this.ctx));
 
-
+      this.setState({
+        entities: entities
+      });
 
 
     //load sprite image
