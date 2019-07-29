@@ -23,7 +23,7 @@ class Background {
 
 
   draw (state) {
-    console.log(`Background Draw on ${this.ctx}`);
+    // console.log(`Background Draw on ${this.ctx}`);
     this.ctx.drawImage(this.background, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h);
     this.ctx.drawImage(this.background, this.sX, this.sY, this.w, this.h, this.x + this.w, this.y, this.w, this.h);
   }

@@ -23,7 +23,8 @@ class GameOver {
   }
 
   draw(state) {
-    if (state.current === state.over) {
+    // console.log(`current game state: ${state.current}; ${gameState.over}`);
+    if (state.current === gameState.over) {
       this.ctx.drawImage(this.over, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
     }
   }
