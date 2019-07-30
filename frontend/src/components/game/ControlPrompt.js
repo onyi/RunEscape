@@ -13,10 +13,13 @@ class ControlPrompt {
     this.h = 111;
     this.x = 580;
     this.y = 8;
+
+    this.controls = new Image();
+    this.controls.src = controlsimg;
   }
 
   draw(state) {
-    ctx.drawImage(controls, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
+    this.ctx.drawImage(this.controls, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
   }
 
   update(state) {
@@ -29,4 +32,4 @@ class ControlPrompt {
 
 }
 
-export default GameOver;
+export default ControlPrompt;

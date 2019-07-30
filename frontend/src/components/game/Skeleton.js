@@ -3,6 +3,8 @@ import skeletonimg from '../../assets/game/skeletonatk.png';
 import hitsound from '../../assets/game/hit.wav';
 import pointSound from '../../assets/game/sfx_point.wav';
 
+import Player from './Player';
+
 var gameState = require('./GameState');
 
 
@@ -79,7 +81,7 @@ class Skeleton {
   update(state, gameScore, gameOver) {
     if (state.current !== gameState.game) return;
     let skeleton = this.animation[this.animationFrame];    
-    this.period = state.current === state.getReady ? 6 : 5;
+    this.period = state.current === gameState.getReady ? 6 : 5;
     
     this.frameTicks++;
     if (this.frameTicks % this.period === 0) {
@@ -89,9 +91,10 @@ class Skeleton {
 
     this.animationFrame = this.animationFrame % this.animation.length;
 
-    let players = state.entities.filter(entity => typeof Player)
-    let player = players.filter(player => state.localPlayerId === player.playerId);
-    player = player[0];
+    // console.log(`Player ID: ${state.localPlayerId}`);
+
+    let player = state.entities.filter(entity =>
+      entity instanceof Player && entity.playerId === state.localPlayerId )[0];
     if (player.x + 12 > this.x && 
         player.x - 12 < this.x + this.w && 
         player.y + 12 > this.y && 
