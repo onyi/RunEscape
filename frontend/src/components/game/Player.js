@@ -140,7 +140,7 @@ class Player {
     }
   }
 
-  update(state) {
+  update(state, increaseSpeed) {
     // console.log(this.jumpCount);
     //if the game state is get ready state, the chara must run slowly
     this.period = state.current === gameState.getReady ? 10 : 5;
@@ -170,7 +170,7 @@ class Player {
         this.jumpCount = 2;
         this.gravity = 0.45;
         if (this.airDashCount === 0) {
-          state.dx -= 6;
+          increaseSpeed(-6);
           this.airDashCount = 1;
         }
       }

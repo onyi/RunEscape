@@ -144,7 +144,7 @@ class Game extends React.Component {
     // console.log(`onKeyPressed`);
 
     let player = this.state.entities.filter(entity => 
-      entity instanceof Player && entity.playerId === this.props.currentUser.id);
+      entity instanceof Player && entity.playerId === this.props.currentUser.id)[0];
     // let player = players.filter(player => this.state.localPlayerId === player.playerId)[0];
     if (e.keyCode === 32 || e.keyCode === 40 || e.keyCode === 39) {
       switch (this.state.current) {
@@ -252,8 +252,6 @@ class Game extends React.Component {
               player.fastfall();
               break;
             case "airdash":
-              console.log(`Airdash`);
-              this.increaseSpeed(6)
               player.airdash();
               break;
             default:
@@ -300,7 +298,12 @@ class Game extends React.Component {
     // console.log(`Update`);
     this.removeSkeleton();
     this.removeDragons();
-    this.state.entities.forEach(entity => entity.update(this.state, this.gameScore, this.gameOverAction))
+    this.state.entities.forEach(entity => {
+      if (entity instanceof Player)
+        entity.update(this.state, this.increaseSpeed)
+      else
+        entity.update(this.state, this.gameScore, this.gameOverAction)
+    })
     this.gameScore.update(this.state);
     this.bg.update(this.state);
     this.fg.update(this.state);
@@ -366,7 +369,7 @@ class Game extends React.Component {
     entities.push(new Skeleton(this.cvs, this.ctx));
 
     this.setState({
-      entities: entities
+      entities
     });
 
     this.subscribeToPlayerActions();
