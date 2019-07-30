@@ -3,6 +3,11 @@ import skeletonimg from '../../assets/game/skeletonatk.png';
 import hitsound from '../../assets/game/hit.wav';
 import pointSound from '../../assets/game/sfx_point.wav';
 
+import Player from './Player';
+
+var gameState = require('./GameState');
+
+
 class Skeleton {
   constructor(canvas, context) {
     this.ctx = context;
@@ -73,11 +78,10 @@ class Skeleton {
     this.ctx.drawImage(this.sprite, skeleton.sX, skeleton.sY, this.w, this.h, this.x, this.y, this.w * 2, this.h * 2);
   }
 
-  update(state) {
-    let skeleton = this.animation[this.animationFrame];
-    if (state.current !== state.game) return;
-    
-    this.period = state.current === state.getReady ? 6 : 5;
+  update(state, gameScore, gameOver) {
+    if (state.current !== gameState.game) return;
+    let skeleton = this.animation[this.animationFrame];    
+    this.period = state.current === gameState.getReady ? 6 : 5;
     
     this.frameTicks++;
     if (this.frameTicks % this.period === 0) {
@@ -87,21 +91,22 @@ class Skeleton {
 
     this.animationFrame = this.animationFrame % this.animation.length;
 
-    let players = state.entities.filter(entity => typeof Player)
-    let player = players.filter(player => state.localPlayerId === player.playerId);
-    player = player[0];
+    // console.log(`Player ID: ${state.localPlayerId}`);
+
+    let player = state.entities.filter(entity =>
+      entity instanceof Player && entity.playerId === state.localPlayerId )[0];
     if (player.x + 12 > this.x && 
         player.x - 12 < this.x + this.w && 
         player.y + 12 > this.y && 
         player.y - 12 < this.y + this.h) {
       this.hitSfx.play();
-      state.gameOver();
+      gameOver();
     }
 
     if(player.x > (this.x + (this.w/2) ) && !this.passed ) {
       this.passed = true;
       this.point_sound.play();
-      state.gameScore.addObstacleScore(100);
+      gameScore.addObstacleScore(100);
     }
     
     this.x -= state.dx;
