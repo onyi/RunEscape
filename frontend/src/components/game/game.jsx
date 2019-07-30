@@ -153,6 +153,7 @@ class Game extends React.Component {
           this.gameOver.gameover_music.currentTime = 0;
           this.gameplay_music.play();
           player.currentAnimation = player.runningAnimation;
+          this.gameScore.reset();
           this.setState({
             current: this.gameState.game
           })
@@ -279,37 +280,6 @@ class Game extends React.Component {
         }
       });
   } 
-
-
-  draw() {
-    // console.log(`Draw, game state: ${this.state.current}`);
-    this.ctx.fillStyle = '#866286';
-    this.ctx.fillRect(0, 0, this.cvs.width, this.cvs.height);
-    this.bg.draw();
-    this.fg.draw();
-    this.state.entities.forEach(entity => entity.draw())
-    this.gameScore.draw(this.state);
-    this.getReady.draw(this.state);
-    this.gameOver.draw(this.state);
-    this.controlPrompt.draw(this.state)
-  }
-
-  update() {
-    // console.log(`Update`);
-    this.removeSkeleton();
-    this.removeDragons();
-    this.state.entities.forEach(entity => {
-      if (entity instanceof Player)
-        entity.update(this.state, this.increaseSpeed)
-      else
-        entity.update(this.state, this.gameScore, this.gameOverAction)
-    })
-    this.gameScore.update(this.state);
-    this.bg.update(this.state);
-    this.fg.update(this.state);
-    this.generateEnemies();
-  }
-
   generateSkeletons() {
     let entities = this.state.entities;
     if (this.frame % (50 + (Math.floor(this.rng.next() * 25))) === 0 && this.state.current === this.gameState.game) {
@@ -349,15 +319,89 @@ class Game extends React.Component {
       entities
     })
   }
+
+  generateEnemies() {
+    let entities = this.state.entities;
+    if (this.frame % (100 + (Math.floor(this.rng.next() * 25))) === 0 && this.state.current === this.gameState.game) {
+      let num = Math.floor(Math.random() * 2) + 1;
+      if (num === 1) {
+        entities.push(new Skeleton(this.cvs, this.ctx));
+      } else {
+        entities.push(new Dragon(this.cvs, this.ctx));
+      }
+    }
+    this.setState({
+      entities
+    })
+  }
+
+  removeDragon() {
+    let entities = this.state.entities;
+
+    for (let i = 0; i < entities.length; i++) {
+      if (entities[i] instanceof Dragon) {
+        if (entities[i].x < 0 - entities[i].w) {
+          delete entities[i];
+          i--;
+        }
+      }
+    }
+    this.setState({
+      entities
+    })
+  }
+
+  removeDragons() {
+    let entities = this.state.entities;
+
+    for (let i = 0; i < entities.length; i++) {
+      if (entities[i] instanceof Dragon) {
+        delete entities[i];
+        i--;
+      }
+    }
+    this.setState({
+      entities
+    })
+  }
   
   render() {
     return (
-      <div tabIndex="0" onKeyDown={this.onKeyPressed}>
+      <div tabIndex="0" onKeyDown={this.onKeyPressed} onKeyUp={this.onKeyUp}>
         <canvas ref="canvas" id="run-escape" width="800" height="500"></canvas>
       </div>
     );
   }
 
+
+  draw() {
+    // console.log(`Draw, game state: ${this.state.current}`);
+    this.ctx.fillStyle = '#866286';
+    this.ctx.fillRect(0, 0, this.cvs.width, this.cvs.height);
+    this.bg.draw();
+    this.fg.draw();
+    this.state.entities.forEach(entity => entity.draw())
+    this.gameScore.draw(this.state);
+    this.getReady.draw(this.state);
+    this.gameOver.draw(this.state);
+    this.controlPrompt.draw(this.state);
+  }
+
+  update() {
+    // console.log(`Update`);
+    this.removeSkeleton();
+    this.removeDragon();
+    this.state.entities.forEach(entity => {
+      if (entity instanceof Player)
+        entity.update(this.state, this.increaseSpeed)
+      else
+        entity.update(this.state, this.gameScore, this.gameOverAction)
+    })
+    this.gameScore.update(this.state);
+    this.bg.update(this.state);
+    this.fg.update(this.state);
+    this.generateEnemies();
+  }
 
   renderGame() {
 
@@ -399,34 +443,7 @@ class Game extends React.Component {
   }
 
 
-  generateEnemies() {
-    let entities = this.state.entities;
-    if (this.frame % (100 + (Math.floor(this.rng.next() * 25))) === 0 && this.state.current === this.gameState.game) {
-      let num = Math.floor(Math.random() * 2) + 1;
-      if (num === 1) {
-        entities.push(new Skeleton(this.cvs, this.ctx));
-      } else {
-        entities.push(new Dragon(this.cvs, this.ctx));
-      }
-    }
-    this.setState({
-      entities
-    })
-  }
 
-  removeDragons() {
-    let entities = this.state.entities;
-
-    for (let i = 0; i < entities.length; i++) {
-      if (entities[i] instanceof Dragon) {
-        delete entities[i];
-        i--;
-      }
-    }
-    this.setState({
-      entities
-    })
-  }
 
   increaseSpeed(dx){
     this.setState({
