@@ -23,9 +23,12 @@
     "frontend": "file:frontend",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.6.4",
+    "node-sass": "^4.12.0",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
+    "prando": "^5.1.1",
     "socket.io": "^2.2.0",
+    "socket.io-client": "^2.2.0",
     "validator": "^11.1.0"
   },
   "devDependencies": {

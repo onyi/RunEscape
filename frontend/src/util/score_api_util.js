@@ -9,5 +9,6 @@ export const getScoresByUserId = (userId) => {
 };
 
 export const postScore = (value) => {
-  return axios.post('/api/scores/', { value });
+  return axios.post('/api/scores/', { 
+    value: value.toString() });
 }

@@ -6,7 +6,6 @@ const users = require("./routes/api/users");
 const scores = require("./routes/api/scores");
 const lobbies = require("./routes/api/lobbies");
 const bodyParser = require('body-parser');
-const User = require('./models/User');
 const passport = require('passport');
 const path = require('path');
 
@@ -17,6 +16,8 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
+const http = require('http').Server(app);
+const io = require('socket.io')(http, {});
 // app.get("/", (req, res) => res.send("Hello World"));
 
 mongoose
@@ -37,4 +38,40 @@ app.use("/api/scores", scores);
 
 const port = process.env.PORT || 5000;
 
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+let SOCKET_LIST = {};
+// let PLAYER_LIST = {};
+
+io.on('connection', socket => {
+  console.log("User connected")
+
+  socket.id = Math.random();
+  while(SOCKET_LIST[socket.id]) {
+    socket.id = Math.random();
+  }
+
+  SOCKET_LIST[socket.id] = socket;
+
+  socket.on('disconnect', () => {
+    delete SOCKET_LIST[socket.id];
+    // delete PLAYER_LIST[socket.id];
+  });
+
+  socket.on('chat message', ({ lobbyId, msg }) => {
+    console.log(`Got message: ${msg} on ${lobbyId}`)
+    io.emit(`chat message to ${lobbyId}`, msg);
+  })
+
+  socket.on('relay action', ({ lobbyId, playerId, playerAction }) => {
+    console.log(`Relay: ${playerId} on ${lobbyId} did ${playerAction}`)
+    io.emit(`relay action to ${lobbyId}`, { playerId, playerAction });
+  })
+
+  socket.on('relay game state', ({ lobbyId, gameState }) => {
+    console.log(`Relay game state on ${lobbyId}. State: ${gameState}`)
+    io.emit(`relay game state to ${lobbyId}`, { gameState });
+  })
+
+
+});
+
+const server = http.listen(port, () => console.log(`Server is running on port ${port}`));

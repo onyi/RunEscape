@@ -1,0 +1,43 @@
+#scoreboard-overlay {
+  position: fixed; /* Sit on top of the page content */
+  // display: block; /* Hidden by default */
+  width: 100%; /* Full width (cover the whole page) */
+  height: 100%; /* Full height (cover the whole page) */
+  top: 0; 
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.87); /* Black background with opacity */
+  z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+  cursor: pointer; /* Add a pointer on hover */
+}
+
+
+.scoreboard-container {
+  // position: fixed; /* Sit on top of the page content */
+  // // display: block; /* Hidden by default */
+  // top: 10%;
+  // left: 50%;
+  // margin-right: -50%;
+  // width: 100%;
+  z-index: 3; /* Specify a stack order in case you're using a different order for other elements */
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  align-items: center;
+  h1{
+    font-size: 4em;
+  }
+  cursor: auto;
+}
+
+.scoreboard-list {
+  padding: 0;
+  li{
+    list-style: none;
+    p{
+      font-size: 1.5em;
+      margin: 0;
+    }
+  }
+}

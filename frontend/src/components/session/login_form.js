@@ -15,6 +15,11 @@ class LoginForm extends React.Component {
     this.renderErrors = this.renderErrors.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({ errors: nextProps.errors })
+  }
+
+
   update(field) {
     return e => this.setState({
       [field]: e.currentTarget.value
@@ -46,8 +51,9 @@ class LoginForm extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="login-form-container">
         <form onSubmit={this.handleSubmit}>
+          <h3>Login</h3>
           <div>
             <input type="text"
               value={this.state.username}

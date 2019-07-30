@@ -7,7 +7,9 @@ class LobbyIndex extends React.Component {
     super(props)
 
     this.state = {
-      name: ""
+      name: "",
+      hostPlayerId: this.props.currentUser.id,
+      errors: {}
     }
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -16,6 +18,10 @@ class LobbyIndex extends React.Component {
 
   componentDidMount() {
     this.props.fetchLobbies();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({ errors: nextProps.errors })
   }
   
   handleSubmit(e) {
@@ -44,19 +50,19 @@ class LobbyIndex extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="lobby-list-container lobby-index">
         <form onSubmit={this.handleSubmit}>
           <input type="text" placeholder="Lobby Name" onChange={this.update('name')} value={this.state.name} />
           <input type="submit" value="Create Lobby" />
-          {/* {this.renderErrors()} */}
+          {this.renderErrors()}
         </form>
-        <ul>
+        <ul className="lobby-list">
           {this.props.lobbies.map(lobby => (
-            <Link to={`lobbies/${lobby.id}`}>
-              <li key={`lobby-${lobby.id}`}>
+            <li key={`lobby-${lobby._id}`} className="lobby-index-item">
+              <Link to={`lobbies/${lobby._id}`}>
                 {lobby.name}
-              </li>
-            </Link>
+              </Link>
+            </li>
           ))}
         </ul>
       </div>

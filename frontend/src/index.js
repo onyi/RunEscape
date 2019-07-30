@@ -6,8 +6,10 @@ import jwt_decode from 'jwt-decode';
 import { setAuthToken } from './util/session_api_util';
 import { logout } from './actions/session_actions';
 import axios from 'axios';
+import './App.scss';
 
 document.addEventListener('DOMContentLoaded', () => {
+
   let store;
 
   if (localStorage.jwtToken) {
@@ -28,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     store = configureStore({});
   }
-  const root = document.getElementById('root');
   window.axios = axios;
+  const root = document.getElementById('root');
   ReactDOM.render(<Root store={ store } />, root);
 });

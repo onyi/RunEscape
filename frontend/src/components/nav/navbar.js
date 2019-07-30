@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import fire from '../../assets/fire/fire-transparent.png';
+
 // import './navbar.css'
 
 class NavBar extends React.Component {
@@ -17,13 +19,13 @@ class NavBar extends React.Component {
   getLinks() {
     if (this.props.loggedIn) {
       return (
-        <div>
+        <div className="logout">
           <button onClick={this.logoutUser}>Logout</button>
         </div>
       );
     } else {
       return (
-        <div>
+        <div className="auth-wrapper">
           <Link to={'/signup'}>Signup</Link>
           <Link to={'/login'}>Login</Link>
         </div>
@@ -33,7 +35,14 @@ class NavBar extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="navbar">
+        <div>
+          <img className="fire-animation" src={fire} />
+          <Link to={'/'} >
+            <span className="logo">RunEscape</span>
+          </Link>
+        </div>
+        
         { this.getLinks() }
       </div>
     );

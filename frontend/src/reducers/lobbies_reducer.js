@@ -7,13 +7,15 @@ const initialState = {
 };
 
 export default function (state = initialState, action) {
+  let nextState = Object.assign({}, state);
   switch (action.type) {
     case RECEIVE_LOBBIES:
-      return action.lobbies;
+      let lobbies = action.lobbies
+      lobbies.map(lobby => nextState[lobby._id] = lobby)
+      return nextState;
     case RECEIVE_LOBBY:
-      let nextState = Object.assign({}, state);
       let lobby = action.lobby;
-      nextState[lobby.id] = lobby
+      nextState[lobby._id] = lobby
       return nextState;
     default:
       return state;
