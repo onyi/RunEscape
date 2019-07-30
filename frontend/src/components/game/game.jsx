@@ -71,6 +71,8 @@ class Game extends React.Component {
     this.cvs = canvas;
     let context = canvas.getContext("2d");
     this.ctx = context;
+    this.ctx.font = "30px Silver";
+
 
     let socket = openSocket(window.location.origin);
 

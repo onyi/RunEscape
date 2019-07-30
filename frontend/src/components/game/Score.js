@@ -1,3 +1,5 @@
+var gameState = require('./GameState');
+
 class Score {
   constructor(canvas, context){
       this.sY = 0;
@@ -32,10 +34,12 @@ class Score {
   }
 
   draw(state) {
-    if (state.current !== state.getReady) {
-      this.ctx.font = "30px Silver";
+    if (state.current !== gameState.getReady) {
       this.ctx.fillText("Game score: " + this.score, this.x, this.y);
       // this.ctx.drawImage(over, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
+    }
+    else {
+      // this.ctx.fillText("Game score: " + this.score, this.x, this.y);
     }
   }
 
