@@ -27,7 +27,10 @@ class LobbyIndex extends React.Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    this.props.createLobby(this.state);
+    this.props.createLobby(this.state)
+      .then(payload => {
+        this.props.history.push(`lobbies/${payload.lobby._id}`
+      )})
   }
 
   update(field) {

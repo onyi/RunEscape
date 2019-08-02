@@ -70,8 +70,6 @@ io.on('connection', socket => {
     console.log(`Relay game state on ${lobbyId}. State: ${gameState}`)
     io.emit(`relay game state to ${lobbyId}`, { gameState });
   })
-
-
 });
 
 const server = http.listen(port, () => console.log(`Server is running on port ${port}`));

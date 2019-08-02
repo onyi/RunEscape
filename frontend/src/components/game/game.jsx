@@ -38,11 +38,9 @@ class Game extends React.Component {
     }
     this.gameState = require('./GameState');
 
-    this.onKeyPressed = this.onKeyPressed.bind(this);
     this.loop = this.loop.bind(this);
     this.draw = this.draw.bind(this);
     this.update = this.update.bind(this);
-    this.renderGame = this.renderGame.bind(this);
     this.generateSkeletons = this.generateSkeletons.bind(this);
     this.removeSkeleton = this.removeSkeleton.bind(this);
     this.removeDragons = this.removeDragons.bind(this);
@@ -51,7 +49,6 @@ class Game extends React.Component {
     this.addPlayerstoLobby = this.addPlayerstoLobby.bind(this);
     this.getCurrentPlayer = this.getCurrentPlayer.bind(this);
     this.subscribeToPlayerActions = this.subscribeToPlayerActions.bind(this);
-    this.onKeyUp = this.onKeyUp.bind(this);
     this.increaseSpeed = this.increaseSpeed.bind(this);
     
     this.lobbyId = this.props.lobbyId;
@@ -60,6 +57,8 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
+    this.props.fetchLobby(this.lobbyId);
+
     // console.log(`${JSON.stringify(this.props)}`);
 
     // console.log(`Lobby ID: ${JSON.stringify(this.props.lobbyId)}`);
@@ -104,7 +103,6 @@ class Game extends React.Component {
       entities: [],
       isOver: false,
     };
-    this.renderGame = this.renderGame.bind(this);
     this.lobbyId = this.props.lobbyId
     this.frame = 0;
 
@@ -131,81 +129,79 @@ class Game extends React.Component {
     this.socket.off(`relay action to ${this.lobbyId}`);
   }
 
-  onKeyUp(e){
-    if (e.keyCode === 40 && this.state.current === this.gameState.game) {
-      this.socket.emit("relay action", {
-        lobbyId: this.props.lobbyId,
-        playerId: this.state.localPlayerId,
-        playerAction: "unslide"
-      })
-    }
-  }
-
-  onKeyPressed(e){
-    //control the game state
-    // console.log(`onKeyPressed`);
-
-    let player = this.state.entities.filter(entity => 
-      entity instanceof Player && entity.playerId === this.props.currentUser.id)[0];
-    // let player = players.filter(player => this.state.localPlayerId === player.playerId)[0];
-    if (e.keyCode === 32 || e.keyCode === 40 || e.keyCode === 39) {
-      switch (this.state.current) {
-        case this.gameState.getReady:
-          this.gameplay_music.currentTime = 0;
-          this.gameOver.gameover_music.currentTime = 0;
-          this.gameplay_music.play();
-          player.currentAnimation = player.runningAnimation;
-          this.gameScore.reset();
-          this.setState({
-            current: this.gameState.game
-          })
-          break;
-        case this.gameState.game:
-          if (e.keyCode === 32) {
-            this.socket.emit("relay action", {
-              lobbyId: this.lobbyId,
-              playerId: this.state.localPlayerId,
-              playerAction: "hop"
-            })
-          } else if (e.keyCode === 40 && player.jumpCount !== 2) {
-            this.socket.emit("relay action", {
-              lobbyId: this.lobbyId,
-              playerId: this.state.localPlayerId,
-              playerAction: "fastfall"
-            })
-          } else if (e.keyCode === 40 && player.jumpCount === 2) {
-            this.socket.emit("relay action", {
-              lobbyId: this.lobbyId,
-              playerId: this.state.localPlayerId,
-              playerAction: "slide"
-            })
-          }
-
-          if (e.keyCode === 39 && player.airDashCount > 0) {
-            this.socket.emit("relay action", {
-              lobbyId: this.lobbyId,
-              playerId: this.state.localPlayerId,
-              playerAction: "airdash"
-            });
+  mountController() {
+    document.addEventListener('keydown', (e) => {
+      let player = this.state.entities.filter(entity =>
+        entity instanceof Player && entity.playerId === this.props.currentUser.id)[0];
+      // let player = players.filter(player => this.state.localPlayerId === player.playerId)[0];
+      if (e.keyCode === 32 || e.keyCode === 40 || e.keyCode === 39) {
+        switch (this.state.current) {
+          case this.gameState.getReady:
+            this.gameplay_music.currentTime = 0;
+            this.gameOver.gameover_music.currentTime = 0;
+            this.gameplay_music.play();
+            player.currentAnimation = player.runningAnimation;
+            this.gameScore.reset();
             this.setState({
-              dx: this.state.dx += 6
+              current: this.gameState.game
             })
-          }
-          break;
-        case this.gameState.over:
-          player.currentAnimation = player.idleAnimation
-          this.removeSkeletons();
-          this.removeDragons();
-          this.gameOver.gameover_music.pause();
-          this.gameOverAction();
-          this.setState({
-            current: this.gameState.getReady
-          })
-          break;
-      }
-    }
-  }
+            break;
+          case this.gameState.game:
+            if (e.keyCode === 32) {
+              this.socket.emit("relay action", {
+                lobbyId: this.lobbyId,
+                playerId: this.state.localPlayerId,
+                playerAction: "hop"
+              })
+            } else if (e.keyCode === 40 && player.jumpCount !== 2) {
+              this.socket.emit("relay action", {
+                lobbyId: this.lobbyId,
+                playerId: this.state.localPlayerId,
+                playerAction: "fastfall"
+              })
+            } else if (e.keyCode === 40 && player.jumpCount === 2) {
+              this.socket.emit("relay action", {
+                lobbyId: this.lobbyId,
+                playerId: this.state.localPlayerId,
+                playerAction: "slide"
+              })
+            }
 
+            if (e.keyCode === 39 && player.airDashCount > 0) {
+              this.socket.emit("relay action", {
+                lobbyId: this.lobbyId,
+                playerId: this.state.localPlayerId,
+                playerAction: "airdash"
+              });
+              this.setState({
+                dx: this.state.dx += 6
+              })
+            }
+            break;
+          case this.gameState.over:
+            player.currentAnimation = player.idleAnimation
+            this.removeSkeletons();
+            this.removeDragons();
+            this.gameOver.gameover_music.pause();
+            this.gameOverAction();
+            this.setState({
+              current: this.gameState.getReady
+            })
+            break;
+        }
+      }
+    })
+
+    document.addEventListener('keyup', (e) => {
+      if (e.keyCode === 40 && this.state.current === this.gameState.game) {
+        this.socket.emit("relay action", {
+          lobbyId: this.props.lobbyId,
+          playerId: this.state.localPlayerId,
+          playerAction: "unslide"
+        })
+      }
+    })
+  }
 
   addPlayerstoLobby() {
     let entities = [];
@@ -236,8 +232,8 @@ class Game extends React.Component {
         if (player){
           switch(playerAction) {
             case "joinLobby":
-              this.props.fetchLobby(this.lobbyId);
-              this.addPlayerstoLobby();
+              this.props.fetchLobby(this.lobbyId)
+                .then(() => this.addPlayerstoLobby());
               this.setState({});
             case "hop":
               player.sliding = false;
@@ -282,6 +278,7 @@ class Game extends React.Component {
         }
       });
   } 
+
   generateSkeletons() {
     let entities = this.state.entities;
     if (this.frame % (50 + (Math.floor(this.rng.next() * 25))) === 0 && this.state.current === this.gameState.game) {
@@ -369,7 +366,7 @@ class Game extends React.Component {
   
   render() {
     return (
-      <div tabIndex="0" onKeyDown={this.onKeyPressed} onKeyUp={this.onKeyUp}>
+      <div tabIndex="0">
         <canvas ref="canvas" id="run-escape" width="800" height="500"></canvas>
       </div>
     );
@@ -419,7 +416,7 @@ class Game extends React.Component {
     });
 
     this.subscribeToPlayerActions();
-
+    this.mountController();
     this.loop();
   }
 

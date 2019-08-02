@@ -31,7 +31,8 @@ router.post('/create', (req, res) => {
 
   const newLobby = new Lobby({
     name: req.body.name,
-    hostPlayerId: req.body.hostPlayerId
+    hostPlayerId: req.body.hostPlayerId,
+    players: [req.body.hostPlayerId]
   })
 
   newLobby

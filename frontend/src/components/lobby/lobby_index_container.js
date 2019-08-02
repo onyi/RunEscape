@@ -1,5 +1,6 @@
 
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import { fetchLobbies, createLobby } from '../../actions/lobby_actions';
 
 import LobbyIndex from "./lobby_index";
@@ -15,4 +16,4 @@ const mapDispatchToProps = dispatch => ({
   createLobby: (lobby) => dispatch(createLobby(lobby))
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(LobbyIndex);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LobbyIndex));
