@@ -26,7 +26,7 @@ class Foreground{
 
   update(state) {
     if (state.dx = state.frame % 300 === 0 && state.dx < 20 && state.current === gameState.game ? state.dx += 1 : state.dx)
-      if (state.current == gameState.game) {
+      if (state.current === gameState.game) {
         this.x = (this.x - state.dx) % (this.w);
       }
   }

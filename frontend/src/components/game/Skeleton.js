@@ -80,7 +80,6 @@ class Skeleton {
 
   update(state, gameScore, gameOver) {
     if (state.current !== gameState.game) return;
-    let skeleton = this.animation[this.animationFrame];    
     this.period = state.current === gameState.getReady ? 6 : 5;
     
     this.frameTicks++;

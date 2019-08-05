@@ -1,6 +1,6 @@
 import controlsimg from '../../assets/game/controls.png'
 
-var gameState = require('./GameState');
+// var gameState = require('./GameState');
 
 class ControlPrompt {
   constructor(canvas, context) {

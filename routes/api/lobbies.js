@@ -52,7 +52,7 @@ router.patch('/:lobbyId/join', (req, res) => {
       .then(data => {
         res.json(data)
         })
-    .catch(err => res.status(404).json({ nolobbiesfound: "No lobby found"}))
+    .catch(err => res.status(404).json({ nolobbiesfound: "No lobby found"}));
 });
 
 module.exports = router;

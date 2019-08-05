@@ -27,7 +27,6 @@ class Game extends React.Component {
 
 
     this.state = {
-      scores: this.props.scores,
       gameState: 0,
       localPlayerId: this.props.currentUser.id,
       current: 0,
@@ -95,14 +94,14 @@ class Game extends React.Component {
     this.rng = rng;
     let gameScore = new Score(canvas, context);
     this.gameScore = gameScore;
-    this.state = {
+    this.setState({
       scores: this.props.scores,
       gameState: 0,
       localPlayerId: this.props.currentUser.id,
       current: 0,
       entities: [],
       isOver: false,
-    };
+    });
     this.lobbyId = this.props.lobbyId
     this.frame = 0;
 
@@ -174,7 +173,7 @@ class Game extends React.Component {
                 playerAction: "airdash"
               });
               this.setState({
-                dx: this.state.dx += 6
+                dx: this.state.dx + 6
               })
             }
             break;
@@ -187,6 +186,8 @@ class Game extends React.Component {
             this.setState({
               current: this.gameState.getReady
             })
+            break;
+          default:
             break;
         }
       }
@@ -235,6 +236,7 @@ class Game extends React.Component {
               this.props.fetchLobby(this.lobbyId)
                 .then(() => this.addPlayerstoLobby());
               this.setState({});
+              break;
             case "hop":
               player.sliding = false;
               player.hop();
@@ -268,11 +270,13 @@ class Game extends React.Component {
             this.setState({
               gameState: 2
             });
+            break;
           case 1:
             console.log(`playing`);
             this.setState({
               gameState: 2
             });
+            break;
           default:
             break;
         }
