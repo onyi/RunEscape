@@ -81,13 +81,13 @@ setInterval( () => {
   // Logic to clear empty lobby here
   Lobby.find().then( lobbies => {
     let removeLobbies = lobbies.map( lobby => {
-      console.log(`Lobby: ${lobby.name}, ID: ${lobby._id}; players: ${lobby.players}`)
+      // console.log(`Lobby: ${lobby.name}, ID: ${lobby._id}; players: ${lobby.players}`)
       if (lobby.players.length < 1) {
-        console.log(`Lobby ${lobby._id} has no player, removing soon`)
+        // console.log(`Lobby ${lobby._id} has no player, removing soon`)
         return lobby._id;
       }
     })
-    console.log(`Lobby to be deleted: ${removeLobbies}`);
+    // console.log(`Lobby to be deleted: ${removeLobbies}`);
     // Delete lobby by ID array
     if(removeLobbies.length !== 0){
       Lobby.deleteMany( {id: { $in : removeLobbies }}, function(err) { console.log(`Error when deleting lobby: ${err}`)});
