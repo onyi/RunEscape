@@ -25,16 +25,18 @@ class Game extends React.Component {
   constructor(props){
     super(props);
 
-
     this.state = {
       gameState: 0,
       localPlayerId: this.props.currentUser.id,
       current: 0,
+      players: [],
       entities: [],
       isOver: false,
       scores: props.scores,
       dx: 8
     }
+    window.game = this;
+
     this.gameState = require('./GameState');
 
     this.loop = this.loop.bind(this);
@@ -56,14 +58,11 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchLobby(this.lobbyId);
 
     // console.log(`${JSON.stringify(this.props)}`);
-
     // console.log(`Lobby ID: ${JSON.stringify(this.props.lobbyId)}`);
 
     this.props.getScores();
-
 
     let canvas = this.refs.canvas;
     this.cvs = canvas;
@@ -71,9 +70,7 @@ class Game extends React.Component {
     this.ctx = context;
     this.ctx.font = "30px Silver";
 
-
     let socket = openSocket(window.location.origin);
-
     this.socket = socket;
 
     let gameplay_music = new Audio();
@@ -101,17 +98,11 @@ class Game extends React.Component {
       current: 0,
       entities: [],
       isOver: false,
-    });
-    this.lobbyId = this.props.lobbyId
-    this.frame = 0;
-
-
-    // let cvs = document.getElementById('run-escape');
-    // let ctx = cvs.getContext('2d');
-    this.setState({
       cvs: canvas,
       ctx: context
     });
+    this.lobbyId = this.props.lobbyId
+    this.frame = 0;
     this.bg = new Background(canvas, context);
     this.fg = new Foreground(canvas, context);
 
@@ -120,19 +111,27 @@ class Game extends React.Component {
 
     this.controlPrompt = new ControlPrompt(this.cvs, this.ctx);
 
+    this.addPlayertoLobby(this.state.localPlayerId);
+    this.props.fetchLobby(this.lobbyId)
+      .then(payload => {
+        this.lobby = payload.lobby;
+        this.addPlayerstoLobby(payload.lobby);
+      })
+      .then(() => this.mountController());
+
     this.renderGame();
     
   }
 
   componentWillUnmount() {
     this.socket.off(`relay action to ${this.lobbyId}`);
+    this.socket.off(`relay game state to ${this.lobbyId}`); 
   }
 
   mountController() {
     document.addEventListener('keydown', (e) => {
-      let player = this.state.entities.filter(entity =>
-        entity instanceof Player && entity.playerId === this.props.currentUser.id)[0];
-      // let player = players.filter(player => this.state.localPlayerId === player.playerId)[0];
+      let player = this.getCurrentPlayer();
+      
       if (e.keyCode === 32 || e.keyCode === 40 || e.keyCode === 39) {
         switch (this.state.current) {
           case this.gameState.getReady:
@@ -158,7 +157,7 @@ class Game extends React.Component {
                 playerId: this.state.localPlayerId,
                 playerAction: "fastfall"
               })
-            } else if (e.keyCode === 40 && player.jumpCount === 2) {
+            } else if (e.keyCode === 40 && player.jumpCount === 2 && player.sliding === false) {
               this.socket.emit("relay action", {
                 lobbyId: this.lobbyId,
                 playerId: this.state.localPlayerId,
@@ -194,7 +193,8 @@ class Game extends React.Component {
     })
 
     document.addEventListener('keyup', (e) => {
-      if (e.keyCode === 40 && this.state.current === this.gameState.game) {
+      let player = this.getCurrentPlayer();
+      if (e.keyCode === 40 && this.state.current === this.gameState.game && player.sliding === true) {
         this.socket.emit("relay action", {
           lobbyId: this.props.lobbyId,
           playerId: this.state.localPlayerId,
@@ -204,38 +204,53 @@ class Game extends React.Component {
     })
   }
 
-  addPlayerstoLobby() {
-    let entities = [];
-    // this.props.lobbies[this.lobbyId].players.map(playerId => 
-    //   state.entities.push(new Player(state.cvs, state.ctx, playerId)))
+  addPlayertoLobby(playerId) {
+    let playerIds = this.state.players.map(player => player.playerId)
+    let players = this.state.players;
 
-    for (let i = 0; i < this.props.lobbies[this.lobbyId].players.length; i++) {
-      entities.push(new Player(this.cvs, this.ctx, this.props.lobbies[this.lobbyId].players[i], i * 20))
-    }
+    if (!playerIds.includes(playerId))
+      players.push(new Player(this.cvs, this.ctx, playerId, players.length * 20));
+
     this.setState({
-      entities
-    })
+      players
+    });
+    
   }
 
-  getCurrentPlayer(state) {
-    return this.state.entities.filter(entity =>
-      entity instanceof Player && entity.playerId === this.props.currentUser.id);
+  addPlayerstoLobby(lobby) {
+    let playerIds = this.state.players.map(player => player.playerId);
+
+    let players = this.state.players;
+    for (let i = 0; i < lobby.players.length; i++) {
+      if (!playerIds.includes(lobby.players[i].playerId))
+        players.push(new Player(this.cvs, this.ctx, lobby.players[i], 20 + i * 20));
+    }
+
+    this.setState({
+      players
+    });
+  }
+
+  getCurrentPlayer() {
+    return this.state.players.filter(entity =>
+      entity instanceof Player && entity.playerId === this.props.currentUser.id)[0];
   }
 
   // Subscribe socket to player action relay
   subscribeToPlayerActions() {
     this.socket.on(`relay action to ${this.lobbyId}`, 
       ({ playerId, playerAction}) => {
-        let players = this.state.entities.filter(entity => 
-          entity instanceof Player)
-        let player = players.filter(player => 
-          playerId === player.playerId)[0];
+        let player = this.state.players.filter(player => player.playerId === playerId)[0];
+        
+        if(playerAction === "joinLobby") {
+          this.addPlayertoLobby(playerId);
+        }
+
         if (player){
           switch(playerAction) {
-            case "joinLobby":
-              this.props.fetchLobby(this.lobbyId)
-                .then(() => this.addPlayerstoLobby());
-              this.setState({});
+            case "leaveLobby":
+
+              this.addPlayertoLobby(playerId);
               break;
             case "hop":
               player.sliding = false;
@@ -367,22 +382,13 @@ class Game extends React.Component {
       entities
     })
   }
-  
-  render() {
-    return (
-      <div tabIndex="0">
-        <canvas ref="canvas" id="run-escape" width="800" height="500"></canvas>
-      </div>
-    );
-  }
-
 
   draw() {
-    // console.log(`Draw, game state: ${this.state.current}`);
     this.ctx.fillStyle = '#866286';
     this.ctx.fillRect(0, 0, this.cvs.width, this.cvs.height);
     this.bg.draw();
     this.fg.draw();
+    this.state.players.forEach(entity => entity.draw())
     this.state.entities.forEach(entity => entity.draw())
     this.gameScore.draw(this.state);
     this.getReady.draw(this.state);
@@ -391,14 +397,14 @@ class Game extends React.Component {
   }
 
   update() {
-    // console.log(`Update`);
     this.removeSkeleton();
     this.removeDragon();
+    this.state.players.forEach(entity => {
+      entity.update(this.state, this.increaseSpeed)
+    });
+
     this.state.entities.forEach(entity => {
-      if (entity instanceof Player)
-        entity.update(this.state, this.increaseSpeed)
-      else
-        entity.update(this.state, this.gameScore, this.gameOverAction)
+      entity.update(this.state, this.gameScore, this.gameOverAction)
     })
     this.gameScore.update(this.state);
     this.bg.update(this.state);
@@ -407,12 +413,8 @@ class Game extends React.Component {
   }
 
   renderGame() {
-
-    const lobby = this.props.lobbies[this.props.lobbyId];
     let entities = this.state.entities;
 
-    lobby.players.map(playerId => 
-      entities.push(new Player(this.cvs, this.ctx, playerId)))
     entities.push(new Skeleton(this.cvs, this.ctx));
 
     this.setState({
@@ -420,7 +422,6 @@ class Game extends React.Component {
     });
 
     this.subscribeToPlayerActions();
-    this.mountController();
     this.loop();
   }
 
@@ -445,9 +446,6 @@ class Game extends React.Component {
     this.fg.reset();
   }
 
-
-
-
   increaseSpeed(dx){
     this.setState({
       dx: this.state.dx + dx
@@ -470,5 +468,14 @@ class Game extends React.Component {
       this.gameOver.gameover_music.play();
     }
   }
+
+  render() {
+    return (
+      <div tabIndex="0">
+        <canvas ref="canvas" id="run-escape" width="800" height="500"></canvas>
+      </div>
+    );
+  }
 }
+
 export default Game;

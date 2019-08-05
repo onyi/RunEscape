@@ -37,7 +37,7 @@ class NavBar extends React.Component {
     return (
       <div className="navbar">
         <div>
-          <img className="fire-animation" src={fire} />
+          <img className="fire-animation" src={fire} alt="fire" />
           <Link to={'/'} >
             <span className="logo">RunEscape</span>
           </Link>

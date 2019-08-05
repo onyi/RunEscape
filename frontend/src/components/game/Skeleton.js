@@ -92,7 +92,7 @@ class Skeleton {
 
     // console.log(`Player ID: ${state.localPlayerId}`);
 
-    let player = state.entities.filter(entity =>
+    let player = state.players.filter(entity =>
       entity instanceof Player && entity.playerId === state.localPlayerId )[0];
     if (player.x + 12 > this.x && 
         player.x - 12 < this.x + this.w && 
