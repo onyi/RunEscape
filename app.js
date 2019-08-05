@@ -9,6 +9,8 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 const path = require('path');
 
+
+
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('frontend/build'));
   app.get('/', (req, res) => {
@@ -73,5 +75,28 @@ io.on('connection', socket => {
 
 
 });
+
+const Lobby = require('./models/Lobby');
+setInterval( () => {
+  // Logic to clear empty lobby here
+  Lobby.find().then( lobbies => {
+    let removeLobbies = lobbies.map( lobby => {
+      console.log(`Lobby: ${lobby.name}, ID: ${lobby._id}; players: ${lobby.players}`)
+      if (lobby.players.length < 1) {
+        console.log(`Lobby ${lobby._id} has no player, removing soon`)
+        return lobby._id;
+      }
+    })
+    console.log(`Lobby to be deleted: ${removeLobbies}`);
+    // Delete lobby by ID array
+    if(removeLobbies.length !== 0){
+      Lobby.deleteMany( {id: { $in : removeLobbies }}, function(err) { console.log(`Error when deleting lobby: ${err}`)});
+    }
+ 
+
+
+  })
+}, 43200000) // Delete lobby for every 12 hours
+
 
 const server = http.listen(port, () => console.log(`Server is running on port ${port}`));
