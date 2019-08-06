@@ -68,6 +68,8 @@
 .lobby-list {
   width: 20%;
   // margin: 0 auto;
+  height: 100%;
+  overflow: hidden;
   li, a{
     list-style: decimal;
     text-decoration: none;
@@ -81,6 +83,8 @@
   justify-content: flex-start;
   align-items: center;
   flex-direction: column;
+  max-height: 60vh;
+  overflow-y: hidden;
   h3{
     margin: 0;
   }

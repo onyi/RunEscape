@@ -59,8 +59,8 @@ class Player {
 
 ```javascript
  lobby.players.map(playerId => 
-      state.entities.push(new Player(cvs, ctx, playerId)))
-    state.entities.push(new Skeleton(cvs, ctx));
+      this.game.entities.push(new Player(cvs, ctx, playerId)))
+    this.game.entities.push(new Skeleton(cvs, ctx));
 ```
 
 

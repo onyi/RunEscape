@@ -55,7 +55,7 @@ class Dragon {
 
     this.animationFrame = this.animationFrame % this.animation.length;
 
-    let player = state.entities.filter(entity =>
+    let player = state.players.filter(entity =>
       entity.playerId === state.localPlayerId)[0];
     if (player.sliding) {
       if (player.x > this.x &&

@@ -80,7 +80,6 @@ class Skeleton {
 
   update(state, gameScore, gameOver) {
     if (state.current !== gameState.game) return;
-    let skeleton = this.animation[this.animationFrame];    
     this.period = state.current === gameState.getReady ? 6 : 5;
     
     this.frameTicks++;
@@ -93,7 +92,7 @@ class Skeleton {
 
     // console.log(`Player ID: ${state.localPlayerId}`);
 
-    let player = state.entities.filter(entity =>
+    let player = state.players.filter(entity =>
       entity instanceof Player && entity.playerId === state.localPlayerId )[0];
     if (player.x + 12 > this.x && 
         player.x - 12 < this.x + this.w && 

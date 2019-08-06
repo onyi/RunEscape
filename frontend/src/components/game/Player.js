@@ -115,7 +115,7 @@ class Player {
   hop() {
     if (this.jumpCount > 0) {
       this.jumpSfx.play();
-      this.currentAnimation = this.jump_animation
+      this.currentAnimation = this.jump_animation;
       this.jumpCount -= 1;
       this.y = this.y - 1;
       this.speed = -this.jump;

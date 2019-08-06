@@ -15,8 +15,6 @@ class Score {
       this.cvs = canvas;
   }
 
-      
-
   update(state) {
     if (state.current === state.game) {
       this.frameTicks++;
