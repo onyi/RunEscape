@@ -150,13 +150,13 @@ class Game extends React.Component {
       if(k >= 30 && k <= 40) {
           e.preventDefault();
       }
-    } //prevent scrolling
+    } //prevent scrolling for arrow keys
 
     let player = this.state.entities.filter(entity => 
       entity instanceof Player && entity.playerId === this.props.currentUser.id)[0];
     // let player = players.filter(player => this.state.localPlayerId === player.playerId)[0];
     if (e.keyCode === 32 || e.keyCode === 40 || e.keyCode === 39) {
-      e.preventDefault();
+      e.preventDefault();  // prevent default scrolling for actions
       switch (this.state.current) {
         case this.gameState.getReady:
           this.gameplay_music.currentTime = 0;
