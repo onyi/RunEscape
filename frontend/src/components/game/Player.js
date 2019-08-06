@@ -70,8 +70,8 @@ class Player {
       { sX: 115, sY: 2015, w: 62, h: 85 },
       { sX: 180, sY: 2015, w: 60, h: 87 },
       { sX: 240, sY: 2015, w: 56, h: 86 },
-      { sX: 300, sY: 2015, w: 65, h: 89 },
-      { sX: 363, sY: 2015, w: 66, h: 89 },
+      // { sX: 300, sY: 2015, w: 65, h: 89 },
+      // { sX: 363, sY: 2015, w: 66, h: 89 },
     ];
 
     this.airDashAnimation = [
@@ -151,8 +151,7 @@ class Player {
   update(state, increaseSpeed) {
     if (state.gameState === GAME_STATE.OVER) return;
 
-    // console.log(this.jumpCount);
-    //if the game state is get ready state, the chara must run slowly
+    // if the game state is get ready state, the chara animate slowly
     this.period = state.gameState === GAME_STATE.READY ? 10 : 5;
 
     // count frames that have elapsed, increment the animationFrame by 1 each period
@@ -162,19 +161,18 @@ class Player {
       this.animationFrame++;
     }
 
-    //animationFrame goes from 0 to 8, then again to 0
-    // if (this.currentAnimation === this.jump_animation && this.animationFrame >= this.currentAnimation.length - 3) {
-    //   this.animationFrame = this.currentAnimation.length - 3;
-    // } else {
+    // loop animation frames, except for jumping
+    if (this.currentAnimation === this.jump_animation && this.animationFrame >= this.currentAnimation.length) {
+      this.animationFrame = this.currentAnimation.length - 1;
+    } else {
       this.animationFrame = this.animationFrame % this.currentAnimation.length;
-    // }
+    }
 
     if (state.gameState === GAME_STATE.READY) {
       this.y = this.cvs.height - this.fg.h - 30; //reset position of the chara after the game over
     } else {
       this.speed += this.gravity;
 
-      //ground
       if (this.isGrounded()) {
         if (!this.sliding) this.currentAnimation = this.runningAnimation;
 
@@ -188,7 +186,6 @@ class Player {
         }
       }
 
-      //air 
       if (!this.isGrounded()) {
         this.y += this.speed;
       }

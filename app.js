@@ -82,7 +82,7 @@ io.on('connection', socket => {
 
   // relay player actions to lobby it originated in
   socket.on('relay action', ({ lobbyId, playerId, playerAction }) => {
-    // console.log(`Relay: ${playerId} on ${lobbyId} did ${playerAction}`)
+    console.log(`Relay: ${playerId} on ${lobbyId} did ${playerAction}`)
     io.emit(`relay action to ${lobbyId}`, { playerId, playerAction });
 
     // store lobbies joined per socTket
