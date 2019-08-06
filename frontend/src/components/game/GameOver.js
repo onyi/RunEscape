@@ -1,14 +1,12 @@
 import gameover from '../../assets/game/game-over.png';
 import gg from '../../assets/game/gg.mp3';
 
-var gameState = require('./GameState');
+var GAME_STATE = require('./GameState');
 
 class GameOver {
   constructor(canvas, context) {
     this.ctx = context;
     this.cvs = canvas;
-
-
 
     this.sX = 0;
     this.sY = 0;
@@ -25,8 +23,8 @@ class GameOver {
   }
 
   draw(state) {
-    // console.log(`current game state: ${state.current}; ${gameState.over}`);
-    if (state.current === gameState.over) {
+    // console.log(`gameState game state: ${state.gameState}; ${GAME_STATE.over}`);
+    if (state.gameState === GAME_STATE.OVER) {
       this.ctx.drawImage(this.over, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
     }
   }
@@ -36,9 +34,8 @@ class GameOver {
   }
 
   reset() {
-    this.gameover_music.currentTime = 0
+    this.gameover_music.currentTime = 0;
   }
-
 }
 
 export default GameOver;

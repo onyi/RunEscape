@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Prando from 'prando';
 import openSocket from 'socket.io-client';
@@ -20,25 +21,52 @@ import pointSound from '../../assets/game/sfx_point.wav';
 
 import Score from './Score';
 
-class Game extends React.Component {
+const GAME_STATE = require('./GameState');
 
+const KEY = {
+  SPACE: 32,
+  RIGHT: 39,
+  DOWN: 40,
+}
+
+class Game extends React.Component {
   constructor(props){
     super(props);
 
     this.game = {
-      gameState: 0,
-      localPlayerId: this.props.currentUser.id,
-      current: 0,
+      gameState: GAME_STATE.INIT,
+      localPlayerId: props.currentUser.id,
       isOver: false,
       scores: props.scores,
       dx: 8,
       entities: [],
-      players: []
-
+      players: [],
     }
 
-    this.gameState = require('./GameState');
+    this.rng = new Prando(props.lobbyId);
+    this.game.scores = props.scores;
+    this.lobbyId = props.lobbyId;
+    this.frame = 0;
+    
+    this.keyDown = {
+      [KEY.SPACE]: false,
+      [KEY.RIGHT]: false,
+      [KEY.DOWN]: false,
+    }
 
+    this.gameplay_music = new Audio();
+    this.gameplay_music.src = suddenatksound;
+
+    this.point_sound = new Audio();
+    this.point_sound.src = pointSound;
+
+    this.gameSpoint_soundtate = {
+      current: 0,
+      getReady: 0,
+      game: 1,
+      over: 2,
+    }
+    
     this.loop = this.loop.bind(this);
     this.draw = this.draw.bind(this);
     this.update = this.update.bind(this);
@@ -51,64 +79,23 @@ class Game extends React.Component {
     this.getCurrentPlayer = this.getCurrentPlayer.bind(this);
     this.subscribeToPlayerActions = this.subscribeToPlayerActions.bind(this);
     this.increaseSpeed = this.increaseSpeed.bind(this);
-    
-    this.lobbyId = this.props.lobbyId;
-    this.renderGame = this.renderGame.bind(this);
-    this.socket = openSocket(window.location.origin);
   }
-
+  
   componentDidMount() {
-
-    // console.log(`${JSON.stringify(this.props)}`);
-    // console.log(`Lobby ID: ${JSON.stringify(this.props.lobbyId)}`);
-
-    this.props.getScores();
-
-    let canvas = this.refs.canvas;
-    this.cvs = canvas;
-    let context = canvas.getContext("2d");
-    this.ctx = context;
+    this.cvs = this.refs.canvas;
+    this.ctx = this.cvs.getContext("2d");
     this.ctx.font = "30px Silver";
 
-    let socket = openSocket(window.location.origin);
-    this.socket = socket;
-
-    let gameplay_music = new Audio();
-    gameplay_music.src = suddenatksound;
-    this.gameplay_music = gameplay_music;
-
-    const point_sound = new Audio();
-    point_sound.src = pointSound;
-    this.point_sound = point_sound;
-
-    this.gameSpoint_soundtate = {
-      current: 0,
-      getReady: 0,
-      game: 1,
-      over: 2,
-    }
-    let rng = new Prando(this.props.lobbyId);
-    this.rng = rng;
-    let gameScore = new Score(canvas, context);
-    this.gameScore = gameScore;
-
-    this.game.scores= this.props.scores;
-    this.game.gameState = 0;
-    this.game.localPlayerId = this.props.currentUser.id;
-    this.game.current = 0;
-    this.game.isOver = false;
-    
-    this.renderGame = this.renderGame.bind(this);
-    this.lobbyId = this.props.lobbyId
-    this.frame = 0;
-
-    this.bg = new Background(canvas, context);
-    this.fg = new Foreground(canvas, context);
-
+    this.gameScore = new Score(this.cvs, this.ctx);
+    this.bg = new Background(this.cvs, this.ctx);
+    this.fg = new Foreground(this.cvs, this.ctx);
     this.getReady = new GetReady(this.cvs, this.ctx);
     this.gameOver = new GameOver(this.cvs, this.ctx);
+    this.controlPrompt = new ControlPrompt(this.cvs, this.ctx);    
+    
+    this.socket = openSocket(window.location.origin);
 
-    this.controlPrompt = new ControlPrompt(this.cvs, this.ctx);
+    this.props.getScores();
 
     this.addPlayertoLobby(this.game.localPlayerId);
     this.props.fetchLobby(this.lobbyId)
@@ -116,158 +103,196 @@ class Game extends React.Component {
         this.lobby = payload.lobby;
         this.addPlayerstoLobby(payload.lobby);
       })
-      .then(() => this.mountController());
+      .then(() => this.mountController())
+      .then(() => this.subscribeToPlayerActions());
 
-    this.renderGame();
-    
+    this.loop();
   }
 
   componentWillUnmount() {
+    console.log("Game has unmounted");
+    this.socket.emit("chat message", { lobbyId: this.lobbyId, msg: "d/c"});
     this.socket.off(`relay action to ${this.lobbyId}`);
     this.socket.off(`relay game state to ${this.lobbyId}`); 
+    this.socket.close();
+    // this.socket.disconnect(true);
+
+    this.game.gameState = GAME_STATE.DISCONNECTED;
+    this.gameplay_music.pause();
+    this.gameOver.gameover_music.pause();
   }
 
-  mountController() {
-    document.addEventListener('keydown', (e) => {
-      let player = this.getCurrentPlayer();
+  componentDidUpdate() {
+    window.onpopstate = (e) => {
+      // window.location.reload();
+    }
+  }
 
-    document.onkeydown = function(e) {
+  initialize() {
+    this.game.gameState = GAME_STATE.READY;
+  }
+
+  startGame() {
+    this.game.entities = [];
+    this.game.entities.push(new Skeleton(this.cvs, this.ctx));
+
+    this.frame = 0;
+    this.gameplay_music.currentTime = 0;
+    this.gameOver.gameover_music.currentTime = 0;
+    this.gameplay_music.play();
+    this.gameScore.reset();
+
+    this.game.players.forEach(
+      player => player.currentAnimation = player.runningAnimation);
+
+    this.game.gameState = GAME_STATE.RUNNING;
+  }
+
+  restartGame() {
+    this.game.entities = [];
+    this.gameOver.gameover_music.pause();
+
+    this.game.players.forEach(
+      player => player.currentAnimation = player.idleAnimation);
+
+    this.game.gameState = GAME_STATE.READY;
+  }
+
+  gameOverAction() {
+    this.gameplay_music.pause();
+    this.gameOver.gameover_music.play();
+
+    this.socket.emit("chat message", {
+      lobbyId: this.props.lobbyId,
+      msg: `${this.props.currentUser.username} met their end`
+    });
+
+    this.game.gameState = GAME_STATE.OVER;
+
+    this.socket.emit("relay game state", {
+      lobbyId: this.props.lobbyId,
+      gameState: GAME_STATE.OVER,
+    });
+    this.props.postScore(this.gameScore.score);
+    this.bg.reset();
+    this.fg.reset();
+  }
+
+  // bind controls for the local player, must be called after local player exists
+  mountController() {
+
+    document.onkeydown = function (e) {
       let k = e.keyCode;
-      if(k >= 30 && k <= 40) {
-          e.preventDefault();
+      if (k >= 30 && k <= 40) {
+        e.preventDefault();
       }
     } //prevent scrolling for arrow keys
 
 
+    document.addEventListener('keydown', (e) => {
+      e.preventDefault();  // prevent default scrolling for actions
 
-      if (e.keyCode === 32 || e.keyCode === 40 || e.keyCode === 39) {
-        e.preventDefault();  // prevent default scrolling for actions
-        switch (this.game.current) {
-          case this.gameState.getReady:
-            this.gameplay_music.currentTime = 0;
-            this.gameOver.gameover_music.currentTime = 0;
-            this.gameplay_music.play();
-            player.currentAnimation = player.runningAnimation;
-            this.gameScore.reset();
-            this.game.current = this.gameState.game;
-            break;
-          case this.gameState.game:
-            if (e.keyCode === 32) {
-              this.socket.emit("relay action", {
-                lobbyId: this.lobbyId,
-                playerId: this.game.localPlayerId,
-                playerAction: "hop"
-              })
-            } else if (e.keyCode === 40 && player.jumpCount !== 2) {
-              this.socket.emit("relay action", {
-                lobbyId: this.lobbyId,
-                playerId: this.game.localPlayerId,
-                playerAction: "fastfall"
-              })
-            } else if (e.keyCode === 40 && player.jumpCount === 2 && player.sliding === false) {
-              this.socket.emit("relay action", {
-                lobbyId: this.lobbyId,
-                playerId: this.game.localPlayerId,
-                playerAction: "slide"
-              })
-            }
+      let player = this.getCurrentPlayer();
+      let key = e.keyCode;
 
-            if (e.keyCode === 39 && player.airDashCount > 0) {
-              this.socket.emit("relay action", {
-                lobbyId: this.lobbyId,
-                playerId: this.game.localPlayerId,
-                playerAction: "airdash"
-              });
-              this.game.dx = this.game.dx + 6;
-            }
-            break;
-          case this.gameState.over:
-            player.currentAnimation = player.idleAnimation
-            this.removeSkeletons();
-            this.removeDragons();
-            this.gameOver.gameover_music.pause();
-            this.gameOverAction();
-            this.game.current = this.gameState.getReady;
-            break;
-          default:
-            break;
-        }
+      if (!Object.values(KEY).includes(key)) return;
+
+      switch (this.game.gameState) {
+        case GAME_STATE.INIT:
+          break;
+        case GAME_STATE.READY:
+          this.startGame();
+          break;
+        case GAME_STATE.RUNNING:
+          if (key === KEY.SPACE && !this.keyDown[KEY.SPACE]) {
+            player.hop();
+            this.socket.emit("relay action", {
+              lobbyId: this.lobbyId,
+              playerId: this.game.localPlayerId,
+              playerAction: "hop"
+            })
+          } 
+
+          if (key === KEY.DOWN && 
+              !this.keyDown[KEY.DOWN] && 
+              !player.isGrounded()) {
+            player.fastfall();
+            this.socket.emit("relay action", {
+              lobbyId: this.lobbyId,
+              playerId: this.game.localPlayerId,
+              playerAction: "fastfall"
+            })
+          }
+
+          if (key === KEY.RIGHT && 
+              !this.keyDown[KEY.RIGHT] && 
+              player.airDashCount > 0) {
+            player.airdash();
+            this.socket.emit("relay action", {
+              lobbyId: this.lobbyId,
+              playerId: this.game.localPlayerId,
+              playerAction: "airdash"
+            });
+            this.game.dx = this.game.dx + 6;
+          }
+          break;
+        case GAME_STATE.OVER:
+          this.restartGame();
+          break;
+        default:
+          break;
       }
+
+      this.keyDown[key] = true;
     })
 
     document.addEventListener('keyup', (e) => {
-      e.preventDefault();
-      let player = this.getCurrentPlayer();
-      if (e.keyCode === 40 && this.game.current === this.gameState.game && player.sliding === true) {
-        this.socket.emit("relay action", {
-          lobbyId: this.props.lobbyId,
-          playerId: this.game.localPlayerId,
-          playerAction: "unslide"
-        })
-      }
+      e.preventDefault();  // prevent default scrolling for actions
+      // let player = this.getCurrentPlayer();
+      let key = e.keyCode;
+
+      if (!Object.values(KEY).includes(key)) return;
+      this.keyDown[key] = false;
     })
-  }
-
-  addPlayertoLobby(playerId) {
-    let playerIds = this.game.players.map(player => player.playerId)
-    let players = this.game.players;
-
-    if (!playerIds.includes(playerId))
-      players.push(new Player(this.cvs, this.ctx, playerId, players.length * 20));
-    
-  }
-
-  addPlayerstoLobby(lobby) {
-    let playerIds = this.game.players.map(player => player.playerId);
-
-    let players = this.game.players;
-    for (let i = 0; i < lobby.players.length; i++) {
-      if (!playerIds.includes(lobby.players[i].playerId))
-        players.push(new Player(this.cvs, this.ctx, lobby.players[i], 20 + i * 20));
-    }
-
-    this.setState({
-      players
-    });
-  }
-
-  removePlayerFromLobby(playerId) {
-    let players = this.game.players;
-    let index = players.indexOf(playerId);
-    players.splice(index, 1);
-  }
-
-  getCurrentPlayer() {
-    return this.game.players.filter(entity =>
-      entity instanceof Player && entity.playerId === this.props.currentUser.id)[0];
   }
 
   // Subscribe socket to player action relay
   subscribeToPlayerActions() {
-    this.socket.on(`relay action to ${this.lobbyId}`, 
-      ({ playerId, playerAction}) => {
+    this.socket.on(`relay action to ${this.lobbyId}`,
+      ({ playerId, playerAction }) => {
         let player = this.game.players.filter(player => player.playerId === playerId)[0];
-        
-        if(playerAction === "joinLobby") {
+
+        // do not subscribe to the local player
+        if (player === this.getCurrentPlayer()) return;
+
+        switch (this.game.gameState) {
+          case "GET_READY":
+            break;
+          case "RUNNING":
+            break;
+          case "GAME_OVER":
+            break;
+          default:
+            break;
+        }
+
+        if (playerAction === "joinLobby") {
           this.addPlayertoLobby(playerId);
         }
 
-        if (player){
-          switch(playerAction) {
+        if (player) {
+          switch (playerAction) {
             case "leaveLobby":
               this.removePlayerFromLobby(playerId);
               break;
             case "hop":
-              player.sliding = false;
               player.hop();
               break;
             case "slide":
-              player.sliding = true;
-              player.currentAnimation = player.slidingAnimation;
+              player.slide();
               break;
             case "unslide":
-              player.currentAnimation = player.runningAnimation;
-              player.sliding = false;
+              player.unslide();
               break;
             case "fastfall":
               player.fastfall();
@@ -284,7 +309,7 @@ class Game extends React.Component {
     this.socket.on(`relay game state to ${this.props.lobbyId}`,
       ({ lobbyId, gameState }) => {
         // console.log(`receive new game state from lobby ${lobbyId}, game state: ${gameState}`);
-        switch(gameState){
+        switch (gameState) {
           case 2:
             // console.log(`Game over son`);
             break;
@@ -297,10 +322,54 @@ class Game extends React.Component {
       });
   } 
 
+  // add a single playerId to local game lobby
+  addPlayertoLobby(playerId) {
+    let playerIds = this.game.players.map(player => player.playerId)
+    let players = this.game.players;
+
+    if (!playerIds.includes(playerId))
+      players.push(new Player(this.cvs, this.ctx, playerId, players.length * 20));
+  }
+
+  // add all players to local lobby, from fetch
+  addPlayerstoLobby(lobby) {
+    let playerIds = this.game.players.map(player => player.playerId);
+
+    let players = this.game.players;
+    for (let i = 0; i < lobby.players.length; i++) {
+      if (!playerIds.includes(lobby.players[i].playerId))
+        players.push(new Player(this.cvs, this.ctx, lobby.players[i], 20 + i * 20));
+    }
+  }
+
+  // remove playerId from local lobby
+  removePlayerFromLobby(playerId) {
+    let players = this.game.players;
+    let index = players.indexOf(playerId);
+    players.splice(index, 1);
+  }
+
+  // returns the local player entity 
+  getCurrentPlayer() {
+    return this.game.players.filter(entity =>
+      entity instanceof Player && entity.playerId === this.props.currentUser.id)[0];
+  }
+
   generateSkeletons() {
-    if (this.frame % (50 + (Math.floor(this.rng.next() * 25))) === 0 && this.game.current === this.gameState.game) {
+    if (this.frame % (50 + (Math.floor(this.rng.next() * 25))) === 0 && this.game.gameState === GAME_STATE.RUNNING) {
       this.game.entities.push(new Skeleton(this.cvs, this.ctx));
       // console.log(`Push Skeleton`)
+    }
+  }
+
+  generateEnemies() {
+    if (this.frame % (80 + (Math.floor(this.rng.next() * 25))) === 0) {
+      let num = Math.floor(Math.random() * 2) + 1;
+      if (num === 1) {
+        this.game.entities.push(new Skeleton(this.cvs, this.ctx));
+      } else {
+        this.game.entities.push(new Dragon(this.cvs, this.ctx));
+      }
     }
   }
 
@@ -325,20 +394,7 @@ class Game extends React.Component {
 
   }
 
-  generateEnemies() {
-    if (this.frame % (100 + (Math.floor(this.rng.next() * 25))) === 0 && this.game.current === this.gameState.game) {
-      let num = Math.floor(Math.random() * 2) + 1;
-      if (num === 1) {
-        this.game.entities.push(new Skeleton(this.cvs, this.ctx));
-      } else {
-        this.game.entities.push(new Dragon(this.cvs, this.ctx));
-      }
-    }
-
-  }
-
   removeDragon() {
-
     for (let i = 0; i < this.game.entities.length; i++) {
       if (this.game.entities[i] instanceof Dragon) {
         if (this.game.entities[i].x < 0 - this.game.entities[i].w) {
@@ -347,7 +403,6 @@ class Game extends React.Component {
         }
       }
     }
-
   }
 
   removeDragons() {
@@ -357,10 +412,26 @@ class Game extends React.Component {
         i--;
       }
     }
+  }
 
+  increaseSpeed(dx) {
+    this.game.dx = this.game.dx + dx;
   }
 
   draw() {
+    switch (this.game.gameState) {
+      case GAME_STATE.INIT:
+        break;
+      case GAME_STATE.READY:
+        break;
+      case GAME_STATE.RUNNING:
+        break;
+      case GAME_STATE.OVER:
+        break;
+      default:
+        break;
+    }
+
     this.ctx.fillStyle = '#866286';
     this.ctx.fillRect(0, 0, this.cvs.width, this.cvs.height);
     this.bg.draw();
@@ -374,65 +445,71 @@ class Game extends React.Component {
   }
 
   update() {
-    this.removeSkeleton();
-    this.removeDragon();
+    switch (this.game.gameState) {
+      case GAME_STATE.INIT:
+        this.initialize();
+        break;
+      case GAME_STATE.READY:
+        break;
+      case GAME_STATE.RUNNING:
+        this.frame++;
+        this.removeSkeleton();
+        this.removeDragon();
+
+        this.generateEnemies();
+
+        // to improves game speed, do not emit unslide if player is unable
+        let player = this.getCurrentPlayer();
+        if (this.keyDown[KEY.DOWN] &&
+            player.isGrounded() &&
+            player.sliding === false) {
+          player.slide();
+          this.socket.emit("relay action", {
+            lobbyId: this.lobbyId,
+            playerId: this.game.localPlayerId,
+            playerAction: "slide"
+          })
+        }
+        // unslide only if able
+        if (!this.keyDown[KEY.DOWN] &&
+            this.game.gameState === GAME_STATE.RUNNING &&
+            player.sliding === true) {
+          player.unslide();
+          this.socket.emit("relay action", {
+            lobbyId: this.props.lobbyId,
+            playerId: this.game.localPlayerId,
+            playerAction: "unslide"
+          })
+        }
+
+
+        break;
+      case GAME_STATE.OVER:
+        break;
+      default:
+        break;
+    }
+
     this.game.players.forEach(entity => {
-      entity.update(this.game, this.increaseSpeed)
+      entity.update(this.game, this.increaseSpeed);
     });
 
     this.game.entities.forEach(entity => {
-      entity.update(this.game, this.gameScore, this.gameOverAction)
+      entity.update(this.game, this.gameScore, this.gameOverAction);
     })
     this.gameScore.update(this.game);
     this.bg.update(this.game);
     this.fg.update(this.game);
-    this.generateEnemies();
-  }
-
-  renderGame() {
-    this.game.entities.push(new Skeleton(this.cvs, this.ctx));
-    this.subscribeToPlayerActions();
-    this.loop();
-  }
-
-  gameOverAction() {
-
-    this.socket.emit("chat message", {
-      lobbyId: this.props.lobbyId,
-      msg: `${this.props.currentUser.username} met their end`
-    })
-
-    this.game.current = this.gameState.over;
-
-    this.socket.emit("relay game state", {
-      lobbyId: this.props.lobbyId,
-      gameState: this.gameState.over
-    });
-    this.props.postScore(this.gameScore.score);
-    // chara.reset();
-    this.bg.reset();
-    this.fg.reset();
-  }
-
-  increaseSpeed(dx){
-    this.game.dx = this.game.dx + dx;
   }
 
   //loop
   loop() {
-    // console.log(`Loop, frame: ${this.frame}`);
+    if (this.game.gameState === GAME_STATE.DISCONNECTED) return;
 
+    // console.log(`Loop, frame: ${this.frame}`);
     this.update();
     this.draw();
-    if (this.game.current && this.game.current !== this.gameState.over){
-      this.frame++;
-      // this.loop();
-    }
     requestAnimationFrame(this.loop);
-    if (this.game.current === this.gameState.over) {
-      this.gameplay_music.pause();
-      this.gameOver.gameover_music.play();
-    }
   }
 
   render() {

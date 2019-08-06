@@ -1,7 +1,6 @@
 import getready from '../../assets/game/get-ready.png';
 
-var gameState = require('./GameState');
-
+const GAME_STATE = require('./GameState');
 
 class GetReady {
   constructor(canvas, context) {
@@ -20,7 +19,7 @@ class GetReady {
   }
 
   draw(state) {
-    if (state.current === gameState.getReady) {
+    if (state.gameState === GAME_STATE.READY) {
       this.ctx.drawImage(this.ready, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
       // state.gameScore.reset();
     }

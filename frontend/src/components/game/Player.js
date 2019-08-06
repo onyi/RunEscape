@@ -4,7 +4,7 @@ import charajump from '../../assets/game/char.png'
 import jumpsound from '../../assets/game/jump_sound_effect.mp3';
 import airdashsound from '../../assets/game/sfx_swooshing.mp3';
 
-var gameState = require('./GameState');
+const GAME_STATE = require('./GameState');
 
 
 class Player {
@@ -27,17 +27,6 @@ class Player {
     this.slidingHitBox = this.y + 1000;
     this.frameTicks = 0;
     this.animationFrame = 0;
-    this.currentAnimation = [
-      { sX: 8, sY: 5101, w: 44, h: 86 },
-      { sX: 57, sY: 5102, w: 43, h: 85 },
-      { sX: 105, sY: 5101, w: 43, h: 86 },
-      { sX: 153, sY: 5102, w: 44, h: 85 },
-      { sX: 202, sY: 5103, w: 42, h: 84 },
-      { sX: 248, sY: 5103, w: 44, h: 84 },
-      { sX: 297, sY: 5105, w: 46, h: 82 },
-      { sX: 348, sY: 5105, w: 43, h: 84 },
-      { sX: 396, sY: 5100, w: 50, h: 87 },
-    ];
 
     this.idleAnimation = [
       { sX: 8, sY: 5101, w: 44, h: 86 },
@@ -81,8 +70,8 @@ class Player {
       { sX: 115, sY: 2015, w: 62, h: 85 },
       { sX: 180, sY: 2015, w: 60, h: 87 },
       { sX: 240, sY: 2015, w: 56, h: 86 },
-      { sX: 300, sY: 2015, w: 65, h: 89 },
-      { sX: 363, sY: 2015, w: 66, h: 89 },
+      // { sX: 300, sY: 2015, w: 65, h: 89 },
+      // { sX: 363, sY: 2015, w: 66, h: 89 },
     ];
 
     this.airDashAnimation = [
@@ -94,6 +83,8 @@ class Player {
       { sX: 398, sY: 553, w: 82, h: 67 },
       { sX: 485, sY: 552, w: 84, h: 68 },
     ];
+
+    this.currentAnimation = this.idleAnimation;
 
 
     // Assets
@@ -107,18 +98,35 @@ class Player {
     this.airSfx.src = airdashsound; 
   }
   
-  draw () {
-    let chara = this.currentAnimation[this.animationFrame];
-    this.ctx.drawImage(this.sprite, chara.sX, chara.sY, chara.w, chara.h, this.x, this.y, chara.w, chara.h); 
+  isGrounded() {
+    return (this.y >= this.cvs.height - this.fg.h - 30);
   }
 
   hop() {
     if (this.jumpCount > 0) {
       this.jumpSfx.play();
       this.currentAnimation = this.jump_animation;
+      this.animationFrame = 0;
       this.jumpCount -= 1;
-      this.y = this.y - 1;
+      this.y = this.y - 20;
       this.speed = -this.jump;
+
+      this.sliding = false;
+    }
+  }
+
+  slide() {
+    if (this.isGrounded() && !this.sliding) {
+      this.sliding = true;
+      this.currentAnimation = this.slidingAnimation;
+      this.animationFrame = 0;
+    }
+  }
+
+  unslide() {
+    if (this.sliding) {
+      this.sliding = false;
+      this.currentAnimation = this.runningAnimation;
     }
   }
 
@@ -141,9 +149,10 @@ class Player {
   }
 
   update(state, increaseSpeed) {
-    // console.log(this.jumpCount);
-    //if the game state is get ready state, the chara must run slowly
-    this.period = state.current === gameState.getReady ? 10 : 5;
+    if (state.gameState === GAME_STATE.OVER) return;
+
+    // if the game state is get ready state, the chara animate slowly
+    this.period = state.gameState === GAME_STATE.READY ? 10 : 5;
 
     // count frames that have elapsed, increment the animationFrame by 1 each period
     this.frameTicks++;
@@ -152,19 +161,21 @@ class Player {
       this.animationFrame++;
     }
 
-    //animationFrame goes from 0 to 8, then again to 0
-    this.animationFrame = this.animationFrame % this.currentAnimation.length;
+    // loop animation frames, except for jumping
+    if (this.currentAnimation === this.jump_animation && this.animationFrame >= this.currentAnimation.length) {
+      this.animationFrame = this.currentAnimation.length - 1;
+    } else {
+      this.animationFrame = this.animationFrame % this.currentAnimation.length;
+    }
 
-    if (state.current === gameState.getReady) {
+    if (state.gameState === GAME_STATE.READY) {
       this.y = this.cvs.height - this.fg.h - 30; //reset position of the chara after the game over
     } else {
       this.speed += this.gravity;
 
-      //ground
-      if (this.y >= this.cvs.height - this.fg.h - 30) {
-        if (!this.sliding){
-          this.currentAnimation = this.runningAnimation;
-        }
+      if (this.isGrounded()) {
+        if (!this.sliding) this.currentAnimation = this.runningAnimation;
+
         this.y = this.cvs.height - this.fg.h - 30;
         this.speed = 0;
         this.jumpCount = 2;
@@ -175,12 +186,17 @@ class Player {
         }
       }
 
-      //air 
-      if (this.y < this.cvs.height - this.fg.h) {
+      if (!this.isGrounded()) {
         this.y += this.speed;
       }
     }
   }
+
+  draw() {
+    let chara = this.currentAnimation[this.animationFrame];
+    this.ctx.drawImage(this.sprite, chara.sX, chara.sY, chara.w, chara.h, this.x, this.y, chara.w, chara.h);
+  }
+
 }
 
 export default Player;
