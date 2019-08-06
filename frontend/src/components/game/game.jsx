@@ -131,7 +131,7 @@ class Game extends React.Component {
   mountController() {
     document.addEventListener('keydown', (e) => {
       let player = this.getCurrentPlayer();
-      
+
       if (e.keyCode === 32 || e.keyCode === 40 || e.keyCode === 39) {
         switch (this.state.current) {
           case this.gameState.getReady:
@@ -231,6 +231,16 @@ class Game extends React.Component {
     });
   }
 
+  removePlayerFromLobby(playerId) {
+    let players = this.state.players;
+    let index = players.indexOf(playerId);
+    players.splice(index, 1);
+
+    this.setState({
+      players
+    })
+  }
+
   getCurrentPlayer() {
     return this.state.players.filter(entity =>
       entity instanceof Player && entity.playerId === this.props.currentUser.id)[0];
@@ -249,8 +259,7 @@ class Game extends React.Component {
         if (player){
           switch(playerAction) {
             case "leaveLobby":
-
-              this.addPlayertoLobby(playerId);
+              this.removePlayerFromLobby(playerId);
               break;
             case "hop":
               player.sliding = false;

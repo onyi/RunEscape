@@ -10,6 +10,7 @@ const passport = require('passport');
 const path = require('path');
 
 const Lobby = require('./models/Lobby');
+const User = require('./models/User');
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('frontend/build'));
@@ -55,12 +56,21 @@ io.on('connection', socket => {
   socket.on('disconnect', () => {
     delete SOCKET_LIST[socket.id];
     
+    
+    
     if (PLAYER_LIST[socket.id] !== undefined) {
-      console.log(`try disconnect ${PLAYER_LIST[socket.id].playerId} from ${PLAYER_LIST[socket.id].lobbyId}`)
+      let playerId = PLAYER_LIST[socket.id].playerId;
+      let lobbyId = PLAYER_LIST[socket.id].lobbyId;
+      console.log(`try disconnect ${playerId} from ${lobbyId}`)
       Lobby.findOneAndUpdate(
-        { "_id": PLAYER_LIST[socket.id].lobbyId },
-        { $pullAll: { players: [PLAYER_LIST[socket.id].playerId] } })
+        { "_id": lobbyId },
+        { $pullAll: { players: [playerId] } })
         .catch(err => console.log(`Could not d/c user: ${err}`));
+      io.emit(`relay action to ${lobbyId}`, { playerId: playerId, playerAction: "leaveLobby" });
+      
+      // let user = User.findById(playerId);
+      // console.log(user.username);
+      // io.emit(`chat message to ${lobbyId}`, `${user.username} disconnected` );
     }
 
     delete PLAYER_LIST[socket.id];
