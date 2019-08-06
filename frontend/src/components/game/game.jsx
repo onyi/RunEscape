@@ -145,10 +145,18 @@ class Game extends React.Component {
     //control the game state
     // console.log(`onKeyPressed`);
 
+    document.onkeydown = function(e) {
+      var k = e.keyCode;
+      if(k >= 30 && k <= 40) {
+          e.preventDefault();
+      }
+    } //prevent scrolling
+
     let player = this.state.entities.filter(entity => 
       entity instanceof Player && entity.playerId === this.props.currentUser.id)[0];
     // let player = players.filter(player => this.state.localPlayerId === player.playerId)[0];
     if (e.keyCode === 32 || e.keyCode === 40 || e.keyCode === 39) {
+      e.preventDefault();
       switch (this.state.current) {
         case this.gameState.getReady:
           this.gameplay_music.currentTime = 0;
@@ -205,6 +213,10 @@ class Game extends React.Component {
       }
     }
   }
+
+  
+
+
 
 
   addPlayerstoLobby() {
