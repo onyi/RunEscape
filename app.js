@@ -59,17 +59,17 @@ io.on('connection', socket => {
   });
 
   socket.on('chat message', ({ lobbyId, msg }) => {
-    console.log(`Got message: ${msg} on ${lobbyId}`)
+    // console.log(`Got message: ${msg} on ${lobbyId}`)
     io.emit(`chat message to ${lobbyId}`, msg);
   })
 
   socket.on('relay action', ({ lobbyId, playerId, playerAction }) => {
-    console.log(`Relay: ${playerId} on ${lobbyId} did ${playerAction}`)
+    // console.log(`Relay: ${playerId} on ${lobbyId} did ${playerAction}`)
     io.emit(`relay action to ${lobbyId}`, { playerId, playerAction });
   })
 
   socket.on('relay game state', ({ lobbyId, gameState }) => {
-    console.log(`Relay game state on ${lobbyId}. State: ${gameState}`)
+    // console.log(`Relay game state on ${lobbyId}. State: ${gameState}`)
     io.emit(`relay game state to ${lobbyId}`, { gameState });
   })
 
