@@ -346,7 +346,6 @@ class Game extends React.Component {
         i--;
       }
     }
-
   }
 
   draw() {

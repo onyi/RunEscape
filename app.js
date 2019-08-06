@@ -53,20 +53,19 @@ io.on('connection', socket => {
 
   SOCKET_LIST[socket.id] = socket;
 
+  // remove associated player from lobbies per socket
   socket.on('disconnect', () => {
     delete SOCKET_LIST[socket.id];
     
-    
-    
     if (PLAYER_LIST[socket.id] !== undefined) {
-      let playerId = PLAYER_LIST[socket.id].playerId;
-      let lobbyId = PLAYER_LIST[socket.id].lobbyId;
-      console.log(`try disconnect ${playerId} from ${lobbyId}`)
-      Lobby.findOneAndUpdate(
-        { "_id": lobbyId },
-        { $pullAll: { players: [playerId] } })
-        .catch(err => console.log(`Could not d/c user: ${err}`));
-      io.emit(`relay action to ${lobbyId}`, { playerId: playerId, playerAction: "leaveLobby" });
+      PLAYER_LIST[socket.id].forEach(({ playerId, lobbyId}) => {
+        console.log(`try disconnect ${playerId} from ${lobbyId}`)
+        Lobby.findOneAndUpdate(
+          { "_id": lobbyId },
+          { $pullAll: { players: [playerId] } })
+          .catch(err => console.log(`Could not d/c user: ${err}`));
+        io.emit(`relay action to ${lobbyId}`, { playerId: playerId, playerAction: "leaveLobby" });
+      })
       
       // let user = User.findById(playerId);
       // console.log(user.username);
@@ -81,11 +80,18 @@ io.on('connection', socket => {
     io.emit(`chat message to ${lobbyId}`, msg);
   })
 
+  // relay player actions to lobby it originated in
   socket.on('relay action', ({ lobbyId, playerId, playerAction }) => {
     // console.log(`Relay: ${playerId} on ${lobbyId} did ${playerAction}`)
     io.emit(`relay action to ${lobbyId}`, { playerId, playerAction });
+
+    // store lobbies joined per socket
     if (playerAction === "joinLobby") {
-      PLAYER_LIST[socket.id] = { "playerId": playerId, "lobbyId": lobbyId };
+      if (PLAYER_LIST[socket.id] === undefined) {
+        PLAYER_LIST[socket.id] = [{ "playerId": playerId, "lobbyId": lobbyId }];
+      } else {
+        PLAYER_LIST[socket.id].push({ "playerId": playerId, "lobbyId": lobbyId });
+      }
       console.log("Bound user socket to ID");
     }
   })
