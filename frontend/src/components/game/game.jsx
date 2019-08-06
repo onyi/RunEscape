@@ -25,17 +25,16 @@ class Game extends React.Component {
   constructor(props){
     super(props);
 
-
-    this.state = {
-      scores: this.props.scores,
+    this.game = {
       gameState: 0,
       localPlayerId: this.props.currentUser.id,
       current: 0,
-      entities: [],
       isOver: false,
       scores: props.scores,
-      dx: 8
+      dx: 8,
+      entities: []
     }
+
     this.gameState = require('./GameState');
 
     this.onKeyPressed = this.onKeyPressed.bind(this);
@@ -96,14 +95,13 @@ class Game extends React.Component {
     this.rng = rng;
     let gameScore = new Score(canvas, context);
     this.gameScore = gameScore;
-    this.state = {
-      scores: this.props.scores,
-      gameState: 0,
-      localPlayerId: this.props.currentUser.id,
-      current: 0,
-      entities: [],
-      isOver: false,
-    };
+
+    this.game.scores= this.props.scores;
+    this.game.gameState = 0;
+    this.game.localPlayerId = this.props.currentUser.id;
+    this.game.current = 0;
+    this.game.isOver = false;
+    
     this.renderGame = this.renderGame.bind(this);
     this.lobbyId = this.props.lobbyId
     this.frame = 0;
@@ -111,10 +109,7 @@ class Game extends React.Component {
 
     // let cvs = document.getElementById('run-escape');
     // let ctx = cvs.getContext('2d');
-    this.setState({
-      cvs: canvas,
-      ctx: context
-    });
+
     this.bg = new Background(canvas, context);
     this.fg = new Foreground(canvas, context);
 
@@ -132,10 +127,10 @@ class Game extends React.Component {
   }
 
   onKeyUp(e){
-    if (e.keyCode === 40 && this.state.current === this.gameState.game) {
+    if (e.keyCode === 40 && this.game.current === this.gameState.game) {
       this.socket.emit("relay action", {
         lobbyId: this.props.lobbyId,
-        playerId: this.state.localPlayerId,
+        playerId: this.game.localPlayerId,
         playerAction: "unslide"
       })
     }
@@ -145,38 +140,36 @@ class Game extends React.Component {
     //control the game state
     // console.log(`onKeyPressed`);
 
-    let player = this.state.entities.filter(entity => 
+    let player = this.game.entities.filter(entity => 
       entity instanceof Player && entity.playerId === this.props.currentUser.id)[0];
-    // let player = players.filter(player => this.state.localPlayerId === player.playerId)[0];
+    // let player = players.filter(player => this.game.localPlayerId === player.playerId)[0];
     if (e.keyCode === 32 || e.keyCode === 40 || e.keyCode === 39) {
-      switch (this.state.current) {
+      switch (this.game.current) {
         case this.gameState.getReady:
           this.gameplay_music.currentTime = 0;
           this.gameOver.gameover_music.currentTime = 0;
           this.gameplay_music.play();
           player.currentAnimation = player.runningAnimation;
           this.gameScore.reset();
-          this.setState({
-            current: this.gameState.game
-          })
+          this.game.current = this.gameState.game;
           break;
         case this.gameState.game:
           if (e.keyCode === 32) {
             this.socket.emit("relay action", {
               lobbyId: this.lobbyId,
-              playerId: this.state.localPlayerId,
+              playerId: this.game.localPlayerId,
               playerAction: "hop"
             })
           } else if (e.keyCode === 40 && player.jumpCount !== 2) {
             this.socket.emit("relay action", {
               lobbyId: this.lobbyId,
-              playerId: this.state.localPlayerId,
+              playerId: this.game.localPlayerId,
               playerAction: "fastfall"
             })
           } else if (e.keyCode === 40 && player.jumpCount === 2) {
             this.socket.emit("relay action", {
               lobbyId: this.lobbyId,
-              playerId: this.state.localPlayerId,
+              playerId: this.game.localPlayerId,
               playerAction: "slide"
             })
           }
@@ -184,12 +177,10 @@ class Game extends React.Component {
           if (e.keyCode === 39 && player.airDashCount > 0) {
             this.socket.emit("relay action", {
               lobbyId: this.lobbyId,
-              playerId: this.state.localPlayerId,
+              playerId: this.game.localPlayerId,
               playerAction: "airdash"
             });
-            this.setState({
-              dx: this.state.dx += 6
-            })
+            this.game.dx = this.game.dx += 6
           }
           break;
         case this.gameState.over:
@@ -198,9 +189,7 @@ class Game extends React.Component {
           this.removeDragons();
           this.gameOver.gameover_music.pause();
           this.gameOverAction();
-          this.setState({
-            current: this.gameState.getReady
-          })
+          this.game.current = this.gameState.getReady;
           break;
       }
     }
@@ -208,20 +197,17 @@ class Game extends React.Component {
 
 
   addPlayerstoLobby() {
-    let entities = [];
     // this.props.lobbies[this.lobbyId].players.map(playerId => 
-    //   state.entities.push(new Player(state.cvs, state.ctx, playerId)))
+    //   state.this.game.entities.push(new Player(state.cvs, state.ctx, playerId)))
 
     for (let i = 0; i < this.props.lobbies[this.lobbyId].players.length; i++) {
-      entities.push(new Player(this.cvs, this.ctx, this.props.lobbies[this.lobbyId].players[i], i * 20))
+      this.game.entities.push(new Player(this.cvs, this.ctx, this.props.lobbies[this.lobbyId].players[i], i * 20))
     }
-    this.setState({
-      entities
-    })
+
   }
 
   getCurrentPlayer(state) {
-    return this.state.entities.filter(entity =>
+    return this.game.entities.filter(entity =>
       entity instanceof Player && entity.playerId === this.props.currentUser.id);
   }
 
@@ -229,7 +215,7 @@ class Game extends React.Component {
   subscribeToPlayerActions() {
     this.socket.on(`relay action to ${this.lobbyId}`, 
       ({ playerId, playerAction}) => {
-        let players = this.state.entities.filter(entity => 
+        let players = this.game.entities.filter(entity => 
           entity instanceof Player)
         let player = players.filter(player => 
           playerId === player.playerId)[0];
@@ -238,7 +224,6 @@ class Game extends React.Component {
             case "joinLobby":
               this.props.fetchLobby(this.lobbyId);
               this.addPlayerstoLobby();
-              this.setState({});
             case "hop":
               player.sliding = false;
               player.hop();
@@ -269,102 +254,74 @@ class Game extends React.Component {
         switch(gameState){
           case 2:
             console.log(`Game over son`);
-            this.setState({
-              gameState: 2
-            });
           case 1:
             console.log(`playing`);
-            this.setState({
-              gameState: 2
-            });
           default:
             break;
         }
       });
   } 
   generateSkeletons() {
-    let entities = this.state.entities;
-    if (this.frame % (50 + (Math.floor(this.rng.next() * 25))) === 0 && this.state.current === this.gameState.game) {
-      entities.push(new Skeleton(this.cvs, this.ctx));
+    if (this.frame % (50 + (Math.floor(this.rng.next() * 25))) === 0 && this.game.current === this.gameState.game) {
+      this.game.entities.push(new Skeleton(this.cvs, this.ctx));
       // console.log(`Push Skeleton`)
     }
-    this.setState({
-      entities: entities
-    })
   }
 
   removeSkeleton() {
-    let entities = this.state.entities;
-
-    for (let i = 0; i < entities.length; i++) {
-      if (entities[i] instanceof Skeleton) {
-        if (entities[i].x < 0 - entities[i].w) {
-          delete entities[i];
+    for (let i = 0; i < this.game.entities.length; i++) {
+      if (this.game.entities[i] instanceof Skeleton) {
+        if (this.game.entities[i].x < 0 - this.game.entities[i].w) {
+          delete this.game.entities[i];
           i--;
         }
       }
     }
-    this.setState({
-      entities: entities
-    })
   }
 
   removeSkeletons() {
-    let entities = this.state.entities;
-    for (let i = 0; i < entities.length; i++) {
-      if (entities[i] instanceof Skeleton) {
-        delete entities[i];
+    for (let i = 0; i < this.game.entities.length; i++) {
+      if (this.game.entities[i] instanceof Skeleton) {
+        delete this.game.entities[i];
         i--;
       }
     }
-    this.setState({
-      entities
-    })
+
   }
 
   generateEnemies() {
-    let entities = this.state.entities;
-    if (this.frame % (100 + (Math.floor(this.rng.next() * 25))) === 0 && this.state.current === this.gameState.game) {
+    if (this.frame % (100 + (Math.floor(this.rng.next() * 25))) === 0 && this.game.current === this.gameState.game) {
       let num = Math.floor(Math.random() * 2) + 1;
       if (num === 1) {
-        entities.push(new Skeleton(this.cvs, this.ctx));
+        this.game.entities.push(new Skeleton(this.cvs, this.ctx));
       } else {
-        entities.push(new Dragon(this.cvs, this.ctx));
+        this.game.entities.push(new Dragon(this.cvs, this.ctx));
       }
     }
-    this.setState({
-      entities
-    })
+
   }
 
   removeDragon() {
-    let entities = this.state.entities;
 
-    for (let i = 0; i < entities.length; i++) {
-      if (entities[i] instanceof Dragon) {
-        if (entities[i].x < 0 - entities[i].w) {
-          delete entities[i];
+    for (let i = 0; i < this.game.entities.length; i++) {
+      if (this.game.entities[i] instanceof Dragon) {
+        if (this.game.entities[i].x < 0 - this.game.entities[i].w) {
+          delete this.game.entities[i];
           i--;
         }
       }
     }
-    this.setState({
-      entities
-    })
+
   }
 
   removeDragons() {
-    let entities = this.state.entities;
-
-    for (let i = 0; i < entities.length; i++) {
-      if (entities[i] instanceof Dragon) {
-        delete entities[i];
+    for (let i = 0; i < this.game.entities.length; i++) {
+      if (this.game.entities[i] instanceof Dragon) {
+        delete this.game.entities[i];
         i--;
       }
     }
-    this.setState({
-      entities
-    })
+
   }
   
   render() {
@@ -377,46 +334,43 @@ class Game extends React.Component {
 
 
   draw() {
-    // console.log(`Draw, game state: ${this.state.current}`);
+    // console.log(`Draw, game state: ${this.game.current}`);
     this.ctx.fillStyle = '#866286';
     this.ctx.fillRect(0, 0, this.cvs.width, this.cvs.height);
     this.bg.draw();
     this.fg.draw();
-    this.state.entities.forEach(entity => entity.draw())
-    this.gameScore.draw(this.state);
-    this.getReady.draw(this.state);
-    this.gameOver.draw(this.state);
-    this.controlPrompt.draw(this.state);
+    this.game.entities.forEach(entity => entity.draw())
+    this.gameScore.draw(this.game);
+    this.getReady.draw(this.game);
+    this.gameOver.draw(this.game);
+    this.controlPrompt.draw(this.game);
   }
 
   update() {
     // console.log(`Update`);
     this.removeSkeleton();
     this.removeDragon();
-    this.state.entities.forEach(entity => {
+    this.game.entities.forEach(entity => {
       if (entity instanceof Player)
-        entity.update(this.state, this.increaseSpeed)
+        entity.update(this.game, this.increaseSpeed)
       else
-        entity.update(this.state, this.gameScore, this.gameOverAction)
+        entity.update(this.game, this.gameScore, this.gameOverAction)
     })
-    this.gameScore.update(this.state);
-    this.bg.update(this.state);
-    this.fg.update(this.state);
+    this.gameScore.update(this.game);
+    this.bg.update(this.game);
+    this.fg.update(this.game);
     this.generateEnemies();
   }
 
   renderGame() {
 
     const lobby = this.props.lobbies[this.props.lobbyId];
-    let entities = this.state.entities;
 
     lobby.players.map(playerId => 
-      entities.push(new Player(this.cvs, this.ctx, playerId)))
-    entities.push(new Skeleton(this.cvs, this.ctx));
+      this.game.entities.push(new Player(this.cvs, this.ctx, playerId)))
+    this.game.entities.push(new Skeleton(this.cvs, this.ctx));
 
-    this.setState({
-      entities
-    });
+;
 
     this.subscribeToPlayerActions();
 
@@ -430,9 +384,7 @@ class Game extends React.Component {
       msg: `${this.props.currentUser.username} met their end`
     })
 
-    this.setState({
-      current: this.gameState.over
-    })
+    this.game.current = this.gameState.over;
 
     this.socket.emit("relay game state", {
       lobbyId: this.props.lobbyId,
@@ -448,9 +400,7 @@ class Game extends React.Component {
 
 
   increaseSpeed(dx){
-    this.setState({
-      dx: this.state.dx + dx
-    })
+    this.game.dx = this.game.dx + dx;
   }
 
   //loop
@@ -459,12 +409,12 @@ class Game extends React.Component {
 
     this.update();
     this.draw();
-    if (this.state.current && this.state.current !== this.gameState.over){
+    if (this.game.current && this.game.current !== this.gameState.over){
       this.frame++;
       // this.loop();
     }
     requestAnimationFrame(this.loop);
-    if (this.state.current === this.gameState.over) {
+    if (this.game.current === this.gameState.over) {
       this.gameplay_music.pause();
       this.gameOver.gameover_music.play();
     }
