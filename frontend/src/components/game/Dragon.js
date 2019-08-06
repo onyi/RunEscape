@@ -3,7 +3,7 @@ import enemies from '../../assets/game/enemies.png';
 import hitsound from '../../assets/game/hit.wav';
 import pointSound from '../../assets/game/sfx_point.wav';
 
-var gameState = require('./GameState');
+const GAME_STATE = require('./GameState');
 
 class Dragon {
   constructor(canvas, context) {
@@ -43,9 +43,9 @@ class Dragon {
 
   update(state, gameScore, gameOverAction) {
     let dragon = this.animation[this.animationFrame];
-    if (state.current !== gameState.game) return;
+    if (state.gameState !== GAME_STATE.RUNNING) return;
 
-    this.period = state.current === gameState.getReady ? 6 : 5;
+    this.period = state.gameState === GAME_STATE.READY ? 6 : 5;
 
     this.frameTicks++;
     if (this.frameTicks % this.period === 0) {

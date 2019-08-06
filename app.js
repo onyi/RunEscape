@@ -85,7 +85,7 @@ io.on('connection', socket => {
     // console.log(`Relay: ${playerId} on ${lobbyId} did ${playerAction}`)
     io.emit(`relay action to ${lobbyId}`, { playerId, playerAction });
 
-    // store lobbies joined per socket
+    // store lobbies joined per socTket
     if (playerAction === "joinLobby") {
       if (PLAYER_LIST[socket.id] === undefined) {
         PLAYER_LIST[socket.id] = [{ "playerId": playerId, "lobbyId": lobbyId }];
