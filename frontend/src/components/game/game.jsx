@@ -46,7 +46,6 @@ class Game extends React.Component {
     this.rng = new Prando(props.lobbyId);
     this.game.scores = props.scores;
     this.lobbyId = props.lobbyId;
-    this.socket = openSocket(window.location.origin);
     this.frame = 0;
     
     this.keyDown = {
@@ -94,6 +93,8 @@ class Game extends React.Component {
     this.gameOver = new GameOver(this.cvs, this.ctx);
     this.controlPrompt = new ControlPrompt(this.cvs, this.ctx);    
     
+    this.socket = openSocket(window.location.origin);
+
     this.props.getScores();
 
     this.addPlayertoLobby(this.game.localPlayerId);
@@ -109,8 +110,22 @@ class Game extends React.Component {
   }
 
   componentWillUnmount() {
+    console.log("Game has unmounted");
+    this.socket.emit("chat message", { lobbyId: this.lobbyId, msg: "d/c"});
     this.socket.off(`relay action to ${this.lobbyId}`);
     this.socket.off(`relay game state to ${this.lobbyId}`); 
+    this.socket.close();
+    // this.socket.disconnect(true);
+
+    this.game.gameState = GAME_STATE.DISCONNECTED;
+    this.gameplay_music.pause();
+    this.gameOver.gameover_music.pause();
+  }
+
+  componentDidUpdate() {
+    window.onpopstate = (e) => {
+      // window.location.reload();
+    }
   }
 
   initialize() {
@@ -150,7 +165,7 @@ class Game extends React.Component {
     this.socket.emit("chat message", {
       lobbyId: this.props.lobbyId,
       msg: `${this.props.currentUser.username} met their end`
-    })
+    });
 
     this.game.gameState = GAME_STATE.OVER;
 
@@ -221,7 +236,7 @@ class Game extends React.Component {
     })
 
     document.addEventListener('keyup', (e) => {
-      let player = this.getCurrentPlayer();
+      // let player = this.getCurrentPlayer();
       let key = e.keyCode;
 
       if (!Object.values(KEY).includes(key)) return;
@@ -477,6 +492,8 @@ class Game extends React.Component {
 
   //loop
   loop() {
+    if (this.game.gameState === GAME_STATE.DISCONNECTED) return;
+
     // console.log(`Loop, frame: ${this.frame}`);
     this.update();
     this.draw();

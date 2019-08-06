@@ -8,4 +8,5 @@ module.exports = {
   READY: 1,
   RUNNING: 2,
   OVER: 3,
+  DISCONNECTED: 400,
 }
