@@ -34,9 +34,8 @@ class GameOver {
   }
 
   reset() {
-    this.gameover_music.currentTime = 0
+    this.gameover_music.currentTime = 0;
   }
-
 }
 
 export default GameOver;
