@@ -11,8 +11,8 @@ import LobbyContainer from './lobby/lobby_container';
 
 import ScoreboardContainer from './scoreboard/scoreboard_container';
 
-import torch from '../assets/torch/torch-transparent-pixel-art-15-trim.png';
-import fire from '../assets/fire/fire-transparent.png';
+// import torch from '../assets/torch/torch-transparent-pixel-art-15-trim.png';
+// import fire from '../assets/fire/fire-transparent.png';
 
 const App = () => (
   <div>

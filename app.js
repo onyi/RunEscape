@@ -9,7 +9,8 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 const path = require('path');
 
-
+const Lobby = require('./models/Lobby');
+const User = require('./models/User');
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('frontend/build'));
@@ -20,7 +21,6 @@ if (process.env.NODE_ENV === 'production') {
 
 const http = require('http').Server(app);
 const io = require('socket.io')(http, {});
-// app.get("/", (req, res) => res.send("Hello World"));
 
 mongoose
   .connect(db, { useNewUrlParser: true })
@@ -41,7 +41,7 @@ app.use("/api/scores", scores);
 const port = process.env.PORT || 5000;
 
 let SOCKET_LIST = {};
-// let PLAYER_LIST = {};
+let PLAYER_LIST = {};
 
 io.on('connection', socket => {
   console.log("User connected")
@@ -55,7 +55,25 @@ io.on('connection', socket => {
 
   socket.on('disconnect', () => {
     delete SOCKET_LIST[socket.id];
-    // delete PLAYER_LIST[socket.id];
+    
+    
+    
+    if (PLAYER_LIST[socket.id] !== undefined) {
+      let playerId = PLAYER_LIST[socket.id].playerId;
+      let lobbyId = PLAYER_LIST[socket.id].lobbyId;
+      console.log(`try disconnect ${playerId} from ${lobbyId}`)
+      Lobby.findOneAndUpdate(
+        { "_id": lobbyId },
+        { $pullAll: { players: [playerId] } })
+        .catch(err => console.log(`Could not d/c user: ${err}`));
+      io.emit(`relay action to ${lobbyId}`, { playerId: playerId, playerAction: "leaveLobby" });
+      
+      // let user = User.findById(playerId);
+      // console.log(user.username);
+      // io.emit(`chat message to ${lobbyId}`, `${user.username} disconnected` );
+    }
+
+    delete PLAYER_LIST[socket.id];
   });
 
   socket.on('chat message', ({ lobbyId, msg }) => {
@@ -66,17 +84,18 @@ io.on('connection', socket => {
   socket.on('relay action', ({ lobbyId, playerId, playerAction }) => {
     // console.log(`Relay: ${playerId} on ${lobbyId} did ${playerAction}`)
     io.emit(`relay action to ${lobbyId}`, { playerId, playerAction });
+    if (playerAction === "joinLobby") {
+      PLAYER_LIST[socket.id] = { "playerId": playerId, "lobbyId": lobbyId };
+      console.log("Bound user socket to ID");
+    }
   })
 
   socket.on('relay game state', ({ lobbyId, gameState }) => {
     // console.log(`Relay game state on ${lobbyId}. State: ${gameState}`)
     io.emit(`relay game state to ${lobbyId}`, { gameState });
   })
-
-
 });
 
-const Lobby = require('./models/Lobby');
 setInterval( () => {
   // Logic to clear empty lobby here
   Lobby.find().then( lobbies => {

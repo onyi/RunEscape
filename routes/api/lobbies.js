@@ -31,7 +31,8 @@ router.post('/create', (req, res) => {
 
   const newLobby = new Lobby({
     name: req.body.name,
-    hostPlayerId: req.body.hostPlayerId
+    hostPlayerId: req.body.hostPlayerId,
+    players: [req.body.hostPlayerId]
   })
 
   newLobby
@@ -51,7 +52,7 @@ router.patch('/:lobbyId/join', (req, res) => {
       .then(data => {
         res.json(data)
         })
-    .catch(err => res.status(404).json({ nolobbiesfound: "No lobby found"}))
+    .catch(err => res.status(404).json({ nolobbiesfound: "No lobby found"}));
 });
 
 module.exports = router;
