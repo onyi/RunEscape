@@ -29,6 +29,8 @@ const KEY = {
   DOWN: 40,
 }
 
+const BASE_DX = 8;
+
 class Game extends React.Component {
   constructor(props){
     super(props);
@@ -38,9 +40,11 @@ class Game extends React.Component {
       localPlayerId: props.currentUser.id,
       isOver: false,
       scores: props.scores,
-      dx: 8,
+      dx: BASE_DX,
       entities: [],
       players: [],
+      isAlive: true,
+      isHost: false
     }
 
     this.rng = new Prando(props.lobbyId);
@@ -102,6 +106,7 @@ class Game extends React.Component {
       .then(payload => {
         this.lobby = payload.lobby;
         this.addPlayerstoLobby(payload.lobby);
+        this.isHost = Boolean(this.lobby.hostPlayerId === this.localPlayerId)
       })
       .then(() => this.mountController())
       .then(() => this.subscribeToPlayerActions());
@@ -146,6 +151,8 @@ class Game extends React.Component {
       player => player.currentAnimation = player.runningAnimation);
 
     this.game.gameState = GAME_STATE.RUNNING;
+    this.game.dx = BASE_DX;
+
   }
 
   restartGame() {
@@ -156,6 +163,8 @@ class Game extends React.Component {
       player => player.currentAnimation = player.idleAnimation);
 
     this.game.gameState = GAME_STATE.READY;
+    this.bg.reset();
+    this.fg.reset();
   }
 
   gameOverAction() {
@@ -169,85 +178,86 @@ class Game extends React.Component {
 
     this.game.gameState = GAME_STATE.OVER;
 
-    this.socket.emit("relay game state", {
-      lobbyId: this.props.lobbyId,
-      gameState: GAME_STATE.OVER,
-    });
-    this.props.postScore(this.gameScore.score);
-    this.bg.reset();
-    this.fg.reset();
+    if (this.lobby.hostPlayerId === this.game.localPlayerId){
+      console.log(`I am the host`);
+      this.props.postScore(this.gameScore.score);
+    }
+
+    // this.bg.reset();
+    // this.fg.reset();
   }
 
   // bind controls for the local player, must be called after local player exists
   mountController() {
-
-    document.onkeydown = function (e) {
-      let k = e.keyCode;
-      if (k >= 30 && k <= 40) {
-        e.preventDefault();
-      }
-    } //prevent scrolling for arrow keys
-
-
     document.addEventListener('keydown', (e) => {
-      e.preventDefault();  // prevent default scrolling for actions
 
       let player = this.getCurrentPlayer();
       let key = e.keyCode;
 
-      if (!Object.values(KEY).includes(key)) return;
+      if(!this.game.isAlive) return;
+      
+      if (Object.values(KEY).includes(key)) {
+        // e.preventDefault();  // prevent default scrolling for actions
+        switch (this.game.gameState) {
+          case GAME_STATE.INIT:
+            break;
+          case GAME_STATE.READY:
+            if (this.game.localPlayerId === this.lobby.hostPlayerId) {
+              this.socket.emit("relay action", {
+                lobbyId: this.lobbyId,
+                playerId: this.game.localPlayerId,
+                playerAction: "startGame"
+              })
+            }
+            break;
+          case GAME_STATE.RUNNING:
+            if (key === KEY.SPACE && !this.keyDown[KEY.SPACE]) {
+              player.hop();
+              this.socket.emit("relay action", {
+                lobbyId: this.lobbyId,
+                playerId: this.game.localPlayerId,
+                playerAction: "hop"
+              })
+            }
 
-      switch (this.game.gameState) {
-        case GAME_STATE.INIT:
-          break;
-        case GAME_STATE.READY:
-          this.startGame();
-          break;
-        case GAME_STATE.RUNNING:
-          if (key === KEY.SPACE && !this.keyDown[KEY.SPACE]) {
-            player.hop();
-            this.socket.emit("relay action", {
-              lobbyId: this.lobbyId,
-              playerId: this.game.localPlayerId,
-              playerAction: "hop"
-            })
-          } 
-
-          if (key === KEY.DOWN && 
-              !this.keyDown[KEY.DOWN] && 
+            if (key === KEY.DOWN &&
+              !this.keyDown[KEY.DOWN] &&
               !player.isGrounded()) {
-            player.fastfall();
-            this.socket.emit("relay action", {
-              lobbyId: this.lobbyId,
-              playerId: this.game.localPlayerId,
-              playerAction: "fastfall"
-            })
-          }
+              player.fastfall();
+              this.socket.emit("relay action", {
+                lobbyId: this.lobbyId,
+                playerId: this.game.localPlayerId,
+                playerAction: "fastfall"
+              })
+            }
 
-          if (key === KEY.RIGHT && 
-              !this.keyDown[KEY.RIGHT] && 
+            if (key === KEY.RIGHT &&
+              !this.keyDown[KEY.RIGHT] &&
               player.airDashCount > 0) {
-            player.airdash();
-            this.socket.emit("relay action", {
-              lobbyId: this.lobbyId,
-              playerId: this.game.localPlayerId,
-              playerAction: "airdash"
-            });
-            this.game.dx = this.game.dx + 6;
-          }
-          break;
-        case GAME_STATE.OVER:
-          this.restartGame();
-          break;
-        default:
-          break;
-      }
+              player.airdash();
+              this.socket.emit("relay action", {
+                lobbyId: this.lobbyId,
+                playerId: this.game.localPlayerId,
+                playerAction: "airdash"
+              });
+              this.game.dx = this.game.dx + 6;
+            }
+            break;
+          case GAME_STATE.OVER:
+            this.restartGame();
+            break;
+          default:
+            break;
+        }
 
-      this.keyDown[key] = true;
+        this.keyDown[key] = true;
+
+      }
+      
     })
 
     document.addEventListener('keyup', (e) => {
-      e.preventDefault();  // prevent default scrolling for actions
+      // e.preventDefault();  // prevent default scrolling for actions
       // let player = this.getCurrentPlayer();
       let key = e.keyCode;
 
@@ -260,10 +270,17 @@ class Game extends React.Component {
   subscribeToPlayerActions() {
     this.socket.on(`relay action to ${this.lobbyId}`,
       ({ playerId, playerAction }) => {
+        if(playerAction === "startGame" ){
+          this.startGame();
+        }else if( playerAction === "gameover"){
+          console.log(`Game Over`);
+          this.gameOverAction();
+        }
+        
         let player = this.game.players.filter(player => player.playerId === playerId)[0];
-
         // do not subscribe to the local player
         if (player === this.getCurrentPlayer()) return;
+
 
         switch (this.game.gameState) {
           case "GET_READY":
@@ -306,20 +323,6 @@ class Game extends React.Component {
         }
       });
 
-    this.socket.on(`relay game state to ${this.props.lobbyId}`,
-      ({ lobbyId, gameState }) => {
-        // console.log(`receive new game state from lobby ${lobbyId}, game state: ${gameState}`);
-        switch (gameState) {
-          case 2:
-            // console.log(`Game over son`);
-            break;
-          case 1:
-            // console.log(`playing`);
-            break;
-          default:
-            break;
-        }
-      });
   } 
 
   // add a single playerId to local game lobby
@@ -436,8 +439,8 @@ class Game extends React.Component {
     this.ctx.fillRect(0, 0, this.cvs.width, this.cvs.height);
     this.bg.draw();
     this.fg.draw();
-    this.game.entities.forEach(entity => entity.draw())
-    this.game.players.forEach(entity => entity.draw())
+    this.game.entities.forEach(entity => entity.draw(this.game))
+    this.game.players.forEach(entity => entity.draw(this.game))
     this.gameScore.draw(this.game);
     this.getReady.draw(this.game);
     this.gameOver.draw(this.game);
@@ -481,8 +484,6 @@ class Game extends React.Component {
             playerAction: "unslide"
           })
         }
-
-
         break;
       case GAME_STATE.OVER:
         break;
@@ -500,6 +501,14 @@ class Game extends React.Component {
     this.gameScore.update(this.game);
     this.bg.update(this.game);
     this.fg.update(this.game);
+
+    //logic to check player list
+    if(this.game.players.every( player => !player.alive) ) {
+      this.socket.emit(`relay action to ${this.lobbyId}`, {
+        playerId: this.game.localPlayerId,
+        playerAction: "gameover"
+      });
+    }
   }
 
   //loop
