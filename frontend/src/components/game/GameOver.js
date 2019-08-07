@@ -30,6 +30,9 @@ class GameOver {
   }
 
   update(state) {
+    if (state.gameState === GAME_STATE.OVER) {
+      this.ctx.fillText("Current player alive: " + state.players.length , 50, 100)
+    }
 
   }
 
