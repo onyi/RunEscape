@@ -27,6 +27,7 @@ class Player {
     this.slidingHitBox = this.y + 1000;
     this.frameTicks = 0;
     this.animationFrame = 0;
+    this.alive = true;
 
     this.idleAnimation = [
       { sX: 8, sY: 5101, w: 44, h: 86 },
@@ -193,8 +194,10 @@ class Player {
   }
 
   draw() {
-    let chara = this.currentAnimation[this.animationFrame];
-    this.ctx.drawImage(this.sprite, chara.sX, chara.sY, chara.w, chara.h, this.x, this.y, chara.w, chara.h);
+    if(this.alive){
+      let chara = this.currentAnimation[this.animationFrame];
+      this.ctx.drawImage(this.sprite, chara.sX, chara.sY, chara.w, chara.h, this.x, this.y, chara.w, chara.h);
+    }
   }
 
 }

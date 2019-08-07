@@ -93,12 +93,14 @@ class Skeleton {
 
     let player = state.players.filter(entity =>
       entity instanceof Player && entity.playerId === state.localPlayerId )[0];
-    if (player.x + 12 > this.x && 
+    if (player.alive &&
+        player.x + 12 > this.x && 
         player.x - 12 < this.x + this.w && 
         player.y + 12 > this.y && 
         player.y - 12 < this.y + this.h) {
       this.hitSfx.play();
-      gameOver();
+      player.alive = false;
+      // gameOver();
     }
 
     if(player.x > (this.x + (this.w/2) ) && !this.passed ) {
