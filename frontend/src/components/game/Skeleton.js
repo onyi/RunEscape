@@ -100,7 +100,7 @@ class Skeleton {
         player.y - 12 < this.y + this.h) {
       this.hitSfx.play();
       player.alive = false;
-      // gameOver();
+      gameOver();
     }
 
     if(player.x > (this.x + (this.w/2) ) && !this.passed ) {

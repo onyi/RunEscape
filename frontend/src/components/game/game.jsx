@@ -83,6 +83,7 @@ class Game extends React.Component {
     this.getCurrentPlayer = this.getCurrentPlayer.bind(this);
     this.subscribeToPlayerActions = this.subscribeToPlayerActions.bind(this);
     this.increaseSpeed = this.increaseSpeed.bind(this);
+    this.localGameOverAction = this.localGameOverAction.bind(this);
   }
   
   componentDidMount() {
@@ -106,7 +107,7 @@ class Game extends React.Component {
       .then(payload => {
         this.lobby = payload.lobby;
         this.addPlayerstoLobby(payload.lobby);
-        console.log(`HostPlayerId: ${this.lobby.hostPlayerId}; localPlayerId: ${this.game.localPlayerId}; this.lobby.hostPlayerId === this.localPlayerId: ${this.lobby.hostPlayerId === this.game.localPlayerId}`)
+        // console.log(`HostPlayerId: ${this.lobby.hostPlayerId}; localPlayerId: ${this.game.localPlayerId}; this.lobby.hostPlayerId === this.localPlayerId: ${this.lobby.hostPlayerId === this.game.localPlayerId}`)
         this.game.isHost = Boolean(this.lobby.hostPlayerId === this.game.localPlayerId)
 
       })
@@ -160,6 +161,14 @@ class Game extends React.Component {
   }
 
   restartGame() {
+    if (this.game.isHost){
+      this.socket.emit("relay action", {
+        lobbyId: this.props.lobbyId,
+        playerId: this.game.localPlayerId,
+        playerAction: "restart"
+      })
+    }
+    // console.log(`Restarting game`)
     this.game.entities = [];
     this.gameOver.gameover_music.pause();
 
@@ -168,14 +177,24 @@ class Game extends React.Component {
         player.currentAnimation = player.idleAnimation
         player.alive = true;
       });
-
-
       
     this.game.gameState = GAME_STATE.READY;
+
     this.bg.reset();
     this.fg.reset();
 
     this.game.isOver = false;
+  }
+
+  localGameOverAction(){
+    if (!this.game.isOver){
+      this.game.isOver = true;
+      this.socket.emit(`relay action`, {
+        lobbyId: this.lobbyId,
+        playerId: this.game.localPlayerId,
+        playerAction: "playerDied"
+      });
+    }
   }
 
   gameOverAction() {
@@ -187,12 +206,14 @@ class Game extends React.Component {
       msg: `${this.props.currentUser.username} met their end`
     });
 
+
+    this.game.isOver = true;
     this.game.gameState = GAME_STATE.OVER;
 
     this.props.postScore(this.gameScore.score);
 
     if (this.game.isHost) {
-      this.game.isOver = true;
+      // console.log(`Game should end by host`)
       this.socket.emit(`relay action`, {
         lobbyId: this.lobbyId,
         playerId: this.game.localPlayerId,
@@ -296,13 +317,17 @@ class Game extends React.Component {
         //Change game running state
         if (playerAction === "startGame") {
           this.startGame();
-        } else if (playerAction === "gameover") {
+        }
+        else if(playerAction === "playerDied"){
+          player.alive = false;
+        }
+        else if (playerAction === "gameover") {
           console.log(`Game Over`);
           this.gameOverAction();
         }
         else if (playerAction === "restart") {
           console.log(`Time to restart the game by host`);
-          this.restart();
+          this.restartGame();
         }
 
 
@@ -352,15 +377,17 @@ class Game extends React.Component {
 
   // add a single playerId to local game lobby
   addPlayertoLobby(playerId) {
+    // console.log(`Add single player to lobby`);
     let playerIds = this.game.players.map(player => player.playerId)
     let players = this.game.players;
-    console.log(`Player ID: ${playerIds}`);
+    // console.log(`Player ID: ${playerIds}`);
     if (!playerIds.includes(playerId))
       players.push(new Player(this.cvs, this.ctx, playerId, players.length * 20));
   }
 
   // add all players to local lobby, from fetch
   addPlayerstoLobby(lobby) {
+    // console.log(`Add players from lobby`);
     let playerIds = this.game.players.map(player => player.playerId);
 
     let players = this.game.players;
@@ -522,19 +549,26 @@ class Game extends React.Component {
     });
 
     this.game.entities.forEach(entity => {
-      entity.update(this.game, this.gameScore, this.gameOverAction);
+      entity.update(this.game, this.gameScore, this.localGameOverAction);
     })
     this.gameScore.update(this.game);
     this.bg.update(this.game);
     this.fg.update(this.game);
 
+
+
+    
+
     //logic to check player list
     // this.game.players.forEach(player => {
     //   console.log(`Player: ${player.playerId}, Is Alive: ${player.alive}`);
     // })
+
     // console.log(`Is all game over: ${this.game.players.every(player => !player.alive)}`)
+    // console.log(`Game State: ${this.game.gameState}; is over: ${this.game.isOver}`);
+
     if(this.game.players.every( player => !player.alive) ) {
-      if (this.game.gameState === GAME_STATE.RUNNING && !this.game.isOver){
+      if (this.game.gameState === GAME_STATE.RUNNING){
         this.gameOverAction();
       }
     }

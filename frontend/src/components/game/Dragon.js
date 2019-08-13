@@ -65,7 +65,7 @@ class Dragon {
           player.slidingHitBox < this.y + dragon.h) {
           this.hitSfx.play();
           player.alive = false;
-          // gameOverAction();
+          gameOverAction();
         }
       } else {
         if (player.x > this.x &&
@@ -74,7 +74,7 @@ class Dragon {
           player.y < this.y + dragon.h) {
           this.hitSfx.play();
           player.alive = false;
-          // gameOverAction();
+          gameOverAction();
         }
       }
     }
