@@ -100,6 +100,11 @@ io.on('connection', socket => {
     // console.log(`Relay game state on ${lobbyId}. State: ${gameState}`)
     io.emit(`relay game state to ${lobbyId}`, { playerId, gameState });
   })
+
+  socket.on('relay heartbeat', ({ lobbyId, playerId, game }) => {
+    // console.log(`Relay game state on ${lobbyId}. State: ${gameState}`)
+    io.emit(`relay heartbeat to ${lobbyId}`, { playerId, game });
+  })
 });
 
 setInterval( () => {
