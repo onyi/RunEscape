@@ -17,13 +17,15 @@ class Score {
   }
 
   update(state) {
-    if (state.gameState === GAME_STATE.RUNNING) {
+    if (!state.isOver) {
       this.frameTicks++;
       this.obstacleScore = state.passedObstacles * 500;
-      if (this.frameTicks % 5 === 0) {
-        // Gives player 100 points for each 100 frames
-        // console.log(`Add 100 points`);
-        this.score += 1;
+      if (state.gameState === GAME_STATE.RUNNING){
+        if (this.frameTicks % 5 === 0) {
+          // Gives player 100 points for each 100 frames
+          // console.log(`Add 100 points`);
+          this.score += 1;
+        }
       }
     }
   }
