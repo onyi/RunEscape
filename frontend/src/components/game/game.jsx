@@ -45,7 +45,6 @@ class Game extends React.Component {
       players: [],
       isAlive: true,
       isHost: false,
-      isOver: true,
     }
 
     this.rng = new Prando(props.lobbyId);
@@ -167,7 +166,7 @@ class Game extends React.Component {
     this.game.players.forEach(
       player => {
         player.currentAnimation = player.idleAnimation
-        player.isAlive = true;
+        player.alive = true;
       });
 
 
@@ -211,8 +210,6 @@ class Game extends React.Component {
 
       let player = this.getCurrentPlayer();
       let key = e.keyCode;
-
-      if(!this.game.isAlive) return;
       
       if (Object.values(KEY).includes(key)) {
         // e.preventDefault();  // prevent default scrolling for actions
@@ -253,6 +250,8 @@ class Game extends React.Component {
             if (key === KEY.RIGHT &&
               !this.keyDown[KEY.RIGHT] &&
               player.airDashCount > 0) {
+              // Disable airdash when there is more than 1 player
+              if(this.game.players.length > 1) return;
               player.airdash();
               this.socket.emit("relay action", {
                 lobbyId: this.lobbyId,
@@ -298,11 +297,11 @@ class Game extends React.Component {
         if (playerAction === "startGame") {
           this.startGame();
         } else if (playerAction === "gameover") {
-          // console.log(`Game Over`);
+          console.log(`Game Over`);
           this.gameOverAction();
         }
         else if (playerAction === "restart") {
-          // console.log(`Time to restart the game by host`);
+          console.log(`Time to restart the game by host`);
           this.restart();
         }
 

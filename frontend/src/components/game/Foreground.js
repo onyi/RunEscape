@@ -2,8 +2,16 @@ import foregroundimg from '../../assets/game/foreground.png';
 
 const GAME_STATE = require('./GameState');
 
+const DEFAULT = {
+  sX: 0,
+  sY: 0,
+  w: 800,
+  h: 59,
+  x: 0,
+}
 
 class Foreground{
+
   constructor(canvas, context){
     this.ctx = context;
     this.cvs = canvas;
@@ -25,16 +33,21 @@ class Foreground{
   }
 
   update(state) {
-    if (state.dx = state.frame % 300 === 0 && 
-      state.dx < 20 && 
-      state.gameState === GAME_STATE.RUNNING ? state.dx += 1 : state.dx)
-      if (state.gameState === GAME_STATE.RUNNING) {
-        this.x = (this.x - state.dx) % (this.w);
-      }
+    if (state.gameState === GAME_STATE.RUNNING) {
+      this.x = (this.x - state.dx) % (this.w);
+    }
+    // if (state.dx = state.frame % 300 === 0 && 
+    //   state.dx < 20 && 
+    //   state.gameState === GAME_STATE.RUNNING ? state.dx += 1 : state.dx)
   }
 
   reset() {
-
+    this.sX = DEFAULT.sX;
+    this.sY = DEFAULT.sY;
+    this.w = DEFAULT.w;
+    this.h = DEFAULT.h;
+    this.x = DEFAULT.x;
+    this.y = this.cvs.height - 59;
   }
 
 }

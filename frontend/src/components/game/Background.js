@@ -2,6 +2,15 @@ import backgroundimg from '../../assets/game/background.png';
 
 var GAME_STATE = require('./GameState');
 
+const DEFAULT = {
+  sX: 0,
+  sY: 0,
+  w: 800,
+  h: 500,
+  x: 0,
+  y: 0,
+}
+
 class Background {
 
   constructor(canvas, context){
@@ -26,14 +35,19 @@ class Background {
   }
 
   update(state) {
-    if (state.dx = state.frame % 1000 === 0 && state.dx < 10 && state.gameState === GAME_STATE.RUNNING ? state.dx += 1 : state.dx)
-      if (state.gameState === GAME_STATE.RUNNING) {
-        this.x = (this.x - state.dx) % (this.w);
+    if (state.gameState === GAME_STATE.RUNNING) {
+      this.x = (this.x - state.dx) % (this.w);
     }
+    // if (state.dx = state.frame % 1000 === 0 && state.dx < 10 && state.gameState === GAME_STATE.RUNNING ? state.dx += 1 : state.dx)
   }
 
   reset() {
-
+    this.sX = DEFAULT.sX;
+    this.sY = DEFAULT.sY;
+    this.w = DEFAULT.w;
+    this.h = DEFAULT.h;
+    this.x = DEFAULT.x;
+    this.y = DEFAULT.y;
   }
 }
 
