@@ -86,6 +86,7 @@ class Game extends React.Component {
     this.localGameOverAction = this.localGameOverAction.bind(this);
     this.sendHeartbeat = this.sendHeartbeat.bind(this);
     this.subscribeToGameState = this.subscribeToGameState.bind(this);
+    this.subscribeToHeartbeat = this.subscribeToHeartbeat.bind(this);
   }
   
   componentDidMount() {
@@ -246,7 +247,7 @@ class Game extends React.Component {
               this.socket.emit(`relay game state`, {
                 lobbyId: this.lobbyId,
                 playerId: this.game.localPlayerId,
-                gameState: "startGame"
+                gameState: "startGame",
               })
               this.startGame();
             }
@@ -330,10 +331,6 @@ class Game extends React.Component {
             break;
         }
 
-        if(playerAction === "heartbeat"){
-          this.addPlayertoLobby(playerId)
-        }
-
         if (playerAction === "joinLobby") {
           this.addPlayertoLobby(playerId);
         }
@@ -374,11 +371,13 @@ class Game extends React.Component {
         let player = this.game.players.filter(player => player.playerId === playerId)[0];
         // do not subscribe to the local player
         if (player === this.getCurrentPlayer()) return;
+
         if (gameState === "startGame") {
           this.startGame();
         }
         else if (gameState === "playerDied") {
-          player.alive = false;
+          if(player)
+            player.alive = false;
         }
         else if (gameState === "gameover") {
           console.log(`Game Over`);
@@ -392,12 +391,20 @@ class Game extends React.Component {
 
   }
 
+  subscribeToHeartbeat(){
+    this.socket.on(`relay heartbeat to ${this.lobbyId}`, 
+      ({ playerId, gameState }) => {
+        this.addPlayertoLobby(playerId);
+        this.game.gameState = gameState;
+      })
+  }
+
   sendHeartbeat(){
     if(this.frame % 300 === 0){
-      this.socket.emit(`relay action`, {
+      this.socket.emit(`relay heartbeat`, {
         lobbyId: this.lobbyId,
         playerId: this.game.localPlayerId,
-        playerAction: "heartbeat"
+        gameState: this.gameState
       });
     }
   }
@@ -424,9 +431,14 @@ class Game extends React.Component {
 
     let players = this.game.players;
     for (let i = 0; i < lobby.players.length; i++) {
-      console.log(`Lobby Player ID: ${lobby.players[i]}`)
-      if (lobby.players[i] && !playerIds.includes(lobby.players[i]))
-        players.push(new Player(this.cvs, this.ctx, lobby.players[i], 20 + i * 20));
+      // console.log(`Lobby Player ID: ${lobby.players[i]}`)
+      if (lobby.players[i] && !playerIds.includes(lobby.players[i])){
+        let newPlayer = new Player(this.cvs, this.ctx, lobby.players[i], 20 + i * 20);
+        if (this.game.gameState === GAME_STATE.RUNNING) {
+          newPlayer.alive = false;
+        }
+        players.push(newPlayer);
+      }
     }
   }
 
@@ -452,7 +464,7 @@ class Game extends React.Component {
 
   generateEnemies() {
     if (this.frame % (80 + (Math.floor(this.rng.next() * 25))) === 0) {
-      let num = Math.floor(Math.random() * 2) + 1;
+      let num = Math.floor(this.rng.next() * 2) + 1;
       if (num === 1) {
         this.game.entities.push(new Skeleton(this.cvs, this.ctx));
       } else {
