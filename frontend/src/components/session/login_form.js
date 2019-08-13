@@ -19,6 +19,9 @@ class LoginForm extends React.Component {
   async demoLogin(e) {
     e.preventDefault();
 
+    document.getElementById('signin').setAttribute("disabled", "");
+    document.getElementById('demo').setAttribute("disabled", "");
+
     const demoUser = {
       username: 'demouser',
       password: 'demouser'
@@ -42,7 +45,12 @@ class LoginForm extends React.Component {
 
     await sleep(250);
 
+    document.getElementById('signin').removeAttribute("disabled");
+    document.getElementById('demo').removeAttribute("disabled");
+
     document.getElementById('signin').click();
+
+    
   }
 
   componentWillReceiveProps(nextProps) {
@@ -101,7 +109,7 @@ class LoginForm extends React.Component {
             <br />
             <div className="login-form-buttons">
               <input type="submit" value="Submit" id="signin" />
-              <button onClick={this.demoLogin}>Demo</button>
+              <button onClick={this.demoLogin} id="demo">Demo</button>
             </div>
             {this.renderErrors()}
           </div>
