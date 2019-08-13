@@ -106,7 +106,7 @@ class Game extends React.Component {
       .then(payload => {
         this.lobby = payload.lobby;
         this.addPlayerstoLobby(payload.lobby);
-        // console.log(`HostPlayerId: ${this.lobby.hostPlayerId}; localPlayerId: ${this.game.localPlayerId}; this.lobby.hostPlayerId === this.localPlayerId: ${this.lobby.hostPlayerId === this.game.localPlayerId}`)
+        console.log(`HostPlayerId: ${this.lobby.hostPlayerId}; localPlayerId: ${this.game.localPlayerId}; this.lobby.hostPlayerId === this.localPlayerId: ${this.lobby.hostPlayerId === this.game.localPlayerId}`)
         this.game.isHost = Boolean(this.lobby.hostPlayerId === this.game.localPlayerId)
 
       })
@@ -354,7 +354,7 @@ class Game extends React.Component {
   addPlayertoLobby(playerId) {
     let playerIds = this.game.players.map(player => player.playerId)
     let players = this.game.players;
-    // console.log(`Player ID: ${playerIds}`);
+    console.log(`Player ID: ${playerIds}`);
     if (!playerIds.includes(playerId))
       players.push(new Player(this.cvs, this.ctx, playerId, players.length * 20));
   }
@@ -365,8 +365,8 @@ class Game extends React.Component {
 
     let players = this.game.players;
     for (let i = 0; i < lobby.players.length; i++) {
-      // console.log(`Lobby Player ID: ${lobby.players[i].playerId}`)
-      if (lobby.players[i].playerId && !playerIds.includes(lobby.players[i].playerId))
+      console.log(`Lobby Player ID: ${lobby.players[i]}`)
+      if (lobby.players[i] && !playerIds.includes(lobby.players[i]))
         players.push(new Player(this.cvs, this.ctx, lobby.players[i], 20 + i * 20));
     }
   }
