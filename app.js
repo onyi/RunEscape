@@ -96,9 +96,9 @@ io.on('connection', socket => {
     }
   })
 
-  socket.on('relay game state', ({ lobbyId, gameState }) => {
+  socket.on('relay game state', ({ lobbyId, playerId, gameState }) => {
     // console.log(`Relay game state on ${lobbyId}. State: ${gameState}`)
-    io.emit(`relay game state to ${lobbyId}`, { gameState });
+    io.emit(`relay game state to ${lobbyId}`, { playerId, gameState });
   })
 });
 

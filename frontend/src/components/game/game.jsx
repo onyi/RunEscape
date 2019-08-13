@@ -84,6 +84,8 @@ class Game extends React.Component {
     this.subscribeToPlayerActions = this.subscribeToPlayerActions.bind(this);
     this.increaseSpeed = this.increaseSpeed.bind(this);
     this.localGameOverAction = this.localGameOverAction.bind(this);
+    this.sendHeartbeat = this.sendHeartbeat.bind(this);
+    this.subscribeToGameState = this.subscribeToGameState.bind(this);
   }
   
   componentDidMount() {
@@ -112,7 +114,8 @@ class Game extends React.Component {
 
       })
       .then(() => this.mountController())
-      .then(() => this.subscribeToPlayerActions());
+      .then(() => this.subscribeToPlayerActions())
+      .then(() => this.subscribeToGameState());
 
     this.loop();
   }
@@ -162,10 +165,10 @@ class Game extends React.Component {
 
   restartGame() {
     if (this.game.isHost){
-      this.socket.emit("relay action", {
+      this.socket.emit("relay game state", {
         lobbyId: this.props.lobbyId,
         playerId: this.game.localPlayerId,
-        playerAction: "restart"
+        gameState: "restart"
       })
     }
     // console.log(`Restarting game`)
@@ -189,10 +192,10 @@ class Game extends React.Component {
   localGameOverAction(){
     if (!this.game.isOver){
       this.game.isOver = true;
-      this.socket.emit(`relay action`, {
+      this.socket.emit(`relay game state`, {
         lobbyId: this.lobbyId,
         playerId: this.game.localPlayerId,
-        playerAction: "playerDied"
+        gameState: "playerDied"
       });
     }
   }
@@ -214,10 +217,10 @@ class Game extends React.Component {
 
     if (this.game.isHost) {
       // console.log(`Game should end by host`)
-      this.socket.emit(`relay action`, {
+      this.socket.emit(`relay game state`, {
         lobbyId: this.lobbyId,
         playerId: this.game.localPlayerId,
-        playerAction: "gameover"
+        gameState: "gameover"
       });
     }
 
@@ -239,10 +242,10 @@ class Game extends React.Component {
             break;
           case GAME_STATE.READY:
             if (this.game.localPlayerId === this.lobby.hostPlayerId) {
-              this.socket.emit(`relay action`, {
+              this.socket.emit(`relay game state`, {
                 lobbyId: this.lobbyId,
                 playerId: this.game.localPlayerId,
-                playerAction: "startGame"
+                gameState: "startGame"
               })
               this.startGame();
             }
@@ -314,24 +317,7 @@ class Game extends React.Component {
         // do not subscribe to the local player
         if (player === this.getCurrentPlayer()) return;
 
-        //Change game running state
-        if (playerAction === "startGame") {
-          this.startGame();
-        }
-        else if(playerAction === "playerDied"){
-          player.alive = false;
-        }
-        else if (playerAction === "gameover") {
-          console.log(`Game Over`);
-          this.gameOverAction();
-        }
-        else if (playerAction === "restart") {
-          console.log(`Time to restart the game by host`);
-          this.restartGame();
-        }
-
-
-
+        //Reserved for future implementation based on game stae
         switch (this.game.gameState) {
           case "GET_READY":
             break;
@@ -374,6 +360,41 @@ class Game extends React.Component {
       });
 
   } 
+
+  subscribeToGameState(){
+    this.socket.on(`relay game state to ${this.lobbyId}`,
+      ({ playerId, gameState }) => {
+        //Change game running state
+
+        let player = this.game.players.filter(player => player.playerId === playerId)[0];
+        // do not subscribe to the local player
+        if (player === this.getCurrentPlayer()) return;
+        if (gameState === "startGame") {
+          this.startGame();
+        }
+        else if (gameState === "playerDied") {
+          player.alive = false;
+        }
+        else if (gameState === "gameover") {
+          console.log(`Game Over`);
+          this.gameOverAction();
+        }
+        else if (gameState === "restart") {
+          console.log(`Time to restart the game by host`);
+          this.restartGame();
+        }
+    });
+
+  }
+
+  sendHeartbeat(){
+    this.socket.emit(`relay action`, {
+      lobbyId: this.lobbyId,
+      playerId: this.game.localPlayerId,
+      playerAction: "heartbeat"
+    });
+
+  }
 
   // add a single playerId to local game lobby
   addPlayertoLobby(playerId) {
@@ -501,6 +522,8 @@ class Game extends React.Component {
   }
 
   update() {
+    this.sendHeartbeat();
+
     switch (this.game.gameState) {
       case GAME_STATE.INIT:
         this.initialize();
