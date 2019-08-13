@@ -44,7 +44,8 @@ class Game extends React.Component {
       entities: [],
       players: [],
       isAlive: true,
-      isHost: false
+      isHost: false,
+      isOver: true,
     }
 
     this.rng = new Prando(props.lobbyId);
@@ -106,7 +107,9 @@ class Game extends React.Component {
       .then(payload => {
         this.lobby = payload.lobby;
         this.addPlayerstoLobby(payload.lobby);
-        this.isHost = Boolean(this.lobby.hostPlayerId === this.localPlayerId)
+        console.log(`HostPlayerId: ${this.lobby.hostPlayerId}; localPlayerId: ${this.game.localPlayerId}; this.lobby.hostPlayerId === this.localPlayerId: ${this.lobby.hostPlayerId === this.game.localPlayerId}`)
+        this.game.isHost = Boolean(this.lobby.hostPlayerId === this.game.localPlayerId)
+
       })
       .then(() => this.mountController())
       .then(() => this.subscribeToPlayerActions());
@@ -153,6 +156,8 @@ class Game extends React.Component {
     this.game.gameState = GAME_STATE.RUNNING;
     this.game.dx = BASE_DX;
 
+    this.game.isOver = false;
+
   }
 
   restartGame() {
@@ -160,11 +165,18 @@ class Game extends React.Component {
     this.gameOver.gameover_music.pause();
 
     this.game.players.forEach(
-      player => player.currentAnimation = player.idleAnimation);
+      player => {
+        player.currentAnimation = player.idleAnimation
+        player.isAlive = true;
+      });
 
+
+      
     this.game.gameState = GAME_STATE.READY;
     this.bg.reset();
     this.fg.reset();
+
+    this.game.isOver = false;
   }
 
   gameOverAction() {
@@ -178,9 +190,15 @@ class Game extends React.Component {
 
     this.game.gameState = GAME_STATE.OVER;
 
-    if (this.lobby.hostPlayerId === this.game.localPlayerId){
-      console.log(`I am the host`);
-      this.props.postScore(this.gameScore.score);
+    this.props.postScore(this.gameScore.score);
+
+    if (this.game.isHost) {
+      this.game.isOver = true;
+      this.socket.emit(`relay action`, {
+        lobbyId: this.lobbyId,
+        playerId: this.game.localPlayerId,
+        playerAction: "gameover"
+      });
     }
 
     // this.bg.reset();
@@ -203,11 +221,12 @@ class Game extends React.Component {
             break;
           case GAME_STATE.READY:
             if (this.game.localPlayerId === this.lobby.hostPlayerId) {
-              this.socket.emit("relay action", {
+              this.socket.emit(`relay action`, {
                 lobbyId: this.lobbyId,
                 playerId: this.game.localPlayerId,
                 playerAction: "startGame"
               })
+              this.startGame();
             }
             break;
           case GAME_STATE.RUNNING:
@@ -270,16 +289,23 @@ class Game extends React.Component {
   subscribeToPlayerActions() {
     this.socket.on(`relay action to ${this.lobbyId}`,
       ({ playerId, playerAction }) => {
-        if(playerAction === "startGame" ){
-          this.startGame();
-        }else if( playerAction === "gameover"){
-          console.log(`Game Over`);
-          this.gameOverAction();
-        }
-        
+
         let player = this.game.players.filter(player => player.playerId === playerId)[0];
         // do not subscribe to the local player
         if (player === this.getCurrentPlayer()) return;
+
+        //Change game running state
+        if (playerAction === "startGame") {
+          this.startGame();
+        } else if (playerAction === "gameover") {
+          // console.log(`Game Over`);
+          this.gameOverAction();
+        }
+        else if (playerAction === "restart") {
+          // console.log(`Time to restart the game by host`);
+          this.restart();
+        }
+
 
 
         switch (this.game.gameState) {
@@ -503,11 +529,14 @@ class Game extends React.Component {
     this.fg.update(this.game);
 
     //logic to check player list
+    // this.game.players.forEach(player => {
+    //   console.log(`Player: ${player.playerId}, Is Alive: ${player.alive}`);
+    // })
+    // console.log(`Is all game over: ${this.game.players.every(player => !player.alive)}`)
     if(this.game.players.every( player => !player.alive) ) {
-      this.socket.emit(`relay action to ${this.lobbyId}`, {
-        playerId: this.game.localPlayerId,
-        playerAction: "gameover"
-      });
+      if (this.game.gameState === GAME_STATE.RUNNING && !this.game.isOver){
+        this.gameOverAction();
+      }
     }
   }
 
