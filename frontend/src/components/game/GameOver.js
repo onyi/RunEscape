@@ -27,12 +27,15 @@ class GameOver {
     if (state.gameState === GAME_STATE.OVER) {
       this.ctx.drawImage(this.over, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h)
     }
+    if (state.isOver) {
+      let alivePlayers = state.players.filter(player => player.alive ).length;
+      if (alivePlayers > 0) {
+        this.ctx.fillText("Game Over. Current player alive: " + alivePlayers, 25, this.y + 100);
+      }
+    }
   }
 
   update(state) {
-    if (state.gameState === GAME_STATE.OVER) {
-      this.ctx.fillText("Current player alive: " + state.players.length , 50, 100)
-    }
 
   }
 
