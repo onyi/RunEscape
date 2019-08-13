@@ -111,7 +111,6 @@ class Game extends React.Component {
         this.addPlayerstoLobby(payload.lobby);
         // console.log(`HostPlayerId: ${this.lobby.hostPlayerId}; localPlayerId: ${this.game.localPlayerId}; this.lobby.hostPlayerId === this.localPlayerId: ${this.lobby.hostPlayerId === this.game.localPlayerId}`)
         this.game.isHost = Boolean(this.lobby.hostPlayerId === this.game.localPlayerId)
-
       })
       .then(() => this.mountController())
       .then(() => this.subscribeToPlayerActions())
@@ -169,9 +168,11 @@ class Game extends React.Component {
         lobbyId: this.props.lobbyId,
         playerId: this.game.localPlayerId,
         gameState: "restart"
-      })
+      });
     }
     // console.log(`Restarting game`)
+    this.addPlayertoLobby(this.game.localPlayerId);
+    
     this.game.entities = [];
     this.gameOver.gameover_music.pause();
 
@@ -329,6 +330,10 @@ class Game extends React.Component {
             break;
         }
 
+        if(playerAction === "heartbeat"){
+          this.addPlayertoLobby(playerId)
+        }
+
         if (playerAction === "joinLobby") {
           this.addPlayertoLobby(playerId);
         }
@@ -388,12 +393,13 @@ class Game extends React.Component {
   }
 
   sendHeartbeat(){
-    this.socket.emit(`relay action`, {
-      lobbyId: this.lobbyId,
-      playerId: this.game.localPlayerId,
-      playerAction: "heartbeat"
-    });
-
+    if(this.frame % 300 === 0){
+      this.socket.emit(`relay action`, {
+        lobbyId: this.lobbyId,
+        playerId: this.game.localPlayerId,
+        playerAction: "heartbeat"
+      });
+    }
   }
 
   // add a single playerId to local game lobby
