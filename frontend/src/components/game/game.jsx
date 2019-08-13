@@ -408,8 +408,13 @@ class Game extends React.Component {
     let playerIds = this.game.players.map(player => player.playerId)
     let players = this.game.players;
     // console.log(`Player ID: ${playerIds}`);
-    if (!playerIds.includes(playerId))
-      players.push(new Player(this.cvs, this.ctx, playerId, players.length * 20));
+    if (!playerIds.includes(playerId)){
+      let newPlayer = new Player(this.cvs, this.ctx, playerId, players.length * 20);
+      if(this.game.gameState === GAME_STATE.RUNNING){
+        newPlayer.alive = false;
+      }
+      players.push(newPlayer);
+    }
   }
 
   // add all players to local lobby, from fetch
