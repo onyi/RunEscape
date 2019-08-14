@@ -241,7 +241,7 @@ class Game extends React.Component {
       let key = e.keyCode;
       
       if (Object.values(KEY).includes(key)) {
-        // e.preventDefault();  // prevent default scrolling for actions
+        e.preventDefault();  // prevent default scrolling for actions
         switch (this.game.gameState) {
           case GAME_STATE.INIT:
             break;
