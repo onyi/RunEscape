@@ -144,6 +144,7 @@ class Game extends React.Component {
   }
 
   startGame() {
+    this.rng = new Prando(this.lobbyId);
     this.game.entities = [];
     this.game.entities.push(new Skeleton(this.cvs, this.ctx));
 
