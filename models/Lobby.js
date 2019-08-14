@@ -18,6 +18,10 @@ const LobbySchema = new Schema({
   hostPlayerId: {
     type: Schema.Types.ObjectId,
     ref: 'User'
+  },
+  gameState: {
+    type: Number,
+    default: 0
   }
 });
 

@@ -55,4 +55,20 @@ router.patch('/:lobbyId/join', (req, res) => {
     .catch(err => res.status(404).json({ nolobbiesfound: "No lobby found"}));
 });
 
+
+router.patch('/state/:lobbyId', (req, res) => {
+  let gameState = req.body.gameState;
+  let lobbyId = req.param.lobbyId;
+  console.log(`Update Game State: ${gameState}`);
+  Lobby.findOneAndUpdate(
+    { "_id": lobbyId },
+    { $set: { gameState: gameState} },
+    { "new": true})
+      .exec()
+      .then(data => {
+        res.json(data)
+      })
+    .catch(err => res.status(404).json({ nolobbiesfound: "No lobby found" }));
+});
+
 module.exports = router;
