@@ -47,7 +47,9 @@ class Game extends React.Component {
       isHost: false,
     }
 
-    this.rng = new Prando(props.lobbyId);
+    // this.rng = new Prando(props.lobbyId);
+    // console.log(`${Date.now()}`)
+    this.rng = new Prando(Date.now());
     this.game.scores = props.scores;
     this.lobbyId = props.lobbyId;
     this.frame = 0;
@@ -143,8 +145,8 @@ class Game extends React.Component {
     this.game.gameState = GAME_STATE.READY;
   }
 
-  startGame() {
-    this.rng = new Prando(this.lobbyId);
+  startGame(randomNum) {
+    this.rng = new Prando(randomNum ? randomNum : this.lobbyId);
     this.game.entities = [];
     this.game.entities.push(new Skeleton(this.cvs, this.ctx));
 
@@ -245,12 +247,14 @@ class Game extends React.Component {
             break;
           case GAME_STATE.READY:
             if (this.game.localPlayerId === this.lobby.hostPlayerId) {
+              let newRandom = Date.now();
               this.socket.emit(`relay game state`, {
                 lobbyId: this.lobbyId,
                 playerId: this.game.localPlayerId,
                 gameState: "startGame",
+                randomNum: newRandom
               })
-              this.startGame();
+              this.startGame(newRandom);
             }
             break;
           case GAME_STATE.RUNNING:
@@ -366,7 +370,7 @@ class Game extends React.Component {
 
   subscribeToGameState(){
     this.socket.on(`relay game state to ${this.lobbyId}`,
-      ({ playerId, gameState }) => {
+      ({ playerId, gameState, randomNum }) => {
         //Change game running state
 
         let player = this.game.players.filter(player => player.playerId === playerId)[0];
@@ -374,7 +378,7 @@ class Game extends React.Component {
         if (player === this.getCurrentPlayer()) return;
 
         if (gameState === "startGame") {
-          this.startGame();
+          this.startGame(randomNum);
         }
         else if (gameState === "playerDied") {
           if(player)
@@ -465,8 +469,8 @@ class Game extends React.Component {
 
   generateEnemies() {
     if (this.frame % (80 + (Math.floor(this.rng.next() * 25))) === 0) {
-      let num = Math.floor(this.rng.next() * 2) + 1;
-      if (num === 1) {
+      let num = Math.floor(this.rng.next() * 100);
+      if (num >= 50) {
         this.game.entities.push(new Skeleton(this.cvs, this.ctx));
       } else {
         this.game.entities.push(new Dragon(this.cvs, this.ctx));
