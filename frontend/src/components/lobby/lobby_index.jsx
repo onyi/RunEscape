@@ -14,10 +14,25 @@ class LobbyIndex extends React.Component {
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.renderErrors = this.renderErrors.bind(this);
+    this.handleSingleplayer = this.handleSingleplayer.bind(this);
+  }
+
+  handleSingleplayer(e) {
+    e.preventDefault();
+
+    this.props.createLobby({
+      name: Date.now().toString(),
+      hostPlayerId: this.state.hostPlayerId,
+      gameMode: 1,
+      errors: this.state.errors
+    })
+      .then(payload => {
+        this.props.history.push(`lobbies/${payload.lobby._id}`
+        )})
   }
 
   componentDidMount() {
-    this.props.fetchLobbies();
+    this.props.fetchLobbies()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -32,6 +47,8 @@ class LobbyIndex extends React.Component {
         this.props.history.push(`lobbies/${payload.lobby._id}`
       )})
   }
+
+
 
   update(field) {
     return e => this.setState({
@@ -59,6 +76,13 @@ class LobbyIndex extends React.Component {
           <input type="submit" value="Create Lobby" />
           {this.renderErrors()}
         </form>
+
+        <form onSubmit={this.handleSingleplayer}>
+          <input type="submit" value="SinglePlayer" />
+          {this.renderErrors()}
+        </form>
+
+
         <ul className="lobby-list">
           {this.props.lobbies.map(lobby => (
             <li key={`lobby-${lobby._id}`} className="lobby-index-item">

@@ -29,12 +29,20 @@ router.post('/create', (req, res) => {
     return res.status(400).json(errors);
   }
 
+  
+  console.log(`Request body: ${JSON.stringify(req.body)}`)
+  
   const newLobby = new Lobby({
     name: req.body.name,
     hostPlayerId: req.body.hostPlayerId,
-    players: [req.body.hostPlayerId]
+    players: [req.body.hostPlayerId],
+    gameMode: 0,
   })
 
+  if (req.body.gameMode) {
+    newLobby.gameMode = req.body.gameMode;
+  }
+  
   newLobby
     .save()
     .then(lobby => res.json(lobby))

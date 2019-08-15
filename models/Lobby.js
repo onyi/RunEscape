@@ -22,6 +22,11 @@ const LobbySchema = new Schema({
   gameState: {
     type: Number,
     default: 0
+  },
+  gameMode: {
+    type: Number,
+    default: 0
+    // default = multiplayer
   }
 });
 
