@@ -520,7 +520,11 @@ class Game extends React.Component {
   }
 
   increaseSpeed(dx) {
-    this.game.dx = this.game.dx + dx;
+    if(this.game.dx + dx < BASE_DX) {
+      this.game.dx = BASE_DX;
+    } else {
+      this.game.dx = this.game.dx + dx;
+    }
   }
 
   draw() {
