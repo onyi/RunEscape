@@ -6,7 +6,7 @@ const validateCreateLobbyInput = require('../../validation/createLobby');
 router.get("/test", (req, res) => res.json({ msg: "This is the lobbies route" }));
 
 router.get('/', (req, res) => {
-  Lobby.find()
+  Lobby.find({gameMode: 0})
     .sort({ date: -1 })
     .then(lobbies => res.json(lobbies))
     .catch(err => res.status(404).json({ nolobbiesfound: "No lobbies found" }))
